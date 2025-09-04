@@ -108,7 +108,7 @@ export default function LoginPage() {
           await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)) // Exponential backoff
           continue
         }
-        setError(error.message)
+       setError(error.message)
         break
       }
     }
