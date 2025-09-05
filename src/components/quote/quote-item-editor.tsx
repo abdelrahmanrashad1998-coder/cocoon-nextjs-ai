@@ -560,8 +560,16 @@ export function QuoteItemEditor({
                                                                 ?.wallHeight ||
                                                             0
                                                         }
-                                                        onDesignChange={
-                                                            handleCurtainWallDesignChange
+                                                        onDesignChange={(design) =>
+                                                            handleCurtainWallDesignChange({
+                                                                ...design,
+                                                                // Provide default values for missing fields to match expected type
+                                                                frameMeters: design.frameMeters ?? 0,
+                                                                windowMeters: design.windowMeters ?? 0,
+                                                                glassArea: design.glassArea ?? 0,
+                                                                cornerCount: design.cornerCount ?? 0,
+                                                                panels: design.panels ?? [],
+                                                            })
                                                         }
                                                     />
                                                 </div>

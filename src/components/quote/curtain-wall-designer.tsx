@@ -58,6 +58,19 @@ interface CurtainPanel {
     isSpanned?: boolean;
 }
 
+interface DesignState {
+    id: string;
+    panels: CurtainPanel[];
+    columns: number;
+    rows: number;
+    material: 'aluminum' | 'steel' | 'composite';
+    glassType: 'single' | 'double' | 'triple' | 'laminated';
+    frameColor: string;
+    timestamp: number;
+    action: string;
+    description: string;
+}
+
 interface MergeStep {
     id: string;
     timestamp: number;
@@ -115,8 +128,9 @@ export function CurtainWallDesigner({
     const [showGrid, setShowGrid] = useState(true);
     const [zoom, setZoom] = useState(1);
     const [activeTab, setActiveTab] = useState("design");
-    const [mergeHistory, setMergeHistory] = useState<MergeStep[]>([]);
+    const [designHistory, setDesignHistory] = useState<DesignState[]>([]);
     const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
+    const [isUndoRedoOperation, setIsUndoRedoOperation] = useState(false);
     const canvasRef = useRef<HTMLDivElement>(null);
 
     // Design presets
@@ -238,34 +252,52 @@ export function CurtainWallDesigner({
         [wallWidth, wallHeight, material, glassType, onDesignChange]
     );
 
-    // Helper function to add a merge step to history
-    const addMergeStep = useCallback(
-        (step: Omit<MergeStep, "id" | "timestamp">) => {
-            const newStep: MergeStep = {
-                ...step,
-                id: `step-${Date.now()}-${Math.random()
-                    .toString(36)
-                    .substr(2, 9)}`,
+    // Helper function to add a design state to history
+    const addDesignState = useCallback(
+        (action: string, description: string) => {
+            if (isUndoRedoOperation) return; // Don't add to history during undo/redo operations
+
+            const newState: DesignState = {
+                id: `state-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                panels: panels.map(p => ({ ...p })),
+                columns,
+                rows,
+                material,
+                glassType,
+                frameColor,
                 timestamp: Date.now(),
+                action,
+                description,
             };
 
-            setMergeHistory((prev) => {
-                // Remove any steps after current index (when branching from history)
+            setDesignHistory((prev) => {
+                // Remove any states after current index (when branching from history)
                 const newHistory = prev.slice(0, currentHistoryIndex + 1);
-                return [...newHistory, newStep];
+                // Limit history to 50 states to prevent memory issues
+                const limitedHistory = [...newHistory, newState].slice(-50);
+                return limitedHistory;
             });
-            setCurrentHistoryIndex((prev) => prev + 1);
+            setCurrentHistoryIndex((prev) => {
+                const newIndex = Math.min(prev + 1, 49); // Cap at 49 to match slice(-50)
+                return newIndex;
+            });
         },
-        [currentHistoryIndex]
+        [panels, columns, rows, material, glassType, frameColor, currentHistoryIndex, isUndoRedoOperation]
     );
 
-    // Helper function to restore panels from a merge step
-    const restoreFromStep = useCallback(
-        (step: MergeStep) => {
-            setPanels(step.panelsBefore);
-            setSelectedPanels(step.selectedPanels);
-            calculateDesign(step.panelsBefore);
-        },
+    // Helper function to restore design from a state
+    const restoreFromState = useCallback((state: DesignState) => {
+        setIsUndoRedoOperation(true);
+        setPanels(state.panels.map(p => ({ ...p })));
+        setColumns(state.columns);
+        setRows(state.rows);
+        setMaterial(state.material);
+        setGlassType(state.glassType);
+        setFrameColor(state.frameColor);
+        setSelectedPanels([]);
+        calculateDesign(state.panels);
+        setTimeout(() => setIsUndoRedoOperation(false), 100);
+    },
         [calculateDesign]
     );
 
@@ -296,9 +328,11 @@ export function CurtainWallDesigner({
             }
         }
         setPanels(newPanels);
-        // Clear merge history when generating new grid
-        setMergeHistory([]);
+        // Clear design history when generating new grid
+        setDesignHistory([]);
         setCurrentHistoryIndex(-1);
+        // Add initial state to history
+        addDesignState('grid_generate', `Generated ${columns}×${rows} grid`);
     }, [
         columns,
         rows,
@@ -344,6 +378,9 @@ export function CurtainWallDesigner({
 
     const handlePanelTypeChange = () => {
         if (selectedPanels.length === 0) return;
+
+        // Add current state to history before making changes
+        addDesignState('panel_type_change', `Changed ${selectedPanels.length} panel(s) to ${mode}`);
 
         const updatedPanels = panels.map((panel) =>
             selectedPanels.includes(panel.id) ? { ...panel, type: mode } : panel
@@ -464,15 +501,8 @@ export function CurtainWallDesigner({
         // Store the state after merge for history
         const panelsAfter = filteredPanels.map((p) => ({ ...p }));
 
-        // Record the merge step
-        addMergeStep({
-            action: "merge",
-            panelsBefore,
-            panelsAfter,
-            selectedPanels: [...selectedPanels],
-            mergedGroupId,
-            description: `Merged ${selectedPanels.length} panels into ${master.colSpan}×${master.rowSpan} group`,
-        });
+        // Add current state to history before making changes
+        addDesignState('panel_merge', `Merged ${selectedPanels.length} panels into ${master.colSpan}×${master.rowSpan} group`);
 
         setPanels(filteredPanels);
         setSelectedPanels([master.id]);
@@ -480,34 +510,6 @@ export function CurtainWallDesigner({
     };
 
     const splitPanels = () => {
-        // If we have merge history, restore the previous state
-        if (mergeHistory.length > 0 && currentHistoryIndex >= 0) {
-            const currentStep = mergeHistory[currentHistoryIndex];
-            if (currentStep.action === "merge") {
-                // Find the previous step that was before this merge
-                let previousStepIndex = currentHistoryIndex - 1;
-                while (
-                    previousStepIndex >= 0 &&
-                    mergeHistory[previousStepIndex].action === "merge"
-                ) {
-                    previousStepIndex--;
-                }
-
-                if (previousStepIndex >= 0) {
-                    const previousStep = mergeHistory[previousStepIndex];
-                    restoreFromStep(previousStep);
-                    setCurrentHistoryIndex(previousStepIndex);
-                    return;
-                } else {
-                    // If no previous step, restore to the state before the first merge
-                    restoreFromStep(currentStep);
-                    setCurrentHistoryIndex(-1);
-                    return;
-                }
-            }
-        }
-
-        // Fallback to the original split logic if no history
         const mergedPanels = panels.filter(
             (panel) =>
                 (panel.colSpan > 1 || panel.rowSpan > 1) && panel.mergedId
@@ -515,8 +517,8 @@ export function CurtainWallDesigner({
 
         if (mergedPanels.length === 0) return;
 
-        // Store the state before split for history
-        const panelsBefore = panels.map((p) => ({ ...p }));
+        // Add current state to history before making changes
+        addDesignState('panel_split', `Split ${mergedPanels.length} merged panel(s) into individual panels`);
 
         const newPanels: CurtainPanel[] = [];
 
@@ -570,14 +572,6 @@ export function CurtainWallDesigner({
         // Store the state after split for history
         const panelsAfter = allPanels.map((p) => ({ ...p }));
 
-        // Record the split step
-        addMergeStep({
-            action: "split",
-            panelsBefore,
-            panelsAfter,
-            selectedPanels: [],
-            description: `Split ${mergedPanels.length} merged panel(s) into individual panels`,
-        });
 
         setPanels(allPanels);
         setSelectedPanels([]);
@@ -588,46 +582,47 @@ export function CurtainWallDesigner({
         setSelectedPanels([]);
     };
 
-    // Undo/Redo functionality
-    const undoMerge = () => {
+    // Comprehensive Undo/Redo functionality
+    const undoDesign = () => {
         if (currentHistoryIndex >= 0) {
-            const currentStep = mergeHistory[currentHistoryIndex];
-            if (currentStep.action === "merge") {
-                // Find the previous step
-                let previousStepIndex = currentHistoryIndex - 1;
-                while (
-                    previousStepIndex >= 0 &&
-                    mergeHistory[previousStepIndex].action === "merge"
-                ) {
-                    previousStepIndex--;
-                }
-
-                if (previousStepIndex >= 0) {
-                    const previousStep = mergeHistory[previousStepIndex];
-                    restoreFromStep(previousStep);
-                    setCurrentHistoryIndex(previousStepIndex);
-                } else {
-                    // Restore to state before first merge
-                    restoreFromStep(currentStep);
-                    setCurrentHistoryIndex(-1);
-                }
-            }
+            const stateToRestore = designHistory[currentHistoryIndex];
+            restoreFromState(stateToRestore);
+            setCurrentHistoryIndex(currentHistoryIndex - 1);
         }
     };
 
-    const redoMerge = () => {
-        if (currentHistoryIndex < mergeHistory.length - 1) {
-            const nextStep = mergeHistory[currentHistoryIndex + 1];
-            restoreFromStep(nextStep);
+    const redoDesign = () => {
+        if (currentHistoryIndex < designHistory.length - 1) {
+            const stateToRestore = designHistory[currentHistoryIndex + 1];
+            restoreFromState(stateToRestore);
             setCurrentHistoryIndex(currentHistoryIndex + 1);
         }
     };
 
-    const canUndo = currentHistoryIndex >= 0 && mergeHistory.length > 0;
-    const canRedo = currentHistoryIndex < mergeHistory.length - 1;
+    const canUndo = currentHistoryIndex >= 0 && designHistory.length > 0;
+    const canRedo = currentHistoryIndex < designHistory.length - 1;
+
+    // Wrapper functions for material changes with history tracking
+    const handleMaterialChange = (newMaterial: 'aluminum' | 'steel' | 'composite') => {
+        addDesignState('material_change', `Changed frame material to ${newMaterial}`);
+        setMaterial(newMaterial);
+    };
+
+    const handleGlassTypeChange = (newGlassType: 'single' | 'double' | 'triple' | 'laminated') => {
+        addDesignState('glass_type_change', `Changed glass type to ${newGlassType}`);
+        setGlassType(newGlassType);
+    };
+
+    const handleFrameColorChange = (newColor: string) => {
+        addDesignState('color_change', `Changed frame color to ${newColor}`);
+        setFrameColor(newColor);
+    };
 
     // Apply preset design
     const applyPreset = (preset: DesignPreset) => {
+        // Add current state to history before applying preset
+        addDesignState('preset_apply', `Applied preset: ${preset.name}`);
+        
         setColumns(preset.columns);
         setRows(preset.rows);
 
@@ -1030,14 +1025,14 @@ export function CurtainWallDesigner({
 
                                 <div>
                                     <Label className="text-sm font-medium mb-3 block">
-                                        Merge History
+                                        Design History
                                     </Label>
                                     <div className="space-y-2">
                                         <div className="grid grid-cols-2 gap-2">
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                onClick={undoMerge}
+                                                onClick={undoDesign}
                                                 disabled={!canUndo}
                                                 className="justify-start"
                                             >
@@ -1047,7 +1042,7 @@ export function CurtainWallDesigner({
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                onClick={redoMerge}
+                                                onClick={redoDesign}
                                                 disabled={!canRedo}
                                                 className="justify-start"
                                             >
@@ -1055,13 +1050,13 @@ export function CurtainWallDesigner({
                                                 Redo
                                             </Button>
                                         </div>
-                                        {mergeHistory.length > 0 && (
+                                        {designHistory.length > 0 && (
                                             <div className="text-xs text-muted-foreground">
-                                                {mergeHistory.length} step
-                                                {mergeHistory.length > 1
+                                                {designHistory.length} state
+                                                {designHistory.length > 1
                                                     ? "s"
                                                     : ""}{" "}
-                                                recorded
+                                                in history
                                             </div>
                                         )}
                                     </div>
@@ -1246,7 +1241,7 @@ export function CurtainWallDesigner({
                                                     | "aluminum"
                                                     | "steel"
                                                     | "composite"
-                                            ) => setMaterial(value)}
+                                            ) => handleMaterialChange(value)}
                                         >
                                             <SelectTrigger>
                                                 <SelectValue />
@@ -1276,7 +1271,7 @@ export function CurtainWallDesigner({
                                                     | "double"
                                                     | "triple"
                                                     | "laminated"
-                                            ) => setGlassType(value)}
+                                            ) => handleGlassTypeChange(value)}
                                         >
                                             <SelectTrigger>
                                                 <SelectValue />
@@ -1306,7 +1301,7 @@ export function CurtainWallDesigner({
                                                 type="color"
                                                 value={frameColor}
                                                 onChange={(e) =>
-                                                    setFrameColor(
+                                                    handleFrameColorChange(
                                                         e.target.value
                                                     )
                                                 }
@@ -1316,7 +1311,7 @@ export function CurtainWallDesigner({
                                             <Input
                                                 value={frameColor}
                                                 onChange={(e) =>
-                                                    setFrameColor(
+                                                    handleFrameColorChange(
                                                         e.target.value
                                                     )
                                                 }
