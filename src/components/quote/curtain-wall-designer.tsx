@@ -34,8 +34,6 @@ import {
     RotateCcw,
     Eye,
     Settings,
-    Package,
-    DollarSign,
     Layers,
     Plus,
     Minus,
@@ -964,20 +962,13 @@ export function CurtainWallDesigner({
                 onValueChange={setActiveTab}
                 className="space-y-6"
             >
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger
                         value="design"
                         className="flex items-center gap-2"
                     >
                         <Grid3X3 className="h-4 w-4" />
                         Design
-                    </TabsTrigger>
-                    <TabsTrigger
-                        value="materials"
-                        className="flex items-center gap-2"
-                    >
-                        <Package className="h-4 w-4" />
-                        Materials
                     </TabsTrigger>
                     <TabsTrigger
                         value="calculations"
@@ -1440,159 +1431,6 @@ export function CurtainWallDesigner({
                     </div>
                 </TabsContent>
 
-                {/* Materials Tab */}
-                <TabsContent
-                    value="materials"
-                    className="space-y-6"
-                >
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Package className="h-5 w-5" />
-                                Material Configuration
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="space-y-4">
-                                    <div>
-                                        <Label className="text-sm font-medium">
-                                            Frame Material
-                                        </Label>
-                                        <Select
-                                            value={material}
-                                            onValueChange={(
-                                                value:
-                                                    | "aluminum"
-                                                    | "steel"
-                                                    | "composite"
-                                            ) => handleMaterialChange(value)}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="aluminum">
-                                                    Aluminum
-                                                </SelectItem>
-                                                <SelectItem value="steel">
-                                                    Steel
-                                                </SelectItem>
-                                                <SelectItem value="composite">
-                                                    Composite
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-medium">
-                                            Glass Type
-                                        </Label>
-                                        <Select
-                                            value={glassType}
-                                            onValueChange={(
-                                                value:
-                                                    | "single"
-                                                    | "double"
-                                                    | "triple"
-                                                    | "laminated"
-                                            ) => handleGlassTypeChange(value)}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="single">
-                                                    Single Glazing
-                                                </SelectItem>
-                                                <SelectItem value="double">
-                                                    Double Glazing
-                                                </SelectItem>
-                                                <SelectItem value="triple">
-                                                    Triple Glazing
-                                                </SelectItem>
-                                                <SelectItem value="laminated">
-                                                    Laminated Glass
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-medium">
-                                            Frame Color
-                                        </Label>
-                                        <div className="flex items-center gap-2">
-                                            <input
-                                                type="color"
-                                                value={frameColor}
-                                                onChange={(e) =>
-                                                    handleFrameColorChange(
-                                                        e.target.value
-                                                    )
-                                                }
-                                                className="w-8 h-8 rounded border"
-                                                aria-label="Frame color"
-                                            />
-                                            <Input
-                                                value={frameColor}
-                                                onChange={(e) =>
-                                                    handleFrameColorChange(
-                                                        e.target.value
-                                                    )
-                                                }
-                                                className="flex-1"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="md:col-span-2">
-                                    <Label className="text-sm font-medium mb-3 block">
-                                        Material Specifications
-                                    </Label>
-                                    <div className="space-y-3">
-                                        <div className="p-4 bg-blue-50 rounded-lg">
-                                            <h4 className="font-medium text-blue-900 mb-2">
-                                                Frame Material:{" "}
-                                                {material
-                                                    .charAt(0)
-                                                    .toUpperCase() +
-                                                    material.slice(1)}
-                                            </h4>
-                                            <p className="text-sm text-blue-700">
-                                                {material === "aluminum" &&
-                                                    "Lightweight, corrosion-resistant, excellent thermal performance"}
-                                                {material === "steel" &&
-                                                    "High strength, fire-resistant, suitable for large spans"}
-                                                {material === "composite" &&
-                                                    "Combines benefits of multiple materials, enhanced durability"}
-                                            </p>
-                                        </div>
-                                        <div className="p-4 bg-green-50 rounded-lg">
-                                            <h4 className="font-medium text-green-900 mb-2">
-                                                Glass Type:{" "}
-                                                {glassType
-                                                    .charAt(0)
-                                                    .toUpperCase() +
-                                                    glassType.slice(1)}
-                                            </h4>
-                                            <p className="text-sm text-green-700">
-                                                {glassType === "single" &&
-                                                    "Basic glazing, cost-effective for interior applications"}
-                                                {glassType === "double" &&
-                                                    "Improved thermal insulation and sound reduction"}
-                                                {glassType === "triple" &&
-                                                    "Maximum energy efficiency and acoustic performance"}
-                                                {glassType === "laminated" &&
-                                                    "Safety glass with enhanced security and sound control"}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
 
                 {/* Calculations Tab */}
                 <TabsContent
@@ -1725,150 +1563,6 @@ export function CurtainWallDesigner({
                             </CardContent>
                         </Card>
 
-                        <Card className="lg:col-span-2">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <DollarSign className="h-5 w-5" />
-                                    Cost Estimation
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    <div className="text-center p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
-                                        <div className="text-3xl font-bold text-green-600 mb-2">
-                                            $
-                                            {(() => {
-                                                // Calculate frame meters
-                                                let frameMeters = 2 * (wallWidth + wallHeight);
-                                                for (let col = 1; col < columns; col++) {
-                                                    frameMeters += wallHeight;
-                                                }
-                                                for (let row = 1; row < rows; row++) {
-                                                    frameMeters += wallWidth;
-                                                }
-                                                
-                                                // Calculate glass area (all panels have glass)
-                                                const glassArea = panels
-                                                    .reduce((acc, panel) => acc + panel.widthMeters * panel.heightMeters, 0);
-                                                
-                                                // Calculate costs
-                                                const materialCosts = {
-                                                    aluminum: 45,
-                                                    steel: 65,
-                                                    composite: 55,
-                                                    glass: {
-                                                        single: 80,
-                                                        double: 120,
-                                                        triple: 180,
-                                                        laminated: 150,
-                                                    },
-                                                };
-                                                
-                                                const frameCost = frameMeters * materialCosts[material];
-                                                const glassCost = glassArea * materialCosts.glass[glassType];
-                                                const hardwareCost = (frameCost + glassCost) * 0.15;
-                                                
-                                                return (frameCost + glassCost + hardwareCost).toLocaleString();
-                                            })()}
-                                        </div>
-                                        <div className="text-sm text-gray-600">
-                                            Estimated Total Cost
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <div className="flex justify-between text-sm">
-                                                <span>Frame Material ({material}):</span>
-                                                <span>
-                                                    $
-                                                    {(() => {
-                                                        let frameMeters = 2 * (wallWidth + wallHeight);
-                                                        for (let col = 1; col < columns; col++) {
-                                                            frameMeters += wallHeight;
-                                                        }
-                                                        for (let row = 1; row < rows; row++) {
-                                                            frameMeters += wallWidth;
-                                                        }
-                                                        const materialCosts = {
-                                                            aluminum: 45,
-                                                            steel: 65,
-                                                            composite: 55,
-                                                        };
-                                                        return (frameMeters * materialCosts[material]).toLocaleString();
-                                                    })()}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between text-sm">
-                                                <span>Glass Cost:</span>
-                                                <span>
-                                                    $
-                                                    {(() => {
-                                                        const glassArea = panels
-                                                            .reduce((acc, panel) => acc + panel.widthMeters * panel.heightMeters, 0);
-                                                        const materialCosts = {
-                                                            single: 80,
-                                                            double: 120,
-                                                            triple: 180,
-                                                            laminated: 150,
-                                                        };
-                                                        return (glassArea * materialCosts[glassType]).toLocaleString();
-                                                    })()}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <div className="flex justify-between text-sm">
-                                                <span>Hardware Cost:</span>
-                                                <span>
-                                                    $
-                                                    {(() => {
-                                                        let frameMeters = 2 * (wallWidth + wallHeight);
-                                                        for (let col = 1; col < columns; col++) {
-                                                            frameMeters += wallHeight;
-                                                        }
-                                                        for (let row = 1; row < rows; row++) {
-                                                            frameMeters += wallWidth;
-                                                        }
-                                                        const glassArea = panels
-                                                            .reduce((acc, panel) => acc + panel.widthMeters * panel.heightMeters, 0);
-                                                        const materialCosts = {
-                                                            aluminum: 45,
-                                                            steel: 65,
-                                                            composite: 55,
-                                                            glass: {
-                                                                single: 80,
-                                                                double: 120,
-                                                                triple: 180,
-                                                                laminated: 150,
-                                                            },
-                                                        };
-                                                        const frameCost = frameMeters * materialCosts[material];
-                                                        const glassCost = glassArea * materialCosts.glass[glassType];
-                                                        return ((frameCost + glassCost) * 0.15).toLocaleString();
-                                                    })()}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between text-sm">
-                                                <span>Frame Meters:</span>
-                                                <span>
-                                                    {(() => {
-                                                        let frameMeters = 2 * (wallWidth + wallHeight);
-                                                        for (let col = 1; col < columns; col++) {
-                                                            frameMeters += wallHeight;
-                                                        }
-                                                        for (let row = 1; row < rows; row++) {
-                                                            frameMeters += wallWidth;
-                                                        }
-                                                        return frameMeters.toFixed(1);
-                                                    })()} m
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
                     </div>
                 </TabsContent>
 
