@@ -16,6 +16,12 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
     Square,
     Layout,
     DoorOpen,
@@ -35,6 +41,7 @@ import {
     Minus,
     Undo2,
     Redo2,
+    ChevronDown,
 } from "lucide-react";
 
 interface CurtainPanel {
@@ -588,6 +595,32 @@ export function CurtainWallDesigner({
     const canUndo = currentHistoryIndex >= 0 && designHistory.length > 0;
     const canRedo = currentHistoryIndex < designHistory.length - 1;
 
+    // Function to undo only merge operations
+    const undoMergeOperations = () => {
+        if (currentHistoryIndex < 0 || designHistory.length === 0) return;
+
+        // Find the most recent merge operation by traversing backwards from current position
+        let targetIndex = -1;
+        for (let i = currentHistoryIndex; i >= 0; i--) {
+            if (designHistory[i].action === 'panel_merge') {
+                targetIndex = i;
+                break;
+            }
+        }
+
+        // If we found a merge operation, restore to the state before it
+        if (targetIndex >= 0) {
+            const stateToRestore = designHistory[targetIndex];
+            restoreFromState(stateToRestore);
+            setCurrentHistoryIndex(targetIndex - 1);
+        }
+    };
+
+    // Check if there are any merge operations to undo
+    const canUndoMerge = currentHistoryIndex >= 0 && designHistory.some((state, index) => 
+        index <= currentHistoryIndex && state.action === 'panel_merge'
+    );
+
     // Wrapper functions for material changes with history tracking
     const handleMaterialChange = (newMaterial: 'aluminum' | 'steel' | 'composite') => {
         addDesignState('material_change', `Changed frame material to ${newMaterial}`);
@@ -932,11 +965,12 @@ export function CurtainWallDesigner({
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={splitPanels}
+                                            onClick={undoMergeOperations}
+                                            disabled={!canUndoMerge}
                                             className="w-full justify-start"
                                         >
                                             <Ungroup className="h-4 w-4 mr-2" />
-                                            Split Panel
+                                            Revert last merge
                                         </Button>
                                         <Button
                                             size="sm"
