@@ -126,6 +126,9 @@ export function CurtainWallDesigner({
     const [designHistory, setDesignHistory] = useState<DesignState[]>([]);
     const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
     const [isUndoRedoOperation, setIsUndoRedoOperation] = useState(false);
+    const [showCustomSizes, setShowCustomSizes] = useState(false);
+    const [primaryColumnIndex, setPrimaryColumnIndex] = useState(0);
+    const [primaryRowIndex, setPrimaryRowIndex] = useState(0);
     const canvasRef = useRef<HTMLDivElement>(null);
 
     // Design presets
@@ -352,18 +355,132 @@ export function CurtainWallDesigner({
     useEffect(() => {
         const newColumnSizes = Array(columns).fill(wallWidth / columns);
         setColumnSizes(newColumnSizes);
+        // Show custom sizes when grid changes
+        setShowCustomSizes(true);
     }, [columns, wallWidth]);
 
     // Update row sizes when rows change
     useEffect(() => {
         const newRowSizes = Array(rows).fill(wallHeight / rows);
         setRowSizes(newRowSizes);
+        // Show custom sizes when grid changes
+        setShowCustomSizes(true);
     }, [rows, wallHeight]);
+
+    // Handle custom column size changes
+    const handleColumnSizeChange = (index: number, value: number) => {
+        const constrainedValue = Math.max(0.1, Math.min(wallWidth, value));
+        const newColumnSizes = [...columnSizes];
+        
+        // Set this column as the primary one
+        setPrimaryColumnIndex(index);
+        
+        // Calculate remaining space
+        const remainingSpace = wallWidth - constrainedValue;
+        const otherColumnsCount = columns - 1;
+        
+        if (otherColumnsCount > 0) {
+            // Distribute remaining space equally among other columns
+            const remainingSizePerColumn = remainingSpace / otherColumnsCount;
+            
+            // Update all columns
+            for (let i = 0; i < columns; i++) {
+                if (i === index) {
+                    newColumnSizes[i] = constrainedValue;
+                } else {
+                    newColumnSizes[i] = Math.max(0.1, remainingSizePerColumn);
+                }
+            }
+        } else {
+            // Only one column, use the constrained value
+            newColumnSizes[index] = constrainedValue;
+        }
+        
+        setColumnSizes(newColumnSizes);
+        
+        // Update all panels with new column sizes
+        const updatedPanels = panels.map(panel => ({
+            ...panel,
+            widthMeters: newColumnSizes[panel.col],
+        }));
+        setPanels(updatedPanels);
+        calculateDesign(updatedPanels, columns, rows);
+        
+        // Add to history
+        addDesignState('column_size_change', `Updated column ${index + 1} size to ${constrainedValue.toFixed(1)}m`);
+    };
+
+    // Handle custom row size changes
+    const handleRowSizeChange = (index: number, value: number) => {
+        const constrainedValue = Math.max(0.1, Math.min(wallHeight, value));
+        const newRowSizes = [...rowSizes];
+        
+        // Set this row as the primary one
+        setPrimaryRowIndex(index);
+        
+        // Calculate remaining space
+        const remainingSpace = wallHeight - constrainedValue;
+        const otherRowsCount = rows - 1;
+        
+        if (otherRowsCount > 0) {
+            // Distribute remaining space equally among other rows
+            const remainingSizePerRow = remainingSpace / otherRowsCount;
+            
+            // Update all rows
+            for (let i = 0; i < rows; i++) {
+                if (i === index) {
+                    newRowSizes[i] = constrainedValue;
+                } else {
+                    newRowSizes[i] = Math.max(0.1, remainingSizePerRow);
+                }
+            }
+        } else {
+            // Only one row, use the constrained value
+            newRowSizes[index] = constrainedValue;
+        }
+        
+        setRowSizes(newRowSizes);
+        
+        // Update all panels with new row sizes
+        const updatedPanels = panels.map(panel => ({
+            ...panel,
+            heightMeters: newRowSizes[panel.row],
+        }));
+        setPanels(updatedPanels);
+        calculateDesign(updatedPanels, columns, rows);
+        
+        // Add to history
+        addDesignState('row_size_change', `Updated row ${index + 1} size to ${constrainedValue.toFixed(1)}m`);
+    };
+
+    // Reset to equal sizes
+    const resetToEqualSizes = () => {
+        const equalColumnSize = wallWidth / columns;
+        const equalRowSize = wallHeight / rows;
+        
+        setColumnSizes(Array(columns).fill(equalColumnSize));
+        setRowSizes(Array(rows).fill(equalRowSize));
+        setShowCustomSizes(false);
+        setPrimaryColumnIndex(0);
+        setPrimaryRowIndex(0);
+        
+        // Update all panels with equal sizes
+        const updatedPanels = panels.map(panel => ({
+            ...panel,
+            widthMeters: equalColumnSize,
+            heightMeters: equalRowSize,
+        }));
+        setPanels(updatedPanels);
+        calculateDesign(updatedPanels, columns, rows);
+        
+        addDesignState('reset_sizes', 'Reset to equal column and row sizes');
+    };
 
     // Initialize grid when dimensions change
     useEffect(() => {
         generateGrid();
     }, [generateGrid]);
+
 
     const handlePanelClick = (panelId: string, event: React.MouseEvent) => {
         if (event.ctrlKey || event.metaKey) {
@@ -681,12 +798,40 @@ export function CurtainWallDesigner({
     };
 
     const getPanelStyle = (panel: CurtainPanel) => {
+        // Calculate position and size based on custom sizes
+        const totalWidth = columnSizes.reduce((sum, size) => sum + size, 0);
+        const totalHeight = rowSizes.reduce((sum, size) => sum + size, 0);
+        
+        // Calculate left position based on column sizes
+        let leftPercent = 0;
+        for (let i = 0; i < panel.col; i++) {
+            leftPercent += (columnSizes[i] / totalWidth) * 100;
+        }
+        
+        // Calculate top position based on row sizes
+        let topPercent = 0;
+        for (let i = 0; i < panel.row; i++) {
+            topPercent += (rowSizes[i] / totalHeight) * 100;
+        }
+        
+        // Calculate width based on column spans
+        let widthPercent = 0;
+        for (let i = panel.col; i < panel.col + panel.colSpan; i++) {
+            widthPercent += (columnSizes[i] / totalWidth) * 100;
+        }
+        
+        // Calculate height based on row spans
+        let heightPercent = 0;
+        for (let i = panel.row; i < panel.row + panel.rowSpan; i++) {
+            heightPercent += (rowSizes[i] / totalHeight) * 100;
+        }
+
         const baseStyle = {
             position: "absolute" as const,
-            left: `${panel.left}%`,
-            top: `${panel.top}%`,
-            width: `${(100 / columns) * panel.colSpan}%`,
-            height: `${(100 / rows) * panel.rowSpan}%`,
+            left: `${leftPercent}%`,
+            top: `${topPercent}%`,
+            width: `${widthPercent}%`,
+            height: `${heightPercent}%`,
             border: "2px solid",
             borderRadius: "8px",
             cursor: "pointer",
@@ -934,6 +1079,100 @@ export function CurtainWallDesigner({
                                             />
                                         </div>
                                     </div>
+                                    
+                                    {/* Custom Size Controls */}
+                                    {showCustomSizes && (
+                                        <div className="mt-4 space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <Label className="text-sm font-medium">
+                                                    Custom Sizes
+                                                </Label>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={resetToEqualSizes}
+                                                    className="h-6 px-2 text-xs"
+                                                >
+                                                    Reset to Equal
+                                                </Button>
+                                            </div>
+                                            
+                                            {/* Column Sizes */}
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground mb-2 block">
+                                                    Column Widths (m) - Auto-calculated values are shown in gray
+                                                </Label>
+                                                <div className="grid grid-cols-2 gap-1">
+                                                    {columnSizes.map((size, index) => (
+                                                        <div key={index} className="flex items-center gap-1">
+                                                            <Label className="text-xs w-6">
+                                                                C{index + 1}:
+                                                            </Label>
+                                                            <Input
+                                                                type="number"
+                                                                min="0.1"
+                                                                max={wallWidth}
+                                                                step="0.1"
+                                                                value={size.toFixed(1)}
+                                                                onChange={(e) =>
+                                                                    handleColumnSizeChange(
+                                                                        index,
+                                                                        parseFloat(e.target.value) || 0.1
+                                                                    )
+                                                                }
+                                                                className="h-6 text-xs"
+                                                                style={{
+                                                                    backgroundColor: index === primaryColumnIndex ? 'white' : '#f9fafb',
+                                                                    color: index === primaryColumnIndex ? 'black' : '#6b7280'
+                                                                }}
+                                                                title={index === primaryColumnIndex ? "Primary input - other columns auto-calculate" : "Auto-calculated based on primary input"}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Row Sizes */}
+                                            <div>
+                                                <Label className="text-xs text-muted-foreground mb-2 block">
+                                                    Row Heights (m) - Auto-calculated values are shown in gray
+                                                </Label>
+                                                <div className="grid grid-cols-2 gap-1">
+                                                    {rowSizes.map((size, index) => (
+                                                        <div key={index} className="flex items-center gap-1">
+                                                            <Label className="text-xs w-6">
+                                                                R{index + 1}:
+                                                            </Label>
+                                                            <Input
+                                                                type="number"
+                                                                min="0.1"
+                                                                max={wallHeight}
+                                                                step="0.1"
+                                                                value={size.toFixed(1)}
+                                                                onChange={(e) =>
+                                                                    handleRowSizeChange(
+                                                                        index,
+                                                                        parseFloat(e.target.value) || 0.1
+                                                                    )
+                                                                }
+                                                                className="h-6 text-xs"
+                                                                style={{
+                                                                    backgroundColor: index === primaryRowIndex ? 'white' : '#f9fafb',
+                                                                    color: index === primaryRowIndex ? 'black' : '#6b7280'
+                                                                }}
+                                                                title={index === primaryRowIndex ? "Primary input - other rows auto-calculate" : "Auto-calculated based on primary input"}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="text-xs text-muted-foreground">
+                                                Total Width: {columnSizes.reduce((sum, size) => sum + size, 0).toFixed(1)}m | 
+                                                Total Height: {rowSizes.reduce((sum, size) => sum + size, 0).toFixed(1)}m
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <Separator />
@@ -1092,34 +1331,39 @@ export function CurtainWallDesigner({
                                             {/* Grid Lines */}
                                             {showGrid && (
                                                 <div className="absolute inset-0 pointer-events-none">
-                                                    {Array.from({
-                                                        length: columns + 1,
-                                                    }).map((_, i) => (
-                                                        <div
-                                                            key={`v-${i}`}
-                                                            className="absolute top-0 bottom-0 w-px bg-gray-200"
-                                                            style={{
-                                                                left: `${
-                                                                    (i * 100) /
-                                                                    columns
-                                                                }%`,
-                                                            }}
-                                                        />
-                                                    ))}
-                                                    {Array.from({
-                                                        length: rows + 1,
-                                                    }).map((_, i) => (
-                                                        <div
-                                                            key={`h-${i}`}
-                                                            className="absolute left-0 right-0 h-px bg-gray-200"
-                                                            style={{
-                                                                top: `${
-                                                                    (i * 100) /
-                                                                    rows
-                                                                }%`,
-                                                            }}
-                                                        />
-                                                    ))}
+                                                    {/* Vertical grid lines based on custom column sizes */}
+                                                    {(() => {
+                                                        const totalWidth = columnSizes.reduce((sum, size) => sum + size, 0);
+                                                        let cumulativeWidth = 0;
+                                                        return Array.from({ length: columns + 1 }).map((_, i) => {
+                                                            const leftPercent = (cumulativeWidth / totalWidth) * 100;
+                                                            if (i < columns) cumulativeWidth += columnSizes[i];
+                                                            return (
+                                                                <div
+                                                                    key={`v-${i}`}
+                                                                    className="absolute top-0 bottom-0 w-px bg-gray-200"
+                                                                    style={{ left: `${leftPercent}%` }}
+                                                                />
+                                                            );
+                                                        });
+                                                    })()}
+                                                    
+                                                    {/* Horizontal grid lines based on custom row sizes */}
+                                                    {(() => {
+                                                        const totalHeight = rowSizes.reduce((sum, size) => sum + size, 0);
+                                                        let cumulativeHeight = 0;
+                                                        return Array.from({ length: rows + 1 }).map((_, i) => {
+                                                            const topPercent = (cumulativeHeight / totalHeight) * 100;
+                                                            if (i < rows) cumulativeHeight += rowSizes[i];
+                                                            return (
+                                                                <div
+                                                                    key={`h-${i}`}
+                                                                    className="absolute left-0 right-0 h-px bg-gray-200"
+                                                                    style={{ top: `${topPercent}%` }}
+                                                                />
+                                                            );
+                                                        });
+                                                    })()}
                                                 </div>
                                             )}
 
