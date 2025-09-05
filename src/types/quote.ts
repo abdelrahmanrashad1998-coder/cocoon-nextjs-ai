@@ -52,6 +52,7 @@ export interface QuoteSettings {
     discountPercentage: number;
     customNotes: string;
     pricingType: "totals" | "detailed";
+    exportFormat: "pdf" | "print" | "email";
 }
 
 export interface QuoteData {

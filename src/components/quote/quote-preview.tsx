@@ -18,6 +18,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { QuoteData, QuoteTotals } from "@/types/quote";
+import { calculateItemPricing } from "@/lib/pricing-calculator";
 
 interface QuotePreviewProps {
     quoteData: QuoteData;
@@ -26,7 +27,7 @@ interface QuotePreviewProps {
 
 export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
     const formatCurrency = (amount: number) => {
-        return `$${amount.toLocaleString()}`;
+        return `EGP ${amount.toLocaleString()}`;
     };
 
     const getItemIcon = (type: string) => {
@@ -142,7 +143,7 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                     <CardTitle>Quote Items</CardTitle>
                     <CardDescription>
                         {quoteData.items.length} items • Total Area:{" "}
-                        {totals.totalArea} m²
+                        {totals.totalArea.toFixed(2)} m²
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -242,9 +243,11 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                                     {quoteData.settings.pricingType ===
                                         "detailed" && (
                                         <TableCell className="text-right">
-                                            {/* This would show individual item price when detailed pricing is enabled */}
                                             <div className="text-sm font-medium">
-                                                Calculated
+                                                {formatCurrency(
+                                                    calculateItemPricing(item)
+                                                        .totalPrice
+                                                )}
                                             </div>
                                         </TableCell>
                                     )}
@@ -263,35 +266,35 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="p-4 bg-muted rounded-lg text-center">
-                            <div className="text-2xl font-bold text-primary">
-                                {totals.totalArea}
-                            </div>
                             <div className="text-sm text-muted-foreground">
                                 Total Area (m²)
                             </div>
+                            <div className="text-2xl font-bold text-primary">
+                                {totals.totalArea.toFixed(2)}
+                            </div>
                         </div>
                         <div className="p-4 bg-muted rounded-lg text-center">
-                            <div className="text-2xl font-bold text-primary">
-                                {formatCurrency(totals.totalPrice)}
-                            </div>
                             <div className="text-sm text-muted-foreground">
                                 Total Price
                             </div>
+                            <div className="text-2xl font-bold text-primary">
+                                {formatCurrency(totals.totalPrice)}
+                            </div>
                         </div>
                         <div className="p-4 bg-muted rounded-lg text-center">
-                            <div className="text-2xl font-bold text-primary">
-                                {formatCurrency(totals.downPayment)}
-                            </div>
                             <div className="text-sm text-muted-foreground">
                                 Down Payment
                             </div>
+                            <div className="text-2xl font-bold text-primary">
+                                {formatCurrency(totals.downPayment)}
+                            </div>
                         </div>
                         <div className="p-4 bg-muted rounded-lg text-center">
-                            <div className="text-2xl font-bold text-primary">
-                                {totals.profitPercentage}%
-                            </div>
                             <div className="text-sm text-muted-foreground">
                                 Profit Margin
+                            </div>
+                            <div className="text-2xl font-bold text-primary">
+                                {totals.profitPercentage * 100}%
                             </div>
                         </div>
                     </div>
@@ -304,8 +307,8 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                             Payment Schedule
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="p-4 border rounded-lg">
-                                <div className="text-sm font-medium text-muted-foreground">
+                            <div className="p-4 border rounded-lg flex flex-col justify-center items-center">
+                                <div className="text-sm j font-medium text-muted-foreground">
                                     Down Payment
                                 </div>
                                 <div className="text-xl font-bold text-primary">
@@ -315,7 +318,7 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                                     80% of total
                                 </div>
                             </div>
-                            <div className="p-4 border rounded-lg">
+                            <div className="p-4 border rounded-lg flex flex-col justify-center items-center">
                                 <div className="text-sm font-medium text-muted-foreground">
                                     On Supply
                                 </div>
@@ -326,7 +329,7 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                                     10% of total
                                 </div>
                             </div>
-                            <div className="p-4 border rounded-lg">
+                            <div className="p-4 border rounded-lg flex flex-col justify-center items-center">
                                 <div className="text-sm font-medium text-muted-foreground">
                                     On Completion
                                 </div>
@@ -347,7 +350,7 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                             Quote Validity
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="p-4 border rounded-lg">
+                            <div className="p-4 border rounded-lg flex flex-col justify-center items-center">
                                 <div className="text-sm font-medium text-muted-foreground">
                                     Quote Valid For
                                 </div>
@@ -355,7 +358,7 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                                     {quoteData.settings.expirationDays} days
                                 </div>
                             </div>
-                            <div className="p-4 border rounded-lg">
+                            <div className="p-4 border rounded-lg flex flex-col justify-center items-center">
                                 <div className="text-sm font-medium text-muted-foreground">
                                     Project Duration
                                 </div>
