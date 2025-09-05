@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useCallback } from "react";
 import {
     QuoteItem,
@@ -7,103 +5,80 @@ import {
     ContactInfo,
     QuoteSettings,
     QuoteTotals,
-    PricedItem,
 } from "@/types/quote";
-import {
-    calculateItemPricing,
-    calculateQuoteTotals,
-} from "@/lib/pricing-calculator";
-
-interface ExportOptions {
-    type: "pdf" | "print" | "email";
-    format: string;
-    pricingType: string;
-    customNotes: string;
-    expirationDays: number;
-    projectDuration: number;
-    discountPercentage: number;
-    quoteData: QuoteData;
-    totals: QuoteTotals;
-}
-
-const createDefaultItem = (): QuoteItem => ({
-    id: Math.random().toString(36).substr(2, 9),
-    type: "window",
-    system: "Sliding",
-    width: 1.2,
-    height: 1.5,
-    leaves: 2,
-    quantity: 1,
-    glassType: "double",
-    mosquito: false,
-    arch: false,
-    profile: undefined,
-});
-
-const createDefaultQuote = (): QuoteData => ({
-    id: Math.random().toString(36).substr(2, 9),
-    createdAt: new Date().toISOString(),
-    contactInfo: {
-        name: "",
-        email: "",
-        phone: "",
-        location: "",
-        notes: "",
-    },
-    items: [],
-    settings: {
-        expirationDays: 30,
-        projectDuration: 60,
-        discountPercentage: 0,
-        customNotes:
-            "Standard aluminum work installation with professional finishing.",
-        pricingType: "totals",
-        exportFormat: "pdf",
-    },
-});
 
 export const useQuoteGenerator = () => {
-    const [quoteData, setQuoteData] = useState<QuoteData>(createDefaultQuote());
+    const [quoteData, setQuoteData] = useState<QuoteData>({
+        id: `QT${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        items: [],
+        contactInfo: {
+            name: "",
+            email: "",
+            phone: "",
+            location: "",
+            notes: "",
+        },
+        settings: {
+            expirationDays: 30,
+            projectDuration: 60,
+            discountPercentage: 0,
+            customNotes: "",
+            pricingType: "totals",
+            exportFormat: "pdf",
+        },
+    });
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const addItem = useCallback(() => {
+    // Mock pricing calculation function
+    const calculateItemPricing = (item: QuoteItem) => {
+        const basePrice = item.width * item.height * item.quantity * 1200; // Mock calculation
+        return { totalPrice: basePrice };
+    };
+
+    const addItem = useCallback((item: Omit<QuoteItem, "id">) => {
         setQuoteData((prev) => ({
             ...prev,
-            items: [...prev.items, createDefaultItem()],
+            items: [...prev.items, { ...item, id: `item-${Date.now()}` }],
         }));
     }, []);
 
-    const updateItem = useCallback((index: number, updatedItem: QuoteItem) => {
-        setQuoteData((prev) => ({
-            ...prev,
-            items: prev.items.map((item, i) =>
-                i === index ? updatedItem : item
-            ),
-        }));
-    }, []);
-
-    const removeItem = useCallback((index: number) => {
-        setQuoteData((prev) => ({
-            ...prev,
-            items: prev.items.filter((_, i) => i !== index),
-        }));
-    }, []);
-
-    const updateContactInfo = useCallback(
-        (field: keyof ContactInfo, value: string) => {
+    const updateItem = useCallback(
+        (id: string, updates: Partial<QuoteItem>) => {
             setQuoteData((prev) => ({
                 ...prev,
-                contactInfo: {
-                    ...prev.contactInfo,
-                    [field]: value,
-                },
+                items: prev.items.map((item) =>
+                    item.id === id ? { ...item, ...updates } : item
+                ),
             }));
         },
         []
     );
 
-    const updateSettings = useCallback(
+    const removeItem = useCallback((id: string) => {
+        setQuoteData((prev) => ({
+            ...prev,
+            items: prev.items.filter((item) => item.id !== id),
+        }));
+    }, []);
+
+    const updateContactInfo = useCallback((updates: Partial<ContactInfo>) => {
+        setQuoteData((prev) => ({
+            ...prev,
+            contactInfo: { ...prev.contactInfo, ...updates },
+        }));
+    }, []);
+
+    const updateSettings = useCallback((updates: Partial<QuoteSettings>) => {
+        setQuoteData((prev) => ({
+            ...prev,
+            settings: { ...prev.settings, ...updates },
+        }));
+    }, []);
+
+    const updateSettingsField = useCallback(
         (field: keyof QuoteSettings, value: string | number) => {
             setQuoteData((prev) => ({
                 ...prev,
@@ -116,460 +91,907 @@ export const useQuoteGenerator = () => {
         []
     );
 
-    const calculateDetailedPricing = useCallback(
-        (item: QuoteItem): PricedItem => {
-            return calculateItemPricing(item);
-        },
-        []
-    );
-
     const calculateTotals = useCallback((): QuoteTotals => {
-        const pricedItems = quoteData.items.map(calculateDetailedPricing);
-        const totals = calculateQuoteTotals(pricedItems);
+        const totalArea = quoteData.items.reduce(
+            (sum, item) => sum + item.width * item.height * item.quantity,
+            0
+        );
+        const totalPrice = quoteData.items.reduce(
+            (sum, item) => sum + calculateItemPricing(item).totalPrice,
+            0
+        );
 
         // Apply discount
         const discountAmount =
-            (totals.totalPrice * quoteData.settings.discountPercentage) / 100;
-        const discountedTotal = totals.totalPrice - discountAmount;
+            (totalPrice * quoteData.settings.discountPercentage) / 100;
+        const discountedTotal = totalPrice - discountAmount;
 
         return {
-            ...totals,
-            totalPrice: +discountedTotal.toFixed(2),
-            downPayment: +(discountedTotal * 0.8).toFixed(2),
-            supplyPayment: +(discountedTotal * 0.1).toFixed(2),
-            completePayment: +(discountedTotal * 0.1).toFixed(2),
-            m2Price:
-                totals.totalArea > 0
-                    ? +(discountedTotal / totals.totalArea).toFixed(2)
-                    : 0,
+            totalArea,
+            totalBeforeProfit: discountedTotal,
+            totalPrice: discountedTotal,
+            totalProfit: 0, // Mock value
+            downPayment: discountedTotal * 0.8,
+            supplyPayment: discountedTotal * 0.1,
+            completePayment: discountedTotal * 0.1,
+            m2Price: totalArea > 0 ? discountedTotal / totalArea : 0,
+            profitPercentage: 0, // Mock value
         };
-    }, [quoteData, calculateDetailedPricing]);
+    }, [quoteData.items, quoteData.settings.discountPercentage]);
 
     const saveQuote = useCallback(async () => {
         setLoading(true);
-        setError(null);
-
         try {
-            // TODO: Implement Firebase save
-            console.log("Saving quote:", quoteData);
-            await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+            // Mock save functionality
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            console.log("Quote saved:", quoteData);
         } catch (err) {
             setError("Failed to save quote");
-            throw err;
         } finally {
             setLoading(false);
         }
     }, [quoteData]);
 
-    const exportQuote = useCallback(async (exportOptions: ExportOptions) => {
-        setLoading(true);
-        setError(null);
+    const exportQuote = useCallback(
+        async (type: "pdf" | "print") => {
+            setLoading(true);
+            setError(null);
 
-        try {
-            const { type, quoteData, totals } = exportOptions;
+            try {
+                const totals = calculateTotals();
 
-            if (type === "pdf") {
-                // Use browser's native print to PDF functionality - most reliable approach
-                const printWindow = window.open(
-                    "",
-                    "_blank",
-                    "width=800,height=600"
-                );
-                if (!printWindow) {
-                    throw new Error(
-                        "Unable to open print window. Please allow popups for this site."
+                if (type === "pdf") {
+                    const printWindow = window.open(
+                        "",
+                        "_blank",
+                        "width=800,height=600"
                     );
+                    if (!printWindow) {
+                        throw new Error(
+                            "Unable to open print window. Please allow popups for this site."
+                        );
+                    }
+
+                    const htmlContent = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <title>Cocoon Aluminum Works - Quotation</title>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+            <style>
+              * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+              }
+              
+              body {
+                font-family: 'Inter', Arial, sans-serif;
+                line-height: 1.6;
+                color: #1a202c;
+                background: #ffffff;
+                font-size: 14px;
+              }
+              
+              .container {
+                max-width: 1000px;
+                margin: 0 auto;
+                padding: 40px;
+              }
+              
+              .header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 40px;
+                padding: 30px 0;
+                border-bottom: 3px solid #e53e3e;
+                position: relative;
+              }
+              
+              .header::after {
+                content: '';
+                position: absolute;
+                bottom: -3px;
+                left: 0;
+                width: 100px;
+                height: 3px;
+                background: linear-gradient(90deg, #e53e3e, #ff6b6b);
+              }
+              
+              .logo-section {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+              }
+              
+              .logo {
+                width: 80px;
+                height: 80px;
+                border-radius: 12px;
+                object-fit: cover;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+              }
+              
+              .company-info {
+                flex: 1;
+              }
+              
+              .company-name {
+                font-size: 24px;
+                font-weight: 700;
+                color: #1a202c;
+                margin-bottom: 4px;
+                letter-spacing: -0.5px;
+              }
+              
+              .company-tagline {
+                font-size: 14px;
+                color: #718096;
+                font-weight: 400;
+              }
+              
+              .quote-badge {
+                background: linear-gradient(135deg, #e53e3e, #ff6b6b);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 25px;
+                font-weight: 600;
+                font-size: 16px;
+                box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+              }
+              
+              .quote-details {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                margin-bottom: 40px;
+              }
+              
+              .detail-card {
+                background: linear-gradient(135deg, #f7fafc, #edf2f7);
+                padding: 24px;
+                border-radius: 16px;
+                border: 1px solid #e2e8f0;
+                position: relative;
+                overflow: hidden;
+              }
+              
+              .detail-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 4px;
+                background: linear-gradient(90deg, #e53e3e, #ff6b6b);
+              }
+              
+              .detail-card h3 {
+                font-size: 16px;
+                font-weight: 600;
+                color: #2d3748;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              }
+              
+              .detail-card p {
+                margin-bottom: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              }
+              
+              .detail-label {
+                font-weight: 500;
+                color: #4a5568;
+                font-size: 13px;
+              }
+              
+              .detail-value {
+                font-weight: 600;
+                color: #1a202c;
+              }
+              
+              .items-section {
+                margin-bottom: 40px;
+              }
+              
+              .section-title {
+                font-size: 20px;
+                font-weight: 600;
+                color: #1a202c;
+                margin-bottom: 20px;
+                padding-bottom: 8px;
+                border-bottom: 2px solid #e2e8f0;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+              }
+              
+              .items-table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+                background: #ffffff;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+                border: 1px solid #e2e8f0;
+              }
+              
+              .items-table thead {
+                background: linear-gradient(135deg, #1a202c, #2d3748);
+              }
+              
+              .items-table th {
+                padding: 16px 12px;
+                color: white;
+                font-weight: 600;
+                font-size: 12px;
+                text-align: left;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+              }
+              
+              .items-table td {
+                padding: 16px 12px;
+                border-bottom: 1px solid #e2e8f0;
+                vertical-align: middle;
+                font-size: 13px;
+              }
+              
+              .items-table tbody tr:hover {
+                background-color: #f7fafc;
+              }
+              
+              .items-table tbody tr:last-child td {
+                border-bottom: none;
+              }
+              
+              .item-name {
+                font-weight: 600;
+                color: #1a202c;
+              }
+              
+              .dimension-value {
+                font-weight: 500;
+                color: #4a5568;
+              }
+              
+              .specs-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+                max-width: 200px;
+              }
+              
+              .spec-tag {
+                display: inline-block;
+                padding: 4px 8px;
+                border-radius: 6px;
+                font-size: 10px;
+                font-weight: 500;
+                text-align: center;
+                line-height: 1.2;
+              }
+              
+              .glass-double {
+                background: linear-gradient(135deg, #3182ce, #63b3ed);
+                color: white;
+              }
+              
+              .glass-single {
+                background: linear-gradient(135deg, #718096, #a0aec0);
+                color: white;
+              }
+              
+              .tag-net {
+                background: linear-gradient(135deg, #38a169, #68d391);
+                color: white;
+              }
+              
+              .tag-arch {
+                background: linear-gradient(135deg, #d69e2e, #f6e05e);
+                color: #1a202c;
+              }
+              
+              .system-badge {
+                background: linear-gradient(135deg, #805ad5, #b794f6);
+                color: white;
+                padding: 6px 12px;
+                border-radius: 8px;
+                font-weight: 500;
+                font-size: 11px;
+                text-align: center;
+              }
+              
+              .price-value {
+                font-weight: 700;
+                color: #e53e3e;
+                font-size: 14px;
+                text-align: right;
+              }
+              
+              .totals-section {
+                margin-bottom: 30px;
+              }
+              
+              .totals-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                margin-bottom: 30px;
+              }
+              
+              .total-card {
+                background: linear-gradient(135deg, #1a202c, #2d3748);
+                color: white;
+                padding: 24px;
+                border-radius: 16px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+              }
+              
+              .total-card::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+                transform: rotate(45deg);
+              }
+              
+              .total-label {
+                font-size: 14px;
+                font-weight: 500;
+                opacity: 0.8;
+                margin-bottom: 8px;
+              }
+              
+              .total-value {
+                font-size: 24px;
+                font-weight: 700;
+                color: #ff6b6b;
+              }
+              
+              .payment-schedule {
+                background: linear-gradient(135deg, #f7fafc, #edf2f7);
+                padding: 24px;
+                border-radius: 16px;
+                border: 1px solid #e2e8f0;
+                margin-bottom: 30px;
+              }
+              
+              .payment-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+                margin-top: 16px;
+              }
+              
+              .payment-item {
+                text-align: center;
+                padding: 16px;
+                background: white;
+                border-radius: 12px;
+                border: 2px solid #e2e8f0;
+                transition: all 0.3s ease;
+              }
+              
+              .payment-item:hover {
+                border-color: #e53e3e;
+                transform: translateY(-2px);
+              }
+              
+              .payment-label {
+                font-size: 12px;
+                font-weight: 500;
+                color: #4a5568;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+              }
+              
+              .payment-amount {
+                font-size: 18px;
+                font-weight: 700;
+                color: #1a202c;
+              }
+              
+              .validity-section {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                margin-bottom: 30px;
+              }
+              
+              .validity-card {
+                background: linear-gradient(135deg, #e53e3e, #ff6b6b);
+                color: white;
+                padding: 20px;
+                border-radius: 12px;
+                text-align: center;
+              }
+              
+              .validity-label {
+                font-size: 14px;
+                opacity: 0.9;
+                margin-bottom: 8px;
+              }
+              
+              .validity-value {
+                font-size: 20px;
+                font-weight: 700;
+              }
+              
+              .notes-section {
+                background: linear-gradient(135deg, #fff8e1, #ffecb3);
+                padding: 24px;
+                border-radius: 16px;
+                border-left: 5px solid #ffa726;
+                margin-bottom: 40px;
+              }
+              
+              .notes-title {
+                font-size: 16px;
+                font-weight: 600;
+                color: #ef6c00;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              }
+              
+              .notes-content {
+                color: #5d4037;
+                line-height: 1.7;
+              }
+              
+              .footer {
+                margin-top: 50px;
+                padding: 30px;
+                background: linear-gradient(135deg, #1a202c, #2d3748);
+                color: white;
+                border-radius: 16px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+              }
+              
+              .footer::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #e53e3e, #ff6b6b, #e53e3e);
+              }
+              
+              .footer-title {
+                font-size: 20px;
+                font-weight: 700;
+                margin-bottom: 16px;
+                color: #ff6b6b;
+              }
+              
+              .footer-content {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+                margin-top: 20px;
+              }
+              
+              .footer-section  {
+              display:flex;
+              flex-direction:column;
+              justify-content: start;
+    
+    align-items: flex-start;
+                margin-bottom: 8px;
+                font-size: 13px;
+                opacity: 0.9;
+              }
+              
+              .footer-section strong {
+                color: #ff6b6b;
+              }
+              
+              @media print {
+                body { 
+                  margin: 0; 
+                  font-size: 12px;
                 }
+                .container {
+                  padding: 20px;
+                  max-width: none;
+                }
+                .no-print { 
+                  display: none; 
+                }
+                .header {
+                  margin-bottom: 30px;
+                  padding: 20px 0;
+                }
+                .quote-details,
+                .totals-grid,
+                .payment-grid,
+                .validity-section,
+                .footer-content {
+                  page-break-inside: avoid;
+                }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <header class="header">
+                <div class="logo-section">
+                  <img src="https://img1.wsimg.com/isteam/ip/b11b2784-66bc-4ac4-9b05-6ba6d416d22d/Untitled%20design%20(1).jpg" alt="Cocoon Logo" class="logo" />
+                  <div class="company-info">
+                    <h1 class="company-name">Cocoon Aluminum Works</h1>
+                    <p class="company-tagline">Premium Aluminum Solutions & Installation</p>
+                  </div>
+                </div>
+                
+              </header>
 
-                const htmlContent = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Quote - ${quoteData.id}</title>
-                        <style>
-                            body {
-                                font-family: Arial, sans-serif;
-                                margin: 20px;
-                                line-height: 1.4;
-                                color: #000;
-                                background: #fff;
-                            }
-                            .header {
-                                text-align: center;
-                                margin-bottom: 30px;
-                                border-bottom: 2px solid #000;
-                                padding-bottom: 20px;
-                            }
-                            .company-name {
-                                font-size: 24px;
-                                font-weight: bold;
-                                margin-bottom: 5px;
-                            }
-                            .info-section {
-                                margin-bottom: 20px;
-                            }
-                            .info-section h3 {
-                                font-size: 16px;
-                                font-weight: bold;
-                                margin-bottom: 10px;
-                                color: #000;
-                            }
-                            .info-grid {
-                                display: table;
-                                width: 100%;
-                            }
-                            .info-row {
-                                display: table-row;
-                            }
-                            .info-label {
-                                display: table-cell;
-                                font-weight: bold;
-                                padding: 5px 10px 5px 0;
-                                width: 150px;
-                            }
-                            .info-value {
-                                display: table-cell;
-                                padding: 5px 0;
-                            }
-                            table {
-                                width: 100%;
-                                border-collapse: collapse;
-                                margin: 20px 0;
-                            }
-                            th, td {
-                                border: 1px solid #000;
-                                padding: 8px;
-                                text-align: left;
-                                font-size: 12px;
-                            }
-                            th {
-                                background-color: #f0f0f0;
-                                font-weight: bold;
-                            }
-                            .summary-section {
-                                margin: 20px 0;
-                                padding: 15px;
-                                background-color: #f9f9f9;
-                                border: 1px solid #ddd;
-                            }
-                            .currency {
-                                font-weight: bold;
-                                color: #000;
-                            }
-                            .footer {
-                                margin-top: 40px;
-                                padding-top: 20px;
-                                border-top: 1px solid #000;
-                                text-align: center;
-                                font-size: 11px;
-                                color: #000;
-                            }
-                            @media print {
-                                body { margin: 10mm; }
-                                .no-print { display: none; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="header">
-                            <div class="company-name">COCOON COMPANY FOR ALUMINUM WORKS</div>
-                        </div>
+              <div class="quote-details">
+                <div class="detail-card">
+                  <h3>📋 Quote Information</h3>
+                  <p><span class="detail-label">Quote ID:</span> <span class="detail-value">${
+                      quoteData.id
+                  }</span></p>
+                  <p><span class="detail-label">Date:</span> <span class="detail-value">${new Date().toLocaleDateString(
+                      "en-GB"
+                  )}</span></p>
+                  <p><span class="detail-label">Valid Until:</span> <span class="detail-value">${new Date(
+                      Date.now() + 3 * 24 * 60 * 60 * 1000
+                  ).toLocaleDateString("en-GB")}</span></p>
+                </div>
+                
+                <div class="detail-card">
+                  <h3>👤 Customer Details</h3>
+                  <p><span class="detail-label">Name:</span> <span class="detail-value">${
+                      quoteData.contactInfo.name || "Not Provided"
+                  }</span></p>
+                  <p><span class="detail-label">Location:</span> <span class="detail-value">${
+                      quoteData.contactInfo.location || "Not Provided"
+                  }</span></p>
+                  <p><span class="detail-label">Duration:</span> <span class="detail-value">${
+                      quoteData.settings.projectDuration
+                  } Days</span></p>
+                </div>
+              </div>
 
-                        <div class="info-section">
-                            <div class="info-grid">
-                                <div class="info-row">
-                                    <div class="info-label">Quote Date:</div>
-                                    <div class="info-value">${new Date().toLocaleDateString()}</div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">Customer Name:</div>
-                                    <div class="info-value">${
-                                        quoteData.contactInfo.name ||
-                                        "Not Provided"
-                                    }</div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">Project:</div>
-                                    <div class="info-value">${
-                                        quoteData.contactInfo.location ||
-                                        "Not Provided"
-                                    }</div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">Quote Reference:</div>
-                                    <div class="info-value">${
-                                        quoteData.id
-                                    }</div>
-                                </div>
-                            </div>
-                        </div>
+              <div class="items-section">
+                <h2 class="section-title">🔧 Project Items & Specifications</h2>
+                <table class="items-table">
+                  <thead>
+                    <tr>
+                      <th>Item Description</th>
+                      <th>Width (m)</th>
+                      <th>Height (m)</th>
+                      <th>Qty</th>
+                      <th>Area (m²)</th>
+                      <th>Specifications</th>
+                      <th>System</th>
+                      <th>Price (EGP)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${quoteData.items
+                        .map((item: QuoteItem, index: number) => {
+                            const itemType =
+                                item.type === "window"
+                                    ? "Window"
+                                    : item.type === "door"
+                                    ? "Door"
+                                    : item.type === "sky_light"
+                                    ? "Skylight"
+                                    : "Curtain Wall";
+                            const itemName =
+                                item.system !== "Curtain Wall"
+                                    ? `${item.system} ${itemType} ${index + 1}`
+                                    : `${item.system} ${index + 1}`;
+                            const area = (
+                                item.width *
+                                item.height *
+                                item.quantity
+                            ).toFixed(2);
 
-                        <div class="info-section">
-                            <p><em>This is a price quotation for the listed aluminum works, based on the dimensions and system type provided.</em></p>
-                        </div>
+                            let specs = "";
+                            if (item.system === "Curtain Wall") {
+                                specs =
+                                    '<span class="spec-tag glass-double">Tempered Double Glazed 6MM + 21.3MM + 6MM Clear + Argon</span>';
+                            } else {
+                                if (item.glassType === "double") {
+                                    specs =
+                                        '<span class="spec-tag glass-double">Tempered Double Glazed 6MM + 6MM + Argon</span>';
+                                } else {
+                                    specs =
+                                        '<span class="spec-tag glass-single">Tempered Single Glazed 6MM</span>';
+                                }
+                            }
 
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Width (m)</th>
-                                    <th>Height (m)</th>
-                                    <th>Qty</th>
-                                    <th>Area (m²)</th>
-                                    <th>System</th>
-                                    ${
-                                        exportOptions.pricingType === "detailed"
-                                            ? "<th>Price (EGP)</th>"
-                                            : ""
-                                    }
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${quoteData.items
-                                    .map((item: QuoteItem, index: number) => {
-                                        const itemType =
-                                            item.type === "window"
-                                                ? "Window"
-                                                : item.type === "door"
-                                                ? "Door"
-                                                : item.type === "sky_light"
-                                                ? "Sky Light"
-                                                : "Curtain Wall";
+                            if (item.mosquito) {
+                                specs +=
+                                    '<span class="spec-tag tag-net">Mosquito Net</span>';
+                            }
+                            if (item.arch) {
+                                specs +=
+                                    '<span class="spec-tag tag-arch">Arch Trave</span>';
+                            }
 
-                                        const itemName =
-                                            item.system !== "Curtain Wall"
-                                                ? `${item.system} ${itemType} ${
-                                                      index + 1
-                                                  }`
-                                                : `${item.system} ${index + 1}`;
+                            const itemPrice = Math.round(
+                                calculateItemPricing(item).totalPrice
+                            );
 
-                                        const area = (
-                                            item.width *
-                                            item.height *
-                                            item.quantity
-                                        ).toFixed(2);
+                            return `
+                        <tr>
+                          <td class="item-name">${itemName}</td>
+                          <td class="dimension-value">${item.width.toFixed(
+                              2
+                          )}</td>
+                          <td class="dimension-value">${item.height.toFixed(
+                              2
+                          )}</td>
+                          <td class="dimension-value">${item.quantity}</td>
+                          <td class="dimension-value">${area}</td>
+                          <td><div class="specs-container">${specs}</div></td>
+                          <td><div class="system-badge">${
+                              item.system
+                          }</div></td>
+                          <td class="price-value">${itemPrice.toLocaleString()} EGP</td>
+                        </tr>
+                      `;
+                        })
+                        .join("")}
+                  </tbody>
+                </table>
+              </div>
 
-                                        const itemPrice =
-                                            exportOptions.pricingType ===
-                                            "detailed"
-                                                ? Math.round(
-                                                      calculateItemPricing(item)
-                                                          .totalPrice
-                                                  ).toLocaleString()
-                                                : "";
+              <div class="totals-section">
+                <div class="totals-grid">
+                  <div class="total-card">
+                    <div class="total-label">Total Project Value</div>
+                    <div class="total-value">${Math.round(
+                        totals.totalPrice
+                    ).toLocaleString()} EGP</div>
+                  </div>
+                  <div class="total-card">
+                    <div class="total-label">Total Coverage Area</div>
+                    <div class="total-value">${totals.totalArea.toFixed(
+                        2
+                    )} m²</div>
+                  </div>
+                </div>
 
-                                        return `
-                                        <tr>
-                                            <td>${itemName}</td>
-                                            <td>${item.width}</td>
-                                            <td>${item.height}</td>
-                                            <td>${item.quantity}</td>
-                                            <td>${area}</td>
-                                            <td>${item.system}</td>
-                                            ${
-                                                exportOptions.pricingType ===
-                                                "detailed"
-                                                    ? `<td class="currency">${itemPrice}</td>`
-                                                    : ""
-                                            }
-                                        </tr>
-                                    `;
-                                    })
-                                    .join("")}
-                            </tbody>
-                        </table>
+                <div class="payment-schedule">
+                  <div class="payment-grid">
+                    <div class="payment-item">
+                      <div class="payment-label">Down Payment</div>
+                      <div class="payment-amount">${Math.round(
+                          totals.downPayment
+                      ).toLocaleString()} EGP</div>
+                    </div>
+                    <div class="payment-item">
+                      <div class="payment-label">On Supply</div>
+                      <div class="payment-amount">${Math.round(
+                          totals.supplyPayment
+                      ).toLocaleString()} EGP</div>
+                    </div>
+                    <div class="payment-item">
+                      <div class="payment-label">On Completion</div>
+                      <div class="payment-amount">${Math.round(
+                          totals.completePayment
+                      ).toLocaleString()} EGP</div>
+                    </div>
+                  </div>
+                </div>
 
-                        <div class="summary-section">
-                            <h3>Quote Summary</h3>
-                            <div class="info-grid">
-                                <div class="info-row">
-                                    <div class="info-label">Total Price:</div>
-                                    <div class="info-value currency">${Math.round(
-                                        totals.totalPrice
-                                    ).toLocaleString()} EGP</div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">Total Area:</div>
-                                    <div class="info-value">${totals.totalArea.toFixed(
-                                        2
-                                    )} m²</div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">Down Payment (80%):</div>
-                                    <div class="info-value currency">${Math.round(
-                                        totals.downPayment
-                                    ).toLocaleString()} EGP</div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">On Supply (10%):</div>
-                                    <div class="info-value currency">${Math.round(
-                                        totals.supplyPayment
-                                    ).toLocaleString()} EGP</div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">On Completion (10%):</div>
-                                    <div class="info-value currency">${Math.round(
-                                        totals.completePayment
-                                    ).toLocaleString()} EGP</div>
-                                </div>
-                            </div>
-                        </div>
+                <div class="validity-section">
+                  <div class="validity-card">
+                    <div class="validity-label">Offer Valid For</div>
+                    <div class="validity-value">3 Days</div>
+                  </div>
+                  <div class="validity-card">
+                    <div class="validity-label">Project Duration</div>
+                    <div class="validity-value">${
+                        quoteData.settings.projectDuration
+                    } Days</div>
+                  </div>
+                </div>
+              </div>
 
-                        <div class="summary-section">
-                            <h3>Quote Validity</h3>
-                            <div class="info-grid">
-                                <div class="info-row">
-                                    <div class="info-label">Valid for:</div>
-                                    <div class="info-value">${
-                                        quoteData.settings.expirationDays
-                                    } days</div>
-                                </div>
-                                <div class="info-row">
-                                    <div class="info-label">Project Duration:</div>
-                                    <div class="info-value">${
-                                        quoteData.settings.projectDuration
-                                    } days</div>
-                                </div>
-                            </div>
-                        </div>
+              ${
+                  quoteData.settings.customNotes
+                      ? `
+                <div class="notes-section">
+                  <h3 class="notes-title">📝 Special Notes & Terms</h3>
+                  <div class="notes-content">${quoteData.settings.customNotes.replace(
+                      /\n/g,
+                      "<br>"
+                  )}</div>
+                </div>
+              `
+                      : ""
+              }
 
-                        ${
-                            quoteData.settings.customNotes
-                                ? `
-                            <div class="summary-section">
-                                <h3>Special Notes</h3>
-                                <p>${quoteData.settings.customNotes.replace(
-                                    /\n/g,
-                                    "<br>"
-                                )}</p>
-                            </div>
-                        `
-                                : ""
-                        }
+              <footer class="footer">
+                <h3 class="footer-title">Cocoon Company for Aluminum Works</h3>
+                <div class="footer-content">
+                  <div class="footer-section">
+                    <p><strong>Address:</strong> 61 Seventh Neighborhood, Fourth District</p>
+                    <p>El-Shaikh Zayed, Giza, Egypt</p>
+                    <p><strong>Phone:</strong> +20 2 38501291</p>
+                    <p><strong>Mobile:</strong> +20 11 51717149</p>
+                  </div>
+                  <div class="footer-section">
+                    <p><strong>Email:</strong> sales.department@cocoonaluminum.com</p>
+                    <p><strong>Website:</strong> www.cocoonaluminum.com</p>
+                    <p><strong>Quality Assured:</strong> Premium Materials & Expert Installation</p>
+                    <p><strong>Warranty:</strong> Comprehensive Coverage Included</p>
+                  </div>
+                </div>
+              </footer>
+            </div>
 
-                        <div class="footer">
-                            <div><strong>Cocoon company for Aluminum Works</strong></div>
-                            <div>61 Seventh Neighborhood, Fourth District, El-Shaikh Zayed, Giza</div>
-                            <div>Tel: +20 2 38501291 | +20 11 51717149</div>
-                            <div>Email: sales.department@cocoonaluminum.com</div>
-                            <div>Website: www.cocoonaluminum.com</div>
-                        </div>
-                    </body>
-                    </html>
-                `;
+            <script>
+              // Enhanced number formatting with Arabic locale support
+              function formatNumberWithCommas(num) {
+                return new Intl.NumberFormat('en-EG', {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                }).format(num);
+              }
 
-                printWindow.document.write(htmlContent);
-                printWindow.document.close();
+              // Format all currency values
+              document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.price-value, .total-value, .payment-amount').forEach(el => {
+                  const text = el.textContent;
+                  const match = text.match(/([\d,]+)/);
+                  if (match) {
+                    const number = parseInt(match[1].replace(/,/g, ''));
+                    if (!isNaN(number)) {
+                      el.textContent = text.replace(match[1], formatNumberWithCommas(number));
+                    }
+                  }
+                });
 
-                // Wait for content to load then trigger print
-                printWindow.onload = () => {
-                    setTimeout(() => {
-                        printWindow.print();
-                        console.log("PDF export completed using browser print");
-                    }, 500);
-                };
-            } else if (type === "print") {
-                // For print, use the same approach
-                const printWindow = window.open("", "_blank");
-                if (printWindow) {
-                    printWindow.document.write(`
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <title>Quote - ${quoteData.id}</title>
-                            <style>
-                                body { font-family: Arial, sans-serif; margin: 20px; }
-                                .header { text-align: center; margin-bottom: 20px; }
-                                .section { margin-bottom: 20px; }
-                                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                                th { background-color: #f2f2f2; }
-                            </style>
-                        </head>
-                        <body>
-                            <div class="header">
-                                <h1>COCOON ALUMINUM QUOTE</h1>
-                                <p>Quote ID: ${quoteData.id}</p>
-                            </div>
-                            <div class="section">
-                                <h2>Customer Information</h2>
-                                <p>Name: ${
-                                    quoteData.contactInfo.name ||
-                                    "Not specified"
-                                }</p>
-                                <p>Email: ${
-                                    quoteData.contactInfo.email ||
-                                    "Not specified"
-                                }</p>
-                                <p>Phone: ${
-                                    quoteData.contactInfo.phone ||
-                                    "Not specified"
-                                }</p>
-                                <p>Location: ${
-                                    quoteData.contactInfo.location ||
-                                    "Not specified"
-                                }</p>
-                            </div>
-                            <div class="section">
-                                <h2>Items</h2>
-                                <table>
-                                    <tr><th>Item</th><th>Dimensions</th><th>System</th><th>Area (m²)</th></tr>
-                                    ${quoteData.items
-                                        .map(
-                                            (
-                                                item: QuoteItem,
-                                                index: number
-                                            ) => `
-                                        <tr>
-                                            <td>${item.type} ${index + 1}</td>
-                                            <td>${item.width}m × ${
-                                                item.height
-                                            }m</td>
-                                            <td>${item.system}</td>
-                                            <td>${(
-                                                item.width *
-                                                item.height *
-                                                item.quantity
-                                            ).toFixed(2)}</td>
-                                        </tr>
-                                    `
-                                        )
-                                        .join("")}
-                                </table>
-                            </div>
-                            <div class="section">
-                                <h3>Summary</h3>
-                                <p>Total Area: ${totals.totalArea.toFixed(
-                                    2
-                                )} m²</p>
-                                <p>Total Price: EGP ${totals.totalPrice.toLocaleString()}</p>
-                            </div>
-                        </body>
-                        </html>
-                    `);
+                // Auto-print after content loads
+                setTimeout(() => {
+                  window.print();
+                }, 1000);
+              });
+            </script>
+          </body>
+          </html>
+        `;
+
+                    printWindow.document.write(htmlContent);
                     printWindow.document.close();
-                    printWindow.print();
+
+                    printWindow.onload = () => {
+                        setTimeout(() => {
+                            printWindow.print();
+                            console.log("Professional PDF export completed");
+                        }, 500);
+                    };
+                } else if (type === "print") {
+                    // Simplified print version
+                    const printWindow = window.open("", "_blank");
+                    if (printWindow) {
+                        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>Quote - ${quoteData.id}</title>
+              <style>
+                body { font-family: 'Inter', Arial, sans-serif; margin: 20px; line-height: 1.6; }
+                .header { text-align: center; margin-bottom: 30px; padding: 20px; border-bottom: 3px solid #e53e3e; }
+                .header h1 { color: #1a202c; margin-bottom: 10px; }
+                .section { margin-bottom: 25px; }
+                .section h2 { color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
+                th { background-color: #1a202c; color: white; font-weight: 600; }
+                .summary { background: #f7fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #e53e3e; }
+              </style>
+            </head>
+            <body>
+              <div class="header">
+                <h1>COCOON ALUMINUM QUOTATION</h1>
+                <p>Quote ID: ${
+                    quoteData.id
+                } | Date: ${new Date().toLocaleDateString()}</p>
+              </div>
+              <div class="section">
+                <h2>Customer Information</h2>
+                <p><strong>Name:</strong> ${
+                    quoteData.contactInfo.name || "Not specified"
+                }</p>
+                <p><strong>Email:</strong> ${
+                    quoteData.contactInfo.email || "Not specified"
+                }</p>
+                <p><strong>Phone:</strong> ${
+                    quoteData.contactInfo.phone || "Not specified"
+                }</p>
+                <p><strong>Location:</strong> ${
+                    quoteData.contactInfo.location || "Not specified"
+                }</p>
+              </div>
+              <div class="section">
+                <h2>Project Items</h2>
+                <table>
+                  <tr><th>Item</th><th>Dimensions</th><th>System</th><th>Area (m²)</th><th>Price (EGP)</th></tr>
+                  ${quoteData.items
+                      .map(
+                          (item: QuoteItem, index: number) => `
+                    <tr>
+                      <td>${item.type} ${index + 1}</td>
+                      <td>${item.width}m × ${item.height}m</td>
+                      <td>${item.system}</td>
+                      <td>${(item.width * item.height * item.quantity).toFixed(
+                          2
+                      )}</td>
+                      <td>${Math.round(
+                          calculateItemPricing(item).totalPrice
+                      ).toLocaleString()}</td>
+                    </tr>
+                  `
+                      )
+                      .join("")}
+                </table>
+              </div>
+              <div class="summary">
+                <h2>Project Summary</h2>
+                <p><strong>Total Area:</strong> ${totals.totalArea.toFixed(
+                    2
+                )} m²</p>
+                <p><strong>Total Price:</strong> ${Math.round(
+                    totals.totalPrice
+                ).toLocaleString()} EGP</p>
+                <p><strong>Project Duration:</strong> ${
+                    quoteData.settings.projectDuration
+                } Days</p>
+              </div>
+            </body>
+            </html>
+          `);
+                        printWindow.document.close();
+                        printWindow.print();
+                    }
                 }
+            } catch (err) {
+                console.error("Export failed:", err);
+                setError(
+                    `Failed to export quote: ${
+                        err instanceof Error ? err.message : "Unknown error"
+                    }`
+                );
+                throw err;
+            } finally {
+                setLoading(false);
             }
-        } catch (err) {
-            console.error("Export failed:", err);
-            setError(
-                `Failed to export quote: ${
-                    err instanceof Error ? err.message : "Unknown error"
-                }`
-            );
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+        },
+        [quoteData, calculateTotals]
+    );
+
     return {
         quoteData,
         addItem,
         updateItem,
         removeItem,
         updateContactInfo,
-        updateSettings,
+        updateSettings: updateSettingsField,
         calculateTotals,
         saveQuote,
         exportQuote,

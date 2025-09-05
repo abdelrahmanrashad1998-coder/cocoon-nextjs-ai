@@ -38,7 +38,17 @@ export default function QuoteGeneratorPage() {
     const [activeTab, setActiveTab] = useState("items");
 
     const handleAddItem = () => {
-        addItem();
+        addItem({
+            type: "window",
+            system: "Sliding",
+            width: 1.2,
+            height: 1.5,
+            leaves: 2,
+            quantity: 1,
+            glassType: "double",
+            mosquito: false,
+            arch: false,
+        });
         setActiveTab("items");
     };
 
@@ -134,12 +144,15 @@ export default function QuoteGeneratorPage() {
                                                 item={item}
                                                 onUpdate={(updatedItem) =>
                                                     updateItem(
-                                                        index,
+                                                        updatedItem.id,
                                                         updatedItem
                                                     )
                                                 }
                                                 onRemove={() =>
-                                                    removeItem(index)
+                                                    removeItem(
+                                                        quoteData.items[index]
+                                                            .id
+                                                    )
                                                 }
                                                 index={index}
                                             />
@@ -210,12 +223,13 @@ export default function QuoteGeneratorPage() {
                                         </Label>
                                         <Input
                                             id="customerName"
-                                            value={quoteData.contactInfo.name}
+                                            value={
+                                                quoteData.contactInfo.name || ""
+                                            }
                                             onChange={(e) =>
-                                                updateContactInfo(
-                                                    "name",
-                                                    e.target.value
-                                                )
+                                                updateContactInfo({
+                                                    name: e.target.value,
+                                                })
                                             }
                                             placeholder="Enter customer name"
                                         />
@@ -227,12 +241,14 @@ export default function QuoteGeneratorPage() {
                                         <Input
                                             id="customerEmail"
                                             type="email"
-                                            value={quoteData.contactInfo.email}
+                                            value={
+                                                quoteData.contactInfo.email ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                updateContactInfo(
-                                                    "email",
-                                                    e.target.value
-                                                )
+                                                updateContactInfo({
+                                                    email: e.target.value,
+                                                })
                                             }
                                             placeholder="Enter email address"
                                         />
@@ -244,12 +260,14 @@ export default function QuoteGeneratorPage() {
                                         <Input
                                             id="customerPhone"
                                             type="tel"
-                                            value={quoteData.contactInfo.phone}
+                                            value={
+                                                quoteData.contactInfo.phone ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                updateContactInfo(
-                                                    "phone",
-                                                    e.target.value
-                                                )
+                                                updateContactInfo({
+                                                    phone: e.target.value,
+                                                })
                                             }
                                             placeholder="Enter phone number"
                                         />
@@ -261,13 +279,13 @@ export default function QuoteGeneratorPage() {
                                         <Input
                                             id="projectLocation"
                                             value={
-                                                quoteData.contactInfo.location
+                                                quoteData.contactInfo
+                                                    .location || ""
                                             }
                                             onChange={(e) =>
-                                                updateContactInfo(
-                                                    "location",
-                                                    e.target.value
-                                                )
+                                                updateContactInfo({
+                                                    location: e.target.value,
+                                                })
                                             }
                                             placeholder="Enter project location"
                                         />
@@ -279,12 +297,13 @@ export default function QuoteGeneratorPage() {
                                     </Label>
                                     <Textarea
                                         id="projectNotes"
-                                        value={quoteData.contactInfo.notes}
+                                        value={
+                                            quoteData.contactInfo.notes || ""
+                                        }
                                         onChange={(e) =>
-                                            updateContactInfo(
-                                                "notes",
-                                                e.target.value
-                                            )
+                                            updateContactInfo({
+                                                notes: e.target.value,
+                                            })
                                         }
                                         placeholder="Enter any special requirements or notes..."
                                         rows={4}
@@ -301,22 +320,11 @@ export default function QuoteGeneratorPage() {
                         <QuoteSettings
                             settings={quoteData.settings}
                             onUpdate={updateSettings}
-                            onExport={(type) =>
-                                exportQuote({
-                                    type,
-                                    format: quoteData.settings.exportFormat,
-                                    pricingType: quoteData.settings.pricingType,
-                                    customNotes: quoteData.settings.customNotes,
-                                    expirationDays:
-                                        quoteData.settings.expirationDays,
-                                    projectDuration:
-                                        quoteData.settings.projectDuration,
-                                    discountPercentage:
-                                        quoteData.settings.discountPercentage,
-                                    quoteData,
-                                    totals: calculateTotals(),
-                                })
-                            }
+                            onExport={(type) => {
+                                if (type === "pdf" || type === "print") {
+                                    exportQuote(type);
+                                }
+                            }}
                         />
                     </TabsContent>
 
