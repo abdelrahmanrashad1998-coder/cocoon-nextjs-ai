@@ -22,12 +22,21 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, Settings } from "lucide-react";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import { Trash2, Settings, Calculator, ChevronDown, ChevronRight } from "lucide-react";
 import { QuoteItem } from "@/types/quote";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { CurtainWallDesigner } from "./curtain-wall-designer";
 import ProfileManager, { AluminiumProfile } from "../profile/profile-manager";
 import { Database, X } from "lucide-react";
+import { calculateItemPricing } from "@/lib/pricing-calculator";
 
 interface QuoteItemEditorProps {
     item: QuoteItem;
@@ -44,6 +53,7 @@ export function QuoteItemEditor({
 }: QuoteItemEditorProps) {
     const [isExpanded, setIsExpanded] = useState(true);
     const [showProfileManager, setShowProfileManager] = useState(false);
+    const [showPricingDetails, setShowPricingDetails] = useState(false);
 
     const handleUpdate = (
         field: keyof QuoteItem,
@@ -156,6 +166,326 @@ export function QuoteItemEditor({
             handleUpdate("system", "Sliding");
         }
     }, [isCurtainWall, item.system]);
+
+    const renderPricingBreakdown = (item: QuoteItem) => {
+        const pricing = calculateItemPricing(item);
+        const formatCurrency = (amount: number) => `EGP ${amount.toLocaleString()}`;
+        const isCurtainWall = item.type === 'curtain_wall';
+
+        if (isCurtainWall) {
+            return (
+                <div className="space-y-4">
+                    {/* Basic Information */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                            <span className="font-medium text-muted-foreground">Wall Dimensions:</span>
+                            <div className="font-medium">{item.designData?.wallWidth}m × {item.designData?.wallHeight}m</div>
+                        </div>
+                        <div>
+                            <span className="font-medium text-muted-foreground">Frame Meters:</span>
+                            <div className="font-medium">{pricing.frameMeters?.toFixed(2)}m</div>
+                        </div>
+                        <div>
+                            <span className="font-medium text-muted-foreground">Window Meters:</span>
+                            <div className="font-medium">{pricing.windowMeters?.toFixed(2)}m</div>
+                        </div>
+                        <div>
+                            <span className="font-medium text-muted-foreground">Glass Area:</span>
+                            <div className="font-medium">{pricing.glassArea?.toFixed(2)}m²</div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                            <span className="font-medium text-muted-foreground">Windows:</span>
+                            <div className="font-medium">{pricing.numWindows}</div>
+                        </div>
+                        <div>
+                            <span className="font-medium text-muted-foreground">Doors:</span>
+                            <div className="font-medium">{pricing.numDoors}</div>
+                        </div>
+                        <div>
+                            <span className="font-medium text-muted-foreground">Corners:</span>
+                            <div className="font-medium">{pricing.cornerCount}</div>
+                        </div>
+                        <div>
+                            <span className="font-medium text-muted-foreground">Total Area:</span>
+                            <div className="font-medium">{pricing.totalArea?.toFixed(2)}m²</div>
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Cost Breakdown */}
+                    <div className="space-y-3">
+                        <h4 className="font-semibold text-lg">Cost Breakdown</h4>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Component</TableHead>
+                                    <TableHead className="text-right">Calculation</TableHead>
+                                    <TableHead className="text-right">Unit Cost</TableHead>
+                                    <TableHead className="text-right">Quantity</TableHead>
+                                    <TableHead className="text-right">Total Cost</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow>
+                                    <TableCell>Frame Cost</TableCell>
+                                    <TableCell className="text-right text-sm text-muted-foreground">
+                                        {pricing.frameMeters?.toFixed(2)}m × {formatCurrency(item.profile?.frame_price || 0)}/m
+                                    </TableCell>
+                                    <TableCell className="text-right">{formatCurrency(pricing.frameCost / item.quantity)}</TableCell>
+                                    <TableCell className="text-right">{item.quantity}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatCurrency(pricing.frameCost)}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell>Windows Cost</TableCell>
+                                    <TableCell className="text-right text-sm text-muted-foreground">
+                                        {pricing.windowMeters?.toFixed(2)}m × {formatCurrency(item.profile?.leaf_price || 0)}/m
+                                    </TableCell>
+                                    <TableCell className="text-right">{formatCurrency((pricing.windowsCost || 0) / item.quantity)}</TableCell>
+                                    <TableCell className="text-right">{item.quantity}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatCurrency(pricing.windowsCost || 0)}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell>Window/Door Accessories</TableCell>
+                                    <TableCell className="text-right text-sm text-muted-foreground">
+                                        {(pricing.numWindows || 0) + (pricing.numDoors || 0)} × {formatCurrency(item.profile?.accessories_2_leaves || 0)}
+                                    </TableCell>
+                                    <TableCell className="text-right">{formatCurrency((pricing.accessoriesWindowsDoors || 0) / item.quantity)}</TableCell>
+                                    <TableCell className="text-right">{item.quantity}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatCurrency(pricing.accessoriesWindowsDoors || 0)}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell>Frame Accessories</TableCell>
+                                    <TableCell className="text-right text-sm text-muted-foreground">
+                                        {pricing.frameMeters?.toFixed(2)}m × {formatCurrency(item.profile?.accessories_3_leaves || 0)}/m
+                                    </TableCell>
+                                    <TableCell className="text-right">{formatCurrency((pricing.frameAccessories || 0) / item.quantity)}</TableCell>
+                                    <TableCell className="text-right">{item.quantity}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatCurrency(pricing.frameAccessories || 0)}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell>Corner Accessories</TableCell>
+                                    <TableCell className="text-right text-sm text-muted-foreground">
+                                        {pricing.cornerCount || 0} × {formatCurrency(item.profile?.accessories_4_leaves || 0)}
+                                    </TableCell>
+                                    <TableCell className="text-right">{formatCurrency((pricing.cornersCost || 0) / item.quantity)}</TableCell>
+                                    <TableCell className="text-right">{item.quantity}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatCurrency(pricing.cornersCost || 0)}</TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
+
+                    <Separator />
+
+                    {/* Profit and Totals */}
+                    <div className="space-y-3">
+                        <h4 className="font-semibold text-lg">Profit & Totals</h4>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span className="font-medium text-muted-foreground">Subtotal (Before Profit):</span>
+                                <div className="font-medium text-lg">{formatCurrency(pricing.totalBeforeProfit)}</div>
+                            </div>
+                            <div>
+                                <span className="font-medium text-muted-foreground">Profit Rate:</span>
+                                <div className="font-medium text-lg">{(pricing.base_profit_rate * 100).toFixed(2)}%</div>
+                            </div>
+                            <div>
+                                <span className="font-medium text-muted-foreground">Profit Amount:</span>
+                                <div className="font-medium text-lg">{formatCurrency(pricing.profitAmount)}</div>
+                            </div>
+                            <div>
+                                <span className="font-medium text-muted-foreground">Total Price:</span>
+                                <div className="font-medium text-xl text-primary">{formatCurrency(pricing.totalPrice)}</div>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span className="font-medium text-muted-foreground">Price per m²:</span>
+                                <div className="font-medium">{formatCurrency(pricing.m2Price)}</div>
+                            </div>
+                            <div>
+                                <span className="font-medium text-muted-foreground">Profit Percentage:</span>
+                                <div className="font-medium">{pricing.profitPercentage.toFixed(2)}%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        } else {
+            return (
+                <div className="space-y-4">
+                    {/* Basic Information */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                            <span className="font-medium text-muted-foreground">Dimensions:</span>
+                            <div className="font-medium">{item.width}m × {item.height}m</div>
+                        </div>
+                        <div>
+                            <span className="font-medium text-muted-foreground">Leaves:</span>
+                            <div className="font-medium">{item.leaves}</div>
+                        </div>
+                        <div>
+                            <span className="font-medium text-muted-foreground">Quantity:</span>
+                            <div className="font-medium">{item.quantity}</div>
+                        </div>
+                        <div>
+                            <span className="font-medium text-muted-foreground">Glass Type:</span>
+                            <div className="font-medium">{item.glassType === 'double' ? 'Double Glazed' : 'Single Glazed'}</div>
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Calculations */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                            <span className="font-medium text-muted-foreground">Area (m²):</span>
+                            <div className="font-medium">{(item.width * item.height).toFixed(2)}</div>
+                        </div>
+                        <div>
+                            <span className="font-medium text-muted-foreground">Frame Length (m):</span>
+                            <div className="font-medium">{pricing.frameLength.toFixed(2)}</div>
+                        </div>
+                        <div>
+                            <span className="font-medium text-muted-foreground">Leaf Perimeter (m):</span>
+                            <div className="font-medium">{pricing.leafPerimeter.toFixed(2)}</div>
+                        </div>
+                        <div>
+                            <span className="font-medium text-muted-foreground">Total Leaf Length (m):</span>
+                            <div className="font-medium">{pricing.totalLeafLength.toFixed(2)}</div>
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Cost Breakdown */}
+                    <div className="space-y-3">
+                        <h4 className="font-semibold text-lg">Cost Breakdown</h4>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Component</TableHead>
+                                    <TableHead className="text-right">Calculation</TableHead>
+                                    <TableHead className="text-right">Unit Cost</TableHead>
+                                    <TableHead className="text-right">Quantity</TableHead>
+                                    <TableHead className="text-right">Total Cost</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow>
+                                    <TableCell>Frame Cost</TableCell>
+                                    <TableCell className="text-right text-sm text-muted-foreground">
+                                        {pricing.frameLength.toFixed(2)}m × {formatCurrency(item.profile?.frame_price || 0)}/m
+                                    </TableCell>
+                                    <TableCell className="text-right">{formatCurrency(pricing.frameCost / item.quantity)}</TableCell>
+                                    <TableCell className="text-right">{item.quantity}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatCurrency(pricing.frameCost)}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell>Leaf Cost</TableCell>
+                                    <TableCell className="text-right text-sm text-muted-foreground">
+                                        {pricing.totalLeafLength.toFixed(2)}m × {formatCurrency(item.profile?.leaf_price || 0)}/m
+                                    </TableCell>
+                                    <TableCell className="text-right">{formatCurrency(pricing.leafCost / item.quantity)}</TableCell>
+                                    <TableCell className="text-right">{item.quantity}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatCurrency(pricing.leafCost)}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell>Glass Cost</TableCell>
+                                    <TableCell className="text-right text-sm text-muted-foreground">
+                                        {(item.width * item.height).toFixed(2)}m² × {formatCurrency(item.glassType === 'double' ? (item.profile?.glass_price_double || 0) : (item.profile?.glass_price_single || 0))}/m²
+                                    </TableCell>
+                                    <TableCell className="text-right">{formatCurrency(pricing.glassCost / item.quantity)}</TableCell>
+                                    <TableCell className="text-right">{item.quantity}</TableCell>
+                                    <TableCell className="text-right font-medium">{formatCurrency(pricing.glassCost)}</TableCell>
+                                </TableRow>
+                                {pricing.accessories > 0 && (
+                                    <TableRow>
+                                        <TableCell>Accessories</TableCell>
+                                        <TableCell className="text-right text-sm text-muted-foreground">
+                                            {item.leaves} leaves × {formatCurrency(
+                                                item.leaves === 2 ? (item.profile?.accessories_2_leaves || 0) :
+                                                item.leaves === 3 ? (item.profile?.accessories_3_leaves || 0) :
+                                                item.leaves === 4 ? (item.profile?.accessories_4_leaves || 0) : 0
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-right">{formatCurrency(pricing.accessories / item.quantity)}</TableCell>
+                                        <TableCell className="text-right">{item.quantity}</TableCell>
+                                        <TableCell className="text-right font-medium">{formatCurrency(pricing.accessories)}</TableCell>
+                                    </TableRow>
+                                )}
+                                {pricing.netCost > 0 && (
+                                    <TableRow>
+                                        <TableCell>Mosquito Net</TableCell>
+                                        <TableCell className="text-right text-sm text-muted-foreground">
+                                            {pricing.leafPerimeter.toFixed(2)}m × {formatCurrency(
+                                                item.netType === 'fixed' ? (item.profile?.net_price || 0) :
+                                                item.netType === 'plisse' ? (item.profile?.net_price_plisse || 0) :
+                                                item.netType === 'panda' ? (item.profile?.net_price_panda || 0) : (item.profile?.net_price || 0)
+                                            )}/m
+                                        </TableCell>
+                                        <TableCell className="text-right">{formatCurrency(pricing.netCost / item.quantity)}</TableCell>
+                                        <TableCell className="text-right">{item.quantity}</TableCell>
+                                        <TableCell className="text-right font-medium">{formatCurrency(pricing.netCost)}</TableCell>
+                                    </TableRow>
+                                )}
+                                {pricing.archCost > 0 && (
+                                    <TableRow>
+                                        <TableCell>Architrave</TableCell>
+                                        <TableCell className="text-right text-sm text-muted-foreground">
+                                            {pricing.frameLength.toFixed(2)}m × {formatCurrency(item.profile?.arc_price || 0)}/m
+                                        </TableCell>
+                                        <TableCell className="text-right">{formatCurrency(pricing.archCost / item.quantity)}</TableCell>
+                                        <TableCell className="text-right">{item.quantity}</TableCell>
+                                        <TableCell className="text-right font-medium">{formatCurrency(pricing.archCost)}</TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+
+                    <Separator />
+
+                    {/* Profit and Totals */}
+                    <div className="space-y-3">
+                        <h4 className="font-semibold text-lg">Profit & Totals</h4>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span className="font-medium text-muted-foreground">Subtotal (Before Profit):</span>
+                                <div className="font-medium text-lg">{formatCurrency(pricing.totalBeforeProfit)}</div>
+                            </div>
+                            <div>
+                                <span className="font-medium text-muted-foreground">Profit Rate:</span>
+                                <div className="font-medium text-lg">{(pricing.base_profit_rate * 100).toFixed(2)}%</div>
+                            </div>
+                            <div>
+                                <span className="font-medium text-muted-foreground">Profit Amount:</span>
+                                <div className="font-medium text-lg">{formatCurrency(pricing.profitAmount)}</div>
+                            </div>
+                            <div>
+                                <span className="font-medium text-muted-foreground">Total Price:</span>
+                                <div className="font-medium text-xl text-primary">{formatCurrency(pricing.totalPrice)}</div>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span className="font-medium text-muted-foreground">Price per m²:</span>
+                                <div className="font-medium">{formatCurrency(pricing.m2Price)}</div>
+                            </div>
+                            <div>
+                                <span className="font-medium text-muted-foreground">Profit Percentage:</span>
+                                <div className="font-medium">{pricing.profitPercentage.toFixed(2)}%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+    };
 
     return (
         <>
@@ -742,6 +1072,45 @@ export function QuoteItemEditor({
                                     </div>
                                 )}
                             </div>
+
+                            {/* Pricing Details */}
+                            {item.profile && (
+                                <>
+                                    <Separator />
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-sm font-medium">
+                                                Pricing Breakdown
+                                            </Label>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setShowPricingDetails(!showPricingDetails)}
+                                                className="flex items-center gap-2"
+                                            >
+                                                <Calculator className="h-4 w-4" />
+                                                {showPricingDetails ? (
+                                                    <>
+                                                        <ChevronDown className="h-4 w-4" />
+                                                        Hide Details
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <ChevronRight className="h-4 w-4" />
+                                                        Show Details
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </div>
+
+                                        {showPricingDetails && (
+                                            <div className="mt-4">
+                                                {renderPricingBreakdown(item)}
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            )}
 
                             {/* Item Summary */}
                             <div className="bg-muted p-4 rounded-lg">

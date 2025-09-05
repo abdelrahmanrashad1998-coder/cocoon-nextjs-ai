@@ -64,13 +64,19 @@ export interface QuoteData {
 }
 
 export interface QuoteTotals {
-    totalArea: number;
-    totalBeforeProfit: number;
-    totalPrice: number;
+    totalM2: number;
+    totalBefore: number;
+    totalAfter: number;
     totalProfit: number;
+    totalProfitPercentage: number;
+    totalM2Price: number;
     downPayment: number;
     supplyPayment: number;
     completePayment: number;
+    // Legacy fields for compatibility
+    totalArea: number;
+    totalBeforeProfit: number;
+    totalPrice: number;
     m2Price: number;
     profitPercentage: number;
 }
@@ -91,6 +97,7 @@ export interface PricedItem extends QuoteItem {
     totalPrice: number;
     m2Price: number;
     profitPercentage: number;
+    base_profit_rate: number;
     // Curtain wall specific
     frameMeters?: number;
     windowMeters?: number;
@@ -100,4 +107,7 @@ export interface PricedItem extends QuoteItem {
     cornerCount?: number;
     frameAccessories?: number;
     cornersCost?: number;
+    windowsCost?: number;
+    accessoriesWindowsDoors?: number;
+    totalArea?: number;
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
     Card,
     CardContent,
@@ -8,6 +9,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
     Table,
@@ -19,6 +21,8 @@ import {
 } from "@/components/ui/table";
 import { QuoteData, QuoteTotals, QuoteItem } from "@/types/quote";
 import { calculateItemPricing } from "@/lib/pricing-calculator";
+import { DetailedPricingBreakdown } from "./detailed-pricing-breakdown";
+import { Calculator, Eye, EyeOff } from "lucide-react";
 
 interface QuotePreviewProps {
     quoteData: QuoteData;
@@ -26,6 +30,8 @@ interface QuotePreviewProps {
 }
 
 export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
+    const [showDetailedPricing, setShowDetailedPricing] = useState(false);
+
     const formatCurrency = (amount: number) => {
         return `EGP ${amount.toLocaleString()}`;
     };
@@ -71,12 +77,33 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                                 Review your quote before saving or exporting
                             </CardDescription>
                         </div>
-                        <div className="text-right">
-                            <div className="text-sm text-muted-foreground">
-                                Quote ID
-                            </div>
-                            <div className="font-mono text-sm">
-                                {quoteData.id}
+                        <div className="flex items-center gap-4">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowDetailedPricing(!showDetailedPricing)}
+                                className="flex items-center gap-2"
+                            >
+                                <Calculator className="h-4 w-4" />
+                                {showDetailedPricing ? (
+                                    <>
+                                        <EyeOff className="h-4 w-4" />
+                                        Hide Details
+                                    </>
+                                ) : (
+                                    <>
+                                        <Eye className="h-4 w-4" />
+                                        Show Details
+                                    </>
+                                )}
+                            </Button>
+                            <div className="text-right">
+                                <div className="text-sm text-muted-foreground">
+                                    Quote ID
+                                </div>
+                                <div className="font-mono text-sm">
+                                    {quoteData.id}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -257,6 +284,11 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                     </Table>
                 </CardContent>
             </Card>
+
+            {/* Detailed Pricing Breakdown */}
+            {showDetailedPricing && (
+                <DetailedPricingBreakdown items={quoteData.items} />
+            )}
 
             {/* Quote Summary */}
             <Card>
