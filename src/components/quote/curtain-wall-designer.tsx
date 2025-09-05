@@ -35,6 +35,8 @@ import {
     Minus,
     Maximize2,
     Minimize2,
+    Undo2,
+    Redo2,
 } from "lucide-react";
 
 interface CurtainPanel {
@@ -54,6 +56,17 @@ interface CurtainPanel {
     glassType?: "single" | "double" | "triple" | "laminated";
     frameColor?: string;
     isSpanned?: boolean;
+}
+
+interface MergeStep {
+    id: string;
+    timestamp: number;
+    action: "merge" | "split";
+    panelsBefore: CurtainPanel[];
+    panelsAfter: CurtainPanel[];
+    selectedPanels: string[];
+    mergedGroupId?: string;
+    description: string;
 }
 
 interface DesignPreset {
@@ -102,6 +115,8 @@ export function CurtainWallDesigner({
     const [showGrid, setShowGrid] = useState(true);
     const [zoom, setZoom] = useState(1);
     const [activeTab, setActiveTab] = useState("design");
+    const [mergeHistory, setMergeHistory] = useState<MergeStep[]>([]);
+    const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
     const canvasRef = useRef<HTMLDivElement>(null);
 
     // Design presets
@@ -155,6 +170,105 @@ export function CurtainWallDesigner({
         },
     ];
 
+    // Enhanced calculations with pricing
+    const calculateDesign = useCallback(
+        (currentPanels: CurtainPanel[]) => {
+            let frameMeters = 0;
+            let windowMeters = 0;
+            let glassArea = 0;
+            const cornerCount = 4;
+            let totalCost = 0;
+            const materialBreakdown: Record<string, number> = {
+                aluminum: 0,
+                steel: 0,
+                composite: 0,
+                glass: 0,
+                hardware: 0,
+            };
+
+            // Calculate external perimeter
+            frameMeters = 2 * (wallWidth + wallHeight);
+
+            // Calculate window/door meters and glass area
+            currentPanels.forEach((panel) => {
+                if (panel.type === "window" || panel.type === "door") {
+                    windowMeters +=
+                        2 * (panel.widthMeters + panel.heightMeters);
+                    glassArea += panel.widthMeters * panel.heightMeters;
+                }
+            });
+
+            // Calculate costs based on material and glass type
+            const materialCosts = {
+                aluminum: 45, // per meter
+                steel: 65,
+                composite: 55,
+                glass: {
+                    single: 80,
+                    double: 120,
+                    triple: 180,
+                    laminated: 150,
+                },
+            };
+
+            // Frame cost
+            const frameCost = frameMeters * materialCosts[material];
+            materialBreakdown[material] = frameCost;
+
+            // Glass cost
+            const glassCost = glassArea * materialCosts.glass[glassType];
+            materialBreakdown.glass = glassCost;
+
+            // Hardware cost (estimated 15% of total)
+            const hardwareCost = (frameCost + glassCost) * 0.15;
+            materialBreakdown.hardware = hardwareCost;
+
+            totalCost = frameCost + glassCost + hardwareCost;
+
+            onDesignChange({
+                panels: currentPanels,
+                frameMeters,
+                windowMeters,
+                glassArea,
+                cornerCount,
+                totalCost,
+                materialBreakdown,
+            });
+        },
+        [wallWidth, wallHeight, material, glassType, onDesignChange]
+    );
+
+    // Helper function to add a merge step to history
+    const addMergeStep = useCallback(
+        (step: Omit<MergeStep, "id" | "timestamp">) => {
+            const newStep: MergeStep = {
+                ...step,
+                id: `step-${Date.now()}-${Math.random()
+                    .toString(36)
+                    .substr(2, 9)}`,
+                timestamp: Date.now(),
+            };
+
+            setMergeHistory((prev) => {
+                // Remove any steps after current index (when branching from history)
+                const newHistory = prev.slice(0, currentHistoryIndex + 1);
+                return [...newHistory, newStep];
+            });
+            setCurrentHistoryIndex((prev) => prev + 1);
+        },
+        [currentHistoryIndex]
+    );
+
+    // Helper function to restore panels from a merge step
+    const restoreFromStep = useCallback(
+        (step: MergeStep) => {
+            setPanels(step.panelsBefore);
+            setSelectedPanels(step.selectedPanels);
+            calculateDesign(step.panelsBefore);
+        },
+        [calculateDesign]
+    );
+
     const generateGrid = useCallback(() => {
         const newPanels: CurtainPanel[] = [];
         let panelId = 0;
@@ -182,6 +296,9 @@ export function CurtainWallDesigner({
             }
         }
         setPanels(newPanels);
+        // Clear merge history when generating new grid
+        setMergeHistory([]);
+        setCurrentHistoryIndex(-1);
     }, [
         columns,
         rows,
@@ -237,6 +354,9 @@ export function CurtainWallDesigner({
 
     const mergePanels = () => {
         if (selectedPanels.length < 2) return;
+
+        // Store the state before merge for history
+        const panelsBefore = panels.map((p) => ({ ...p }));
 
         // Get all selected panels (including spanned ones)
         const selected = panels.filter((p) => selectedPanels.includes(p.id));
@@ -341,19 +461,62 @@ export function CurtainWallDesigner({
             return !selectedPanels.includes(panel.id);
         });
 
+        // Store the state after merge for history
+        const panelsAfter = filteredPanels.map((p) => ({ ...p }));
+
+        // Record the merge step
+        addMergeStep({
+            action: "merge",
+            panelsBefore,
+            panelsAfter,
+            selectedPanels: [...selectedPanels],
+            mergedGroupId,
+            description: `Merged ${selectedPanels.length} panels into ${master.colSpan}×${master.rowSpan} group`,
+        });
+
         setPanels(filteredPanels);
         setSelectedPanels([master.id]);
         calculateDesign(filteredPanels);
     };
 
     const splitPanels = () => {
-        // Find panels that have been merged (have colSpan > 1 or rowSpan > 1)
+        // If we have merge history, restore the previous state
+        if (mergeHistory.length > 0 && currentHistoryIndex >= 0) {
+            const currentStep = mergeHistory[currentHistoryIndex];
+            if (currentStep.action === "merge") {
+                // Find the previous step that was before this merge
+                let previousStepIndex = currentHistoryIndex - 1;
+                while (
+                    previousStepIndex >= 0 &&
+                    mergeHistory[previousStepIndex].action === "merge"
+                ) {
+                    previousStepIndex--;
+                }
+
+                if (previousStepIndex >= 0) {
+                    const previousStep = mergeHistory[previousStepIndex];
+                    restoreFromStep(previousStep);
+                    setCurrentHistoryIndex(previousStepIndex);
+                    return;
+                } else {
+                    // If no previous step, restore to the state before the first merge
+                    restoreFromStep(currentStep);
+                    setCurrentHistoryIndex(-1);
+                    return;
+                }
+            }
+        }
+
+        // Fallback to the original split logic if no history
         const mergedPanels = panels.filter(
             (panel) =>
                 (panel.colSpan > 1 || panel.rowSpan > 1) && panel.mergedId
         );
 
         if (mergedPanels.length === 0) return;
+
+        // Store the state before split for history
+        const panelsBefore = panels.map((p) => ({ ...p }));
 
         const newPanels: CurtainPanel[] = [];
 
@@ -403,6 +566,19 @@ export function CurtainWallDesigner({
         );
 
         const allPanels = [...nonMergedPanels, ...newPanels];
+
+        // Store the state after split for history
+        const panelsAfter = allPanels.map((p) => ({ ...p }));
+
+        // Record the split step
+        addMergeStep({
+            action: "split",
+            panelsBefore,
+            panelsAfter,
+            selectedPanels: [],
+            description: `Split ${mergedPanels.length} merged panel(s) into individual panels`,
+        });
+
         setPanels(allPanels);
         setSelectedPanels([]);
         calculateDesign(allPanels);
@@ -411,6 +587,44 @@ export function CurtainWallDesigner({
     const clearSelection = () => {
         setSelectedPanels([]);
     };
+
+    // Undo/Redo functionality
+    const undoMerge = () => {
+        if (currentHistoryIndex >= 0) {
+            const currentStep = mergeHistory[currentHistoryIndex];
+            if (currentStep.action === "merge") {
+                // Find the previous step
+                let previousStepIndex = currentHistoryIndex - 1;
+                while (
+                    previousStepIndex >= 0 &&
+                    mergeHistory[previousStepIndex].action === "merge"
+                ) {
+                    previousStepIndex--;
+                }
+
+                if (previousStepIndex >= 0) {
+                    const previousStep = mergeHistory[previousStepIndex];
+                    restoreFromStep(previousStep);
+                    setCurrentHistoryIndex(previousStepIndex);
+                } else {
+                    // Restore to state before first merge
+                    restoreFromStep(currentStep);
+                    setCurrentHistoryIndex(-1);
+                }
+            }
+        }
+    };
+
+    const redoMerge = () => {
+        if (currentHistoryIndex < mergeHistory.length - 1) {
+            const nextStep = mergeHistory[currentHistoryIndex + 1];
+            restoreFromStep(nextStep);
+            setCurrentHistoryIndex(currentHistoryIndex + 1);
+        }
+    };
+
+    const canUndo = currentHistoryIndex >= 0 && mergeHistory.length > 0;
+    const canRedo = currentHistoryIndex < mergeHistory.length - 1;
 
     // Apply preset design
     const applyPreset = (preset: DesignPreset) => {
@@ -452,70 +666,6 @@ export function CurtainWallDesigner({
             setPanels(newPanels);
             calculateDesign(newPanels);
         }, 100);
-    };
-
-    // Enhanced calculations with pricing
-    const calculateDesign = (currentPanels: CurtainPanel[]) => {
-        let frameMeters = 0;
-        let windowMeters = 0;
-        let glassArea = 0;
-        const cornerCount = 4;
-        let totalCost = 0;
-        const materialBreakdown: Record<string, number> = {
-            aluminum: 0,
-            steel: 0,
-            composite: 0,
-            glass: 0,
-            hardware: 0,
-        };
-
-        // Calculate external perimeter
-        frameMeters = 2 * (wallWidth + wallHeight);
-
-        // Calculate window/door meters and glass area
-        currentPanels.forEach((panel) => {
-            if (panel.type === "window" || panel.type === "door") {
-                windowMeters += 2 * (panel.widthMeters + panel.heightMeters);
-                glassArea += panel.widthMeters * panel.heightMeters;
-            }
-        });
-
-        // Calculate costs based on material and glass type
-        const materialCosts = {
-            aluminum: 45, // per meter
-            steel: 65,
-            composite: 55,
-            glass: {
-                single: 80,
-                double: 120,
-                triple: 180,
-                laminated: 150,
-            },
-        };
-
-        // Frame cost
-        const frameCost = frameMeters * materialCosts[material];
-        materialBreakdown[material] = frameCost;
-
-        // Glass cost
-        const glassCost = glassArea * materialCosts.glass[glassType];
-        materialBreakdown.glass = glassCost;
-
-        // Hardware cost (estimated 15% of total)
-        const hardwareCost = (frameCost + glassCost) * 0.15;
-        materialBreakdown.hardware = hardwareCost;
-
-        totalCost = frameCost + glassCost + hardwareCost;
-
-        onDesignChange({
-            panels: currentPanels,
-            frameMeters,
-            windowMeters,
-            glassArea,
-            cornerCount,
-            totalCost,
-            materialBreakdown,
-        });
     };
 
     const getPanelStyle = (panel: CurtainPanel) => {
@@ -873,6 +1023,47 @@ export function CurtainWallDesigner({
                                             {mode.charAt(0).toUpperCase() +
                                                 mode.slice(1)}
                                         </Button>
+                                    </div>
+                                </div>
+
+                                <Separator />
+
+                                <div>
+                                    <Label className="text-sm font-medium mb-3 block">
+                                        Merge History
+                                    </Label>
+                                    <div className="space-y-2">
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={undoMerge}
+                                                disabled={!canUndo}
+                                                className="justify-start"
+                                            >
+                                                <Undo2 className="h-4 w-4 mr-2" />
+                                                Undo
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={redoMerge}
+                                                disabled={!canRedo}
+                                                className="justify-start"
+                                            >
+                                                <Redo2 className="h-4 w-4 mr-2" />
+                                                Redo
+                                            </Button>
+                                        </div>
+                                        {mergeHistory.length > 0 && (
+                                            <div className="text-xs text-muted-foreground">
+                                                {mergeHistory.length} step
+                                                {mergeHistory.length > 1
+                                                    ? "s"
+                                                    : ""}{" "}
+                                                recorded
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
