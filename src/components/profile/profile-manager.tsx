@@ -14,6 +14,8 @@ import {
     deleteDoc,
     doc,
     getDoc,
+    query,
+    where,
 } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,7 +37,9 @@ import {
     Download,
     Search,
     Save,
+    Palette,
 } from "lucide-react";
+import { ColorOption } from "@/types/quote";
 import ProfileCard from "../profile-card";
 
 export interface AluminiumProfile {
@@ -282,7 +286,7 @@ export default function ProfileManager({
                 brand: editingProfile.brand || "",
                 system_type: editingProfile.system_type || "",
                 glass_price_single: editingProfile.glass_price_single || 0,
-                glass_price_double:editingProfile.glass_price_double || 0,
+                glass_price_double: editingProfile.glass_price_double || 0,
                 weight_6m: editingProfile.weight_6m || 0,
                 frame_price: editingProfile.frame_price || 0,
                 frame_price_3: editingProfile.frame_price_3 || 0,
@@ -408,6 +412,33 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
         setCsvImportStatus({
             type: "success",
             message: "Sample CSV file downloaded successfully!",
+        });
+        setTimeout(() => setCsvImportStatus(null), 3000);
+    };
+
+    // Download sample CSV template for colors
+    const downloadColorSampleCSV = () => {
+        const sampleData = `code,brand,color,finish
+RAL-9005,Cocoon,Black,Matte
+RAL-9010,Cocoon,Pure White,Glossy
+RAL-7016,Cocoon,Anthracite Grey,Satin
+RAL-8017,Cocoon,Chocolate Brown,Matte
+RAL-6005,Cocoon,Moss Green,Satin
+RAL-5010,Cocoon,Gentian Blue,Glossy
+RAL-3000,Cocoon,Flame Red,Matte
+RAL-1020,Cocoon,Olive Yellow,Satin`;
+
+        const blob = new Blob([sampleData], { type: "text/csv" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "sample-colors.csv";
+        a.click();
+        window.URL.revokeObjectURL(url);
+
+        setCsvImportStatus({
+            type: "success",
+            message: "Sample color CSV file downloaded successfully!",
         });
         setTimeout(() => setCsvImportStatus(null), 3000);
     };
@@ -585,6 +616,110 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
         event.target.value = "";
     };
 
+    // Handle CSV import for colors
+    const handleColorCSVImport = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setCsvImportStatus({
+            type: "error",
+            message: "Processing color CSV file...",
+        });
+
+        try {
+            const text = await file.text();
+            const lines = text.split("\n");
+            const headers = lines[0]
+                .split(",")
+                .map((h) => h.trim().replace(/"/g, ""));
+
+            let importedCount = 0;
+            let skippedCount = 0;
+            let invalidCount = 0;
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                const values = line
+                    .split(",")
+                    .map((v) => v.trim().replace(/"/g, ""));
+                const color: Record<string, string> = {};
+
+                headers.forEach((header, index) => {
+                    color[header] = values[index] || "";
+                });
+
+                // Validate required fields
+                if (color.code && color.brand && color.color && color.finish) {
+                    // Check if color already exists
+                    const existingColor = await checkColorExists(color.code);
+                    if (!existingColor) {
+                        // Save to Firebase
+                        const colorsCollection = collection(db, "colorOptions");
+                        const colorData = {
+                            code: color.code,
+                            brand: color.brand,
+                            color: color.color,
+                            finish: color.finish,
+                        };
+
+                        await addDoc(colorsCollection, colorData);
+                        importedCount++;
+                    } else {
+                        skippedCount++;
+                    }
+                } else {
+                    invalidCount++;
+                }
+            }
+
+            setCsvImportStatus({
+                type: "success",
+                message: `Color import complete! ${importedCount} imported, ${skippedCount} skipped, ${invalidCount} invalid`,
+            });
+
+            // Clear status after 5 seconds
+            setTimeout(() => setCsvImportStatus(null), 5000);
+        } catch (error: unknown) {
+            const err = error as { code?: string; message?: string };
+            console.error("Error importing color CSV:", error);
+            if (err.code === "permission-denied") {
+                setCsvImportStatus({
+                    type: "error",
+                    message:
+                        "Permission denied: Please check your Firebase security rules. You may need to update them to allow access to the colorOptions collection.",
+                });
+            } else {
+                setCsvImportStatus({
+                    type: "error",
+                    message: `Error importing color CSV: ${
+                        err.message || "Unknown error"
+                    }`,
+                });
+            }
+            setTimeout(() => setCsvImportStatus(null), 5000);
+        }
+
+        // Reset file input
+        event.target.value = "";
+    };
+
+    // Check if color exists in Firebase
+    const checkColorExists = async (code: string): Promise<boolean> => {
+        try {
+            const colorsCollection = collection(db, "colorOptions");
+            const q = query(colorsCollection, where("code", "==", code));
+            const querySnapshot = await getDocs(q);
+            return !querySnapshot.empty;
+        } catch (error) {
+            console.error("Error checking color existence:", error);
+            return false;
+        }
+    };
+
     const calculatePrices = (kgPrice: number, weight6m: number) => {
         const pricePerMeter = (kgPrice * weight6m) / 6;
         return {
@@ -739,13 +874,18 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                         value={activeTab}
                         onValueChange={setActiveTab}
                     >
-                        <TabsList className="grid w-full grid-cols-2">
+                        <TabsList className="grid w-full grid-cols-3">
                             <TabsTrigger value="browse">
                                 Browse Profiles
                             </TabsTrigger>
                             {canManageProfiles && (
                                 <TabsTrigger value="import">
                                     Import Profiles
+                                </TabsTrigger>
+                            )}
+                            {canManageProfiles && (
+                                <TabsTrigger value="colors">
+                                    Import Colors
                                 </TabsTrigger>
                             )}
                         </TabsList>
@@ -1112,6 +1252,115 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                                                     </span>
                                                 </div>
                                             </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                        )}
+
+                        {canManageProfiles && (
+                            <TabsContent
+                                value="colors"
+                                className="space-y-6"
+                            >
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <Palette className="h-5 w-5" />
+                                            Import Colors from CSV
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        <div className="border border-blue-200 rounded-lg p-6 bg-blue-50">
+                                            <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                                                <Download className="h-5 w-5" />
+                                                Import Color Options
+                                            </h3>
+                                            <p className="text-blue-700 mb-4">
+                                                Upload a CSV file with your
+                                                color data. The file should
+                                                include columns like: code,
+                                                brand, color, finish
+                                            </p>
+
+                                            <div className="flex gap-3 mb-4">
+                                                <Button
+                                                    onClick={() =>
+                                                        document
+                                                            .getElementById(
+                                                                "colorCsvFileInput"
+                                                            )
+                                                            ?.click()
+                                                    }
+                                                    className="bg-blue-600 hover:bg-blue-700"
+                                                >
+                                                    <Download className="h-4 w-4 mr-2" />
+                                                    Choose CSV File
+                                                </Button>
+
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={
+                                                        downloadColorSampleCSV
+                                                    }
+                                                >
+                                                    <Download className="h-4 w-4 mr-2" />
+                                                    Download Sample CSV
+                                                </Button>
+                                            </div>
+
+                                            <input
+                                                id="colorCsvFileInput"
+                                                type="file"
+                                                accept=".csv"
+                                                title="Choose CSV file for color import"
+                                                onChange={handleColorCSVImport}
+                                                className="hidden"
+                                            />
+
+                                            {/* CSV Format Instructions */}
+                                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                                <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                                                    CSV Format Requirements
+                                                </h4>
+                                                <div className="text-sm text-gray-700 mb-3">
+                                                    Your CSV file should include
+                                                    these columns in order:
+                                                </div>
+                                                <div className="bg-white p-3 rounded border font-mono text-sm">
+                                                    <div className="text-gray-800 font-semibold mb-1">
+                                                        Required columns:
+                                                    </div>
+                                                    <div className="text-gray-700">
+                                                        code,brand,color,finish
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {csvImportStatus && (
+                                                <div
+                                                    className={`p-4 rounded-lg ${
+                                                        csvImportStatus.type ===
+                                                        "success"
+                                                            ? "bg-blue-100 border border-blue-300 text-blue-800"
+                                                            : "bg-red-100 border border-red-300 text-red-800"
+                                                    }`}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        {csvImportStatus.type ===
+                                                        "success" ? (
+                                                            <CheckCircle className="h-5 w-5" />
+                                                        ) : (
+                                                            <AlertCircle className="h-5 w-5" />
+                                                        )}
+                                                        <span className="font-medium">
+                                                            {
+                                                                csvImportStatus.message
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </CardContent>
                                 </Card>

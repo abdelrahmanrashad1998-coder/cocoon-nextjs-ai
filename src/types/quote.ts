@@ -1,6 +1,14 @@
 // Quote Generator Types
 import { AluminiumProfile } from "@/components/profile/profile-manager";
 
+export interface ColorOption {
+    id?: string;
+    code: string;
+    brand: string;
+    color: string;
+    finish: string;
+}
+
 export interface QuoteItem {
     id: string;
     type: "window" | "door" | "sky_light" | "curtain_wall";
@@ -15,6 +23,7 @@ export interface QuoteItem {
     arch: boolean;
     upperPanelType?: "fixed" | "hinged";
     profile?: AluminiumProfile;
+    color?: ColorOption;
     // Curtain wall specific properties
     designData?: {
         wallWidth: number;
