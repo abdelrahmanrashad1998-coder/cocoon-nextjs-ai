@@ -61,14 +61,15 @@ export default function LoginPage() {
         await signIn(formData.email, formData.password)
         router.push('/dashboard')
         return
-      } catch (error: any) {
+      } catch (error: unknown) {
         retryCount++
-        if (error.message.includes('Network connection failed') && retryCount < maxRetries) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+        if (errorMessage.includes('Network connection failed') && retryCount < maxRetries) {
           setError(`Network error. Retrying... (${retryCount}/${maxRetries})`)
           await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)) // Exponential backoff
           continue
         }
-        setError(error.message)
+        setError(errorMessage)
         break
       }
     }
@@ -101,14 +102,15 @@ export default function LoginPage() {
         await signUp(formData.email, formData.password, formData.displayName)
         router.push('/dashboard')
         return
-      } catch (error: any) {
+      } catch (error: unknown) {
         retryCount++
-        if (error.message.includes('Network connection failed') && retryCount < maxRetries) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+        if (errorMessage.includes('Network connection failed') && retryCount < maxRetries) {
           setError(`Network error. Retrying... (${retryCount}/${maxRetries})`)
           await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)) // Exponential backoff
           continue
         }
-       setError(error.message)
+       setError(errorMessage)
         break
       }
     }
@@ -127,8 +129,9 @@ export default function LoginPage() {
     try {
       const diagnostic = await runMinimalDiagnostic()
       setDiagnosticResult(diagnostic.message)
-    } catch (error: any) {
-      setDiagnosticResult(`❌ Diagnostic failed: ${error.message}`)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      setDiagnosticResult(`❌ Diagnostic failed: ${errorMessage}`)
     } finally {
       setIsDiagnosing(false)
     }

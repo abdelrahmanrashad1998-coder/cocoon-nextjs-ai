@@ -33,15 +33,13 @@ import {
     Layers,
     Plus,
     Minus,
-    Maximize2,
-    Minimize2,
     Undo2,
     Redo2,
 } from "lucide-react";
 
 interface CurtainPanel {
     id: string;
-    type: "structure" | "window" | "door" | "corner" | "mullion";
+    type: "structure" | "window" | "door";
     widthMeters: number;
     heightMeters: number;
     left: number;
@@ -71,16 +69,6 @@ interface DesignState {
     description: string;
 }
 
-interface MergeStep {
-    id: string;
-    timestamp: number;
-    action: "merge" | "split";
-    panelsBefore: CurtainPanel[];
-    panelsAfter: CurtainPanel[];
-    selectedPanels: string[];
-    mergedGroupId?: string;
-    description: string;
-}
 
 interface DesignPreset {
     name: string;
@@ -110,7 +98,7 @@ export function CurtainWallDesigner({
     onDesignChange,
 }: CurtainWallDesignerProps) {
     const [mode, setMode] = useState<
-        "structure" | "window" | "door" | "corner" | "mullion"
+        "structure" | "window" | "door"
     >("structure");
     const [columns, setColumns] = useState(4);
     const [rows, setRows] = useState(3);
@@ -186,11 +174,10 @@ export function CurtainWallDesigner({
 
     // Enhanced calculations with pricing
     const calculateDesign = useCallback(
-        (currentPanels: CurtainPanel[]) => {
+        (currentPanels: CurtainPanel[], currentColumns: number = columns, currentRows: number = rows) => {
             let frameMeters = 0;
             let windowMeters = 0;
             let glassArea = 0;
-            const cornerCount = 4;
             let totalCost = 0;
             const materialBreakdown: Record<string, number> = {
                 aluminum: 0,
@@ -211,6 +198,15 @@ export function CurtainWallDesigner({
                     glassArea += panel.widthMeters * panel.heightMeters;
                 }
             });
+
+            // Calculate corners automatically based on panel intersections and external perimeter
+            let cornerCount = 4; // Base corners for external perimeter
+            
+            // Count internal corners where panels meet
+            // This is a simplified calculation - in a real implementation, 
+            // you'd analyze the actual panel layout to find intersections
+            const internalCorners = Math.max(0, (currentColumns - 1) * (currentRows - 1));
+            cornerCount += internalCorners;
 
             // Calculate costs based on material and glass type
             const materialCosts = {
@@ -295,7 +291,7 @@ export function CurtainWallDesigner({
         setGlassType(state.glassType);
         setFrameColor(state.frameColor);
         setSelectedPanels([]);
-        calculateDesign(state.panels);
+        calculateDesign(state.panels, state.columns, state.rows);
         setTimeout(() => setIsUndoRedoOperation(false), 100);
     },
         [calculateDesign]
@@ -386,14 +382,11 @@ export function CurtainWallDesigner({
             selectedPanels.includes(panel.id) ? { ...panel, type: mode } : panel
         );
         setPanels(updatedPanels);
-        calculateDesign(updatedPanels);
+        calculateDesign(updatedPanels, columns, rows);
     };
 
     const mergePanels = () => {
         if (selectedPanels.length < 2) return;
-
-        // Store the state before merge for history
-        const panelsBefore = panels.map((p) => ({ ...p }));
 
         // Get all selected panels (including spanned ones)
         const selected = panels.filter((p) => selectedPanels.includes(p.id));
@@ -498,15 +491,12 @@ export function CurtainWallDesigner({
             return !selectedPanels.includes(panel.id);
         });
 
-        // Store the state after merge for history
-        const panelsAfter = filteredPanels.map((p) => ({ ...p }));
-
         // Add current state to history before making changes
         addDesignState('panel_merge', `Merged ${selectedPanels.length} panels into ${master.colSpan}×${master.rowSpan} group`);
 
         setPanels(filteredPanels);
         setSelectedPanels([master.id]);
-        calculateDesign(filteredPanels);
+        calculateDesign(filteredPanels, columns, rows);
     };
 
     const splitPanels = () => {
@@ -569,13 +559,9 @@ export function CurtainWallDesigner({
 
         const allPanels = [...nonMergedPanels, ...newPanels];
 
-        // Store the state after split for history
-        const panelsAfter = allPanels.map((p) => ({ ...p }));
-
-
         setPanels(allPanels);
         setSelectedPanels([]);
-        calculateDesign(allPanels);
+        calculateDesign(allPanels, columns, rows);
     };
 
     const clearSelection = () => {
@@ -638,9 +624,7 @@ export function CurtainWallDesigner({
                         type: panelType as
                             | "structure"
                             | "window"
-                            | "door"
-                            | "corner"
-                            | "mullion",
+                            | "door",
                         widthMeters: wallWidth / preset.columns,
                         heightMeters: wallHeight / preset.rows,
                         left: col * (100 / preset.columns),
@@ -659,7 +643,7 @@ export function CurtainWallDesigner({
                 }
             }
             setPanels(newPanels);
-            calculateDesign(newPanels);
+            calculateDesign(newPanels, preset.columns, preset.rows);
         }, 100);
     };
 
@@ -707,16 +691,6 @@ export function CurtainWallDesigner({
                 backgroundColor = "rgba(245, 158, 11, 0.1)";
                 textColor = "#92400e";
                 break;
-            case "corner":
-                borderColor = "#8b5cf6";
-                backgroundColor = "rgba(139, 92, 246, 0.1)";
-                textColor = "#5b21b6";
-                break;
-            case "mullion":
-                borderColor = "#6b7280";
-                backgroundColor = "rgba(107, 114, 128, 0.1)";
-                textColor = "#374151";
-                break;
         }
 
         // Check merged state first (base styling)
@@ -753,10 +727,6 @@ export function CurtainWallDesigner({
                 return <Layout className="h-5 w-5" />;
             case "door":
                 return <DoorOpen className="h-5 w-5" />;
-            case "corner":
-                return <Maximize2 className="h-5 w-5" />;
-            case "mullion":
-                return <Minimize2 className="h-5 w-5" />;
             default:
                 return <Square className="h-5 w-5" />;
         }
@@ -848,70 +818,33 @@ export function CurtainWallDesigner({
                             <CardContent className="space-y-4">
                                 <div>
                                     <Label className="text-sm font-medium mb-3 block">
-                                        Panel Types
+                                        Panel Type
                                     </Label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <Button
-                                            variant={
-                                                mode === "structure"
-                                                    ? "default"
-                                                    : "outline"
-                                            }
-                                            size="sm"
-                                            onClick={() => setMode("structure")}
-                                            className="flex flex-col gap-1 h-auto py-3"
-                                        >
-                                            <Square className="h-4 w-4" />
-                                            <span className="text-xs">
-                                                Structure
-                                            </span>
-                                        </Button>
-                                        <Button
-                                            variant={
-                                                mode === "window"
-                                                    ? "default"
-                                                    : "outline"
-                                            }
-                                            size="sm"
-                                            onClick={() => setMode("window")}
-                                            className="flex flex-col gap-1 h-auto py-3"
-                                        >
-                                            <Layout className="h-4 w-4" />
-                                            <span className="text-xs">
-                                                Window
-                                            </span>
-                                        </Button>
-                                        <Button
-                                            variant={
-                                                mode === "door"
-                                                    ? "default"
-                                                    : "outline"
-                                            }
-                                            size="sm"
-                                            onClick={() => setMode("door")}
-                                            className="flex flex-col gap-1 h-auto py-3"
-                                        >
-                                            <DoorOpen className="h-4 w-4" />
-                                            <span className="text-xs">
-                                                Door
-                                            </span>
-                                        </Button>
-                                        <Button
-                                            variant={
-                                                mode === "corner"
-                                                    ? "default"
-                                                    : "outline"
-                                            }
-                                            size="sm"
-                                            onClick={() => setMode("corner")}
-                                            className="flex flex-col gap-1 h-auto py-3"
-                                        >
-                                            <Maximize2 className="h-4 w-4" />
-                                            <span className="text-xs">
-                                                Corner
-                                            </span>
-                                        </Button>
-                                    </div>
+                                    <Select value={mode} onValueChange={(value: "structure" | "window" | "door") => setMode(value)}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="structure">
+                                                <div className="flex items-center gap-2">
+                                                    <Square className="h-4 w-4" />
+                                                    Fixed
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="window">
+                                                <div className="flex items-center gap-2">
+                                                    <Layout className="h-4 w-4" />
+                                                    Window
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="door">
+                                                <div className="flex items-center gap-2">
+                                                    <DoorOpen className="h-4 w-4" />
+                                                    Door
+                                                </div>
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
 
                                 <Separator />
@@ -1174,12 +1107,10 @@ export function CurtainWallDesigner({
                                                             panel.type
                                                         )}
                                                         <span className="text-xs font-medium text-center leading-tight">
-                                                            {panel.type
-                                                                .charAt(0)
-                                                                .toUpperCase() +
-                                                                panel.type.slice(
-                                                                    1
-                                                                )}
+                                                            {panel.type === "structure" 
+                                                                ? "Fixed"
+                                                                : panel.type.charAt(0).toUpperCase() + panel.type.slice(1)
+                                                            }
                                                         </span>
                                                         <div className="text-[10px] text-muted-foreground text-center">
                                                             {panel.widthMeters.toFixed(

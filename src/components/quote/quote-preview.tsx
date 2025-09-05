@@ -17,7 +17,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { QuoteData, QuoteTotals } from "@/types/quote";
+import { QuoteData, QuoteTotals, QuoteItem } from "@/types/quote";
 import { calculateItemPricing } from "@/lib/pricing-calculator";
 
 interface QuotePreviewProps {
@@ -49,7 +49,7 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
         return type === "double" ? "Double Glazed" : "Single Glazed";
     };
 
-    const getFeatures = (item: any) => {
+    const getFeatures = (item: QuoteItem) => {
         const features = [];
         if (item.glassType === "double") features.push("Double Glazed");
         if (item.mosquito) features.push("Mosquito Net");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import {
     QuoteItem,
     QuoteData,
@@ -25,25 +25,6 @@ interface ExportOptions {
     quoteData: QuoteData;
     totals: QuoteTotals;
 }
-
-const defaultProfile = {
-    profile_code: "AL001",
-    brand: "Cocoon",
-    profile_name: "Standard Aluminum Profile",
-    frame_price: 150,
-    frame_price_3: 200,
-    leaf_price: 80,
-    accessories_2_leaves: 50,
-    accessories_3_leaves: 75,
-    accessories_4_leaves: 100,
-    glass_price_single: 120,
-    glass_price_double: 200,
-    arc_price: 300,
-    net_price: 60,
-    net_price_plisse: 120,
-    net_price_panda: 180,
-    base_profit_rate: 0.3,
-};
 
 const createDefaultItem = (): QuoteItem => ({
     id: Math.random().toString(36).substr(2, 9),

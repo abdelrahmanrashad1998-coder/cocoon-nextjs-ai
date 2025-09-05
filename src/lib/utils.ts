@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 export async function testNetworkConnectivity(): Promise<{ isConnected: boolean; latency?: number }> {
   try {
     const startTime = Date.now()
-    const response = await fetch('https://www.google.com/favicon.ico', {
+    await fetch('https://www.google.com/favicon.ico', {
       method: 'HEAD',
       mode: 'no-cors',
       cache: 'no-cache'
@@ -18,7 +18,7 @@ export async function testNetworkConnectivity(): Promise<{ isConnected: boolean;
     const latency = endTime - startTime
     
     return { isConnected: true, latency }
-  } catch (error) {
+  } catch {
     return { isConnected: false }
   }
 }
@@ -26,14 +26,15 @@ export async function testNetworkConnectivity(): Promise<{ isConnected: boolean;
 // Simple Firebase domain test (safer approach)
 export async function testFirebaseDomain(): Promise<{ isReachable: boolean; error?: string }> {
   try {
-    const response = await fetch('https://cocoon-aluminum-works.firebaseapp.com', {
+    await fetch('https://cocoon-aluminum-works.firebaseapp.com', {
       method: 'HEAD',
       mode: 'no-cors',
       cache: 'no-cache'
     })
     return { isReachable: true }
-  } catch (error: any) {
-    return { isReachable: false, error: error.message }
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return { isReachable: false, error: errorMessage }
   }
 }
 
@@ -64,7 +65,7 @@ export async function runMinimalDiagnostic(): Promise<{
       cache: 'no-cache'
     })
     canReachGoogle = true
-  } catch (error) {
+  } catch {
     canReachGoogle = false
   }
   
@@ -77,7 +78,7 @@ export async function runMinimalDiagnostic(): Promise<{
       cache: 'no-cache'
     })
     canReachFirebase = true
-  } catch (error) {
+  } catch {
     canReachFirebase = false
   }
   

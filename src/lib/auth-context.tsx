@@ -3,11 +3,13 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { 
   User, 
+  UserCredential,
   onAuthStateChanged, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut,
-  updateProfile
+  updateProfile,
+  AuthError
 } from 'firebase/auth'
 import { auth, db } from '@/lib/firebase'
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
@@ -80,13 +82,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       
       const signInPromise = signInWithEmailAndPassword(auth, email, password)
-      const userCredential = await Promise.race([signInPromise, timeoutPromise]) as any
+      const userCredential = await Promise.race([signInPromise, timeoutPromise]) as UserCredential
       
       await fetchUserProfile(userCredential.user.uid)
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorMessage = 'An error occurred during sign in'
       
-      switch (error.code) {
+      if (error instanceof Error) {
+        const authError = error as AuthError
+        switch (authError.code) {
         case 'auth/user-not-found':
           errorMessage = 'No account found with this email address'
           break
@@ -115,11 +119,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           errorMessage = 'An account already exists with the same email address but different sign-in credentials'
           break
         default:
-          if (error.message === 'Request timeout') {
+          if (authError.message === 'Request timeout') {
             errorMessage = 'Request timed out. Please check your internet connection and try again.'
           } else {
-            errorMessage = error.message || errorMessage
+            errorMessage = authError.message || errorMessage
           }
+        }
+      } else {
+        errorMessage = 'An unknown error occurred'
       }
       
       throw new Error(errorMessage)
@@ -134,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       
       const signUpPromise = createUserWithEmailAndPassword(auth, email, password)
-      const userCredential = await Promise.race([signUpPromise, timeoutPromise]) as any
+      const userCredential = await Promise.race([signUpPromise, timeoutPromise]) as UserCredential
       const user = userCredential.user
       
       // Update Firebase Auth profile
@@ -152,10 +159,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       await setDoc(doc(db, 'users', user.uid), userProfileData)
       setUserProfile(userProfileData)
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorMessage = 'An error occurred during sign up'
       
-      switch (error.code) {
+      if (error instanceof Error) {
+        const authError = error as AuthError
+        switch (authError.code) {
         case 'auth/email-already-in-use':
           errorMessage = 'An account with this email already exists'
           break
@@ -178,11 +187,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           errorMessage = 'An account already exists with the same email address but different sign-in credentials'
           break
         default:
-          if (error.message === 'Request timeout') {
+          if (authError.message === 'Request timeout') {
             errorMessage = 'Request timed out. Please check your internet connection and try again.'
           } else {
-            errorMessage = error.message || errorMessage
+            errorMessage = authError.message || errorMessage
           }
+        }
+      } else {
+        errorMessage = 'An unknown error occurred'
       }
       
       throw new Error(errorMessage)
@@ -193,8 +205,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await signOut(auth)
       setUserProfile(null)
-    } catch (error: any) {
-      throw new Error(error.message || 'An error occurred during logout')
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred during logout'
+      throw new Error(errorMessage || 'An error occurred during logout')
     }
   }
 
@@ -204,8 +217,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await updateDoc(doc(db, 'users', user.uid), updates)
       setUserProfile(prev => prev ? { ...prev, ...updates } : null)
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to update profile')
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update profile'
+      throw new Error(errorMessage || 'Failed to update profile')
     }
   }
 
