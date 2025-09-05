@@ -63,8 +63,8 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
             <div
                 className={`relative overflow-hidden rounded-t-2xl p-6 ${
                     isSelected
-                        ? "bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50"
-                        : "bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
+                        ? "bg-gradient-to-br from-emerald-50 via-teal-50 to-red-50"
+                        : "bg-gradient-to-br from-slate-50 via-red-50 to-red-50"
                 }`}
             >
                 <div className="flex items-start justify-between mb-4">
@@ -85,7 +85,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                             className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${
                                 isSelected
                                     ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                                    : "bg-indigo-100 text-indigo-800 border border-indigo-200"
+                                    : "bg-red-100 text-red-800 border border-red-200"
                             }`}
                         >
                             {profile.system_type
@@ -106,29 +106,29 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
             {/* Pricing Grid */}
             <div className="p-6 pt-4">
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="group/price bg-gradient-to-br flex flex-col justify-center items-center from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100 hover:border-blue-200 transition-colors">
-                        <div className="text-xs font-medium text-blue-600 mb-1 uppercase tracking-wide">
+                    <div className="group/price bg-gradient-to-br flex flex-col justify-center items-center from-red-50 to-cyan-50 rounded-xl p-4 border border-red-100 hover:border-red-200 transition-colors">
+                        <div className="text-xs font-medium text-red-600 mb-1 uppercase tracking-wide">
                             Frame 2,4 sach
                         </div>
                         <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-bold text-blue-700">
+                            <span className="text-2xl font-bold text-red-700">
                                 {profile.frame_price?.toFixed(2) || "0.00"}
                             </span>
-                            <span className="text-sm text-blue-600 font-medium">
+                            <span className="text-sm text-red-600 font-medium">
                                 EGP
                             </span>
                         </div>
                     </div>
 
-                    <div className="group/price bg-gradient-to-br flex flex-col items-center justify-center from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100 hover:border-indigo-200 transition-colors">
-                        <div className="text-xs font-medium text-indigo-600 mb-1 uppercase tracking-wide">
+                    <div className="group/price bg-gradient-to-br flex flex-col items-center justify-center from-red-50 to-purple-50 rounded-xl p-4 border border-red-100 hover:border-red-200 transition-colors">
+                        <div className="text-xs font-medium text-red-600 mb-1 uppercase tracking-wide">
                             Frame 3 sach
                         </div>
                         <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-bold text-indigo-700">
+                            <span className="text-2xl font-bold text-red-700">
                                 {profile.frame_price_3?.toFixed(2) || "0.00"}
                             </span>
-                            <span className="text-sm text-indigo-600 font-medium">
+                            <span className="text-sm text-red-600 font-medium">
                                 EGP
                             </span>
                         </div>
@@ -169,11 +169,22 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600 font-medium flex items-center gap-2">
                             <Package className="h-4 w-4" />
-                            Glass Price:
+                            Glass Price(single):
                         </span>
                         <span className="font-bold text-gray-900">
-                            {profile.kg_price?.toFixed(2) || "0.00"} EGP
+                            {profile.glass_price_single || "0.00"} EGP
                         </span>
+                        
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 font-medium flex items-center gap-2">
+                            <Package className="h-4 w-4" />
+                            Glass Price(double):
+                        </span>
+                        <span className="font-bold text-gray-900">
+                            {profile.glass_price_double || "0.00"} EGP
+                        </span>
+                        
                     </div>
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600 font-medium flex items-center gap-2">
@@ -184,6 +195,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                             {(profile.base_profit_rate * 100 || 0).toFixed(1)}%
                         </span>
                     </div>
+                    
                 </div>
 
                 {/* Action Buttons */}
@@ -194,7 +206,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                             className={`flex-1 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                                 isSelected
                                     ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-200 focus:ring-emerald-500"
-                                    : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 focus:ring-indigo-500"
+                                    : "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-200 focus:ring-red-500"
                             }`}
                         >
                             {isSelected ? "Selected ✓" : "Select Profile"}
@@ -205,7 +217,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                         <>
                             <button
                                 onClick={() => onEdit?.(profile)}
-                                className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-blue-50 text-blue-600 rounded-xl border border-blue-200 hover:border-blue-300 font-medium text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                className="flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-red-50 text-red-600 rounded-xl border border-red-200 hover:border-red-300 font-medium text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                             >
                                 <Edit className="h-4 w-4" />
                                 Edit

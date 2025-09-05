@@ -200,6 +200,8 @@ export default function ProfileManager({
                     net_price_plisse: data.net_price_plisse || 0,
                     net_price_panda: data.net_price_panda || 0,
                     base_profit_rate: data.base_profit_rate || 0,
+                    glass_price_single: data.glass_price_single || 0,
+                    glass_price_double: data.glass_price_double || 0,
                 };
 
                 // Debug: Log the mapped profile
@@ -239,7 +241,8 @@ export default function ProfileManager({
                 profile_code: createForm.code || "",
                 brand: createForm.brand || "",
                 system_type: createForm.system_type || "",
-                glass_price_double: createForm.kg_price || 0,
+                glass_price_single: createForm.glass_price_single || 0,
+                glass_price_double: createForm.glass_price_double || 0,
                 weight_6m: createForm.weight_6m || 0,
                 frame_price: createForm.frame_price || 0,
                 frame_price_3: createForm.frame_price_3 || 0,
@@ -278,7 +281,8 @@ export default function ProfileManager({
                 profile_code: editingProfile.code || "",
                 brand: editingProfile.brand || "",
                 system_type: editingProfile.system_type || "",
-                glass_price_double: editingProfile.kg_price || 0,
+                glass_price_single: editingProfile.glass_price_single || 0,
+                glass_price_double:editingProfile.glass_price_double || 0,
                 weight_6m: editingProfile.weight_6m || 0,
                 frame_price: editingProfile.frame_price || 0,
                 frame_price_3: editingProfile.frame_price_3 || 0,
@@ -526,7 +530,8 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                             profile_code: newProfile.code,
                             brand: newProfile.brand,
                             system_type: newProfile.system_type,
-                            glass_price_double: newProfile.kg_price,
+                            glass_price_single: profile.glass_price_single || 0,
+                            glass_price_double: profile.glass_price_double || 0,
                             weight_6m: newProfile.weight_6m,
                             frame_price: newProfile.frame_price,
                             frame_price_3: newProfile.frame_price_3,
@@ -720,9 +725,9 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                     )}
 
                     {success && (
-                        <Card className="border-green-200 bg-green-50">
+                        <Card className="border-red-200 bg-red-50">
                             <CardContent className="pt-6">
-                                <div className="flex items-center gap-2 text-green-600">
+                                <div className="flex items-center gap-2 text-red-600">
                                     <CheckCircle className="h-4 w-4" />
                                     {success}
                                 </div>
@@ -750,10 +755,10 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                             className="space-y-6"
                         >
                             {/* Search and Filter */}
-                            <Card className="border-0 shadow-sm bg-gradient-to-r from-gray-50 to-blue-50">
+                            <Card className="border-0 shadow-sm bg-gradient-to-r from-gray-50 to-red-50">
                                 <CardHeader className="pb-4">
                                     <CardTitle className="flex items-center gap-2 text-gray-800">
-                                        <Search className="h-5 w-5 text-blue-600" />
+                                        <Search className="h-5 w-5 text-red-600" />
                                         Search & Filter Profiles
                                     </CardTitle>
                                 </CardHeader>
@@ -771,7 +776,7 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                                                         e.target.value
                                                     )
                                                 }
-                                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                                                className="border-gray-300 focus:border-red-500 focus:ring-red-500"
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -782,7 +787,7 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                                                 value={brandFilter}
                                                 onValueChange={setBrandFilter}
                                             >
-                                                <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                                                <SelectTrigger className="border-gray-300 focus:border-red-500 focus:ring-red-500">
                                                     <SelectValue placeholder="All brands" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -814,7 +819,7 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                                                     setSystemTypeFilter
                                                 }
                                             >
-                                                <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                                                <SelectTrigger className="border-gray-300 focus:border-red-500 focus:ring-red-500">
                                                     <SelectValue placeholder="All system types" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -849,7 +854,7 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
 
                             {/* Profiles List */}
                             <Card className="border-0 shadow-sm">
-                                <CardHeader className="bg-gradient-to-r from-gray-50 to-blue-50 border-b">
+                                <CardHeader className="bg-gradient-to-r from-gray-50 to-red-50 border-b">
                                     <CardTitle className="flex items-center justify-between">
                                         <span className="text-gray-800">
                                             Available Profiles
@@ -941,12 +946,12 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                                     </CardHeader>
                                     <CardContent className="space-y-6">
                                         {/* CSV Import Section */}
-                                        <div className="border border-blue-200 rounded-lg p-6 bg-blue-50">
-                                            <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                                        <div className="border border-red-200 rounded-lg p-6 bg-red-50">
+                                            <h3 className="text-lg font-semibold text-red-900 mb-3 flex items-center gap-2">
                                                 <Download className="h-5 w-5" />
                                                 Import from CSV File
                                             </h3>
-                                            <p className="text-blue-700 mb-4">
+                                            <p className="text-red-700 mb-4">
                                                 Upload a CSV file with your
                                                 aluminum profile data. The file
                                                 should include columns like:
@@ -965,7 +970,7 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                                                             )
                                                             ?.click()
                                                     }
-                                                    className="bg-blue-600 hover:bg-blue-700"
+                                                    className="bg-red-600 hover:bg-red-700"
                                                 >
                                                     <Download className="h-4 w-4 mr-2" />
                                                     Choose CSV File
@@ -994,7 +999,7 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                                                     className={`p-4 rounded-lg ${
                                                         csvImportStatus.type ===
                                                         "success"
-                                                            ? "bg-green-100 border border-green-300 text-green-800"
+                                                            ? "bg-red-100 border border-red-300 text-red-800"
                                                             : "bg-red-100 border border-red-300 text-red-800"
                                                     }`}
                                                 >
@@ -1058,7 +1063,7 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                                             </h3>
                                             <div className="space-y-2 text-gray-700">
                                                 <div className="flex items-start gap-2">
-                                                    <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                                         1
                                                     </span>
                                                     <span>
@@ -1068,7 +1073,7 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                                                     </span>
                                                 </div>
                                                 <div className="flex items-start gap-2">
-                                                    <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                                         2
                                                     </span>
                                                     <span>
@@ -1078,7 +1083,7 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                                                     </span>
                                                 </div>
                                                 <div className="flex items-start gap-2">
-                                                    <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                                         3
                                                     </span>
                                                     <span>
@@ -1087,7 +1092,7 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                                                     </span>
                                                 </div>
                                                 <div className="flex items-start gap-2">
-                                                    <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                                         4
                                                     </span>
                                                     <span>
@@ -1097,7 +1102,7 @@ AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100
                                                     </span>
                                                 </div>
                                                 <div className="flex items-start gap-2">
-                                                    <span className="bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                                         5
                                                     </span>
                                                     <span>

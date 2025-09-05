@@ -161,8 +161,8 @@ export default function LoginPage() {
             </div>
           )}
           {diagnosticResult && (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-              <p className="text-sm text-blue-800">
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-800">
                 {diagnosticResult}
               </p>
             </div>

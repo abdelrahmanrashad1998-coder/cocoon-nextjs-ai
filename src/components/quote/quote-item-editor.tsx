@@ -570,8 +570,8 @@ export function QuoteItemEditor({
                                         {/* Curtain Wall Results */}
                                         {item.designData && (
                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                                                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                                                    <div className="text-lg font-bold text-blue-600">
+                                                <div className="text-center p-3 bg-red-50 rounded-lg">
+                                                    <div className="text-lg font-bold text-red-600">
                                                         {item.designData.frameMeters?.toFixed(
                                                             2
                                                         ) || "0.00"}
@@ -580,8 +580,8 @@ export function QuoteItemEditor({
                                                         Frame Meters
                                                     </div>
                                                 </div>
-                                                <div className="text-center p-3 bg-green-50 rounded-lg">
-                                                    <div className="text-lg font-bold text-green-600">
+                                                <div className="text-center p-3 bg-red-50 rounded-lg">
+                                                    <div className="text-lg font-bold text-red-600">
                                                         {item.designData.windowMeters?.toFixed(
                                                             2
                                                         ) || "0.00"}
@@ -637,23 +637,23 @@ export function QuoteItemEditor({
                                 </div>
 
                                 {item.profile ? (
-                                    <Card className="border-green-200 bg-green-50">
+                                    <Card className="border-red-200 bg-red-50">
                                         <CardContent className="pt-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <h4 className="font-semibold text-green-800">
+                                                    <h4 className="font-semibold text-red-800">
                                                         {item.profile.name}
                                                     </h4>
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <Badge
                                                             variant="outline"
-                                                            className="text-green-700"
+                                                            className="text-red-700"
                                                         >
                                                             {item.profile.brand}
                                                         </Badge>
                                                         <Badge
                                                             variant="secondary"
-                                                            className="text-green-700"
+                                                            className="text-red-700"
                                                         >
                                                             {item.profile.code}
                                                         </Badge>
@@ -677,8 +677,8 @@ export function QuoteItemEditor({
                                                     <span className="font-medium">
                                                         Frame Price:
                                                     </span>
-                                                    <span className="text-green-600 ml-2">
-                                                        $
+                                                    <span className="text-red-600 ml-2">
+                                                        EGP 
                                                         {
                                                             item.profile
                                                                 .frame_price
@@ -689,8 +689,8 @@ export function QuoteItemEditor({
                                                     <span className="font-medium">
                                                         Leaf Price:
                                                     </span>
-                                                    <span className="text-green-600 ml-2">
-                                                        $
+                                                    <span className="text-red-600 ml-2">
+                                                        EGP 
                                                         {
                                                             item.profile
                                                                 .leaf_price
@@ -701,8 +701,8 @@ export function QuoteItemEditor({
                                                     <span className="font-medium">
                                                         Glass (Double):
                                                     </span>
-                                                    <span className="text-blue-600 ml-2">
-                                                        ${item.profile.kg_price}
+                                                    <span className="text-red-600 ml-2">
+                                                        EGP {item.profile.glass_price_double}
                                                     </span>
                                                 </div>
                                                 <div>
@@ -712,7 +712,7 @@ export function QuoteItemEditor({
                                                     <span className="text-orange-600 ml-2">
                                                         {
                                                             item.profile
-                                                                .base_profit_rate
+                                                                .base_profit_rate * 100
                                                         }
                                                         %
                                                     </span>
