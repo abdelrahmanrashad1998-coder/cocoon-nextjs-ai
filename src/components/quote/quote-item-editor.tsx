@@ -86,11 +86,20 @@ export function QuoteItemEditor({
         glassArea: number;
         cornerCount: number;
     }) => {
-        handleNestedUpdate("designData", "panels", design.panels);
-        handleNestedUpdate("designData", "frameMeters", design.frameMeters);
-        handleNestedUpdate("designData", "windowMeters", design.windowMeters);
-        handleNestedUpdate("designData", "glassArea", design.glassArea);
-        handleNestedUpdate("designData", "cornerCount", design.cornerCount);
+        // Update the entire designData object at once to ensure proper state updates
+        onUpdate({
+            ...item,
+            designData: {
+                wallWidth: item.designData?.wallWidth || 0,
+                wallHeight: item.designData?.wallHeight || 0,
+                panels: design.panels,
+                frameMeters: design.frameMeters,
+                windowMeters: design.windowMeters,
+                glassArea: design.glassArea,
+                cornerCount: design.cornerCount,
+                visualSvg: item.designData?.visualSvg,
+            },
+        });
     };
 
     const handleProfileSelect = (profile: AluminiumProfile) => {
@@ -580,9 +589,7 @@ export function QuoteItemEditor({
                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                                                 <div className="text-center p-3 bg-red-50 rounded-lg">
                                                     <div className="text-lg font-bold text-red-600">
-                                                        {item.designData.frameMeters?.toFixed(
-                                                            2
-                                                        ) || "0.00"}
+                                                        {item.designData?.frameMeters?.toFixed(2) || "0.00"}
                                                     </div>
                                                     <div className="text-sm text-gray-600">
                                                         Frame Meters
@@ -590,9 +597,7 @@ export function QuoteItemEditor({
                                                 </div>
                                                 <div className="text-center p-3 bg-red-50 rounded-lg">
                                                     <div className="text-lg font-bold text-red-600">
-                                                        {item.designData.windowMeters?.toFixed(
-                                                            2
-                                                        ) || "0.00"}
+                                                        {item.designData?.windowMeters?.toFixed(2) || "0.00"}
                                                     </div>
                                                     <div className="text-sm text-gray-600">
                                                         Window Meters
@@ -600,10 +605,7 @@ export function QuoteItemEditor({
                                                 </div>
                                                 <div className="text-center p-3 bg-purple-50 rounded-lg">
                                                     <div className="text-lg font-bold text-purple-600">
-                                                        {item.designData.glassArea?.toFixed(
-                                                            2
-                                                        ) || "0.00"}{" "}
-                                                        m²
+                                                        {item.designData?.glassArea?.toFixed(2) || "0.00"} m²
                                                     </div>
                                                     <div className="text-sm text-gray-600">
                                                         Glass Area
@@ -611,8 +613,7 @@ export function QuoteItemEditor({
                                                 </div>
                                                 <div className="text-center p-3 bg-orange-50 rounded-lg">
                                                     <div className="text-lg font-bold text-orange-600">
-                                                        {item.designData
-                                                            .cornerCount || 0}
+                                                        {item.designData?.cornerCount || 0}
                                                     </div>
                                                     <div className="text-sm text-gray-600">
                                                         Corners

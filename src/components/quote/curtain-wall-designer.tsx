@@ -197,26 +197,40 @@ export function CurtainWallDesigner({
                 hardware: 0,
             };
 
-            // Calculate external perimeter
+            // Calculate frame meters: total perimeter + length of shared sides between panels
+            // Start with external perimeter
             frameMeters = 2 * (wallWidth + wallHeight);
+            
+            // Add shared sides between panels (internal frame lines)
+            // Vertical shared sides
+            for (let col = 1; col < currentColumns; col++) {
+                frameMeters += wallHeight; // Each vertical divider spans full height
+            }
+            
+            // Horizontal shared sides
+            for (let row = 1; row < currentRows; row++) {
+                frameMeters += wallWidth; // Each horizontal divider spans full width
+            }
 
-            // Calculate window/door meters and glass area
+            // Calculate window meters: perimeter for every window panel individually then sum
             currentPanels.forEach((panel) => {
                 if (panel.type === "window" || panel.type === "door") {
-                    windowMeters +=
-                        2 * (panel.widthMeters + panel.heightMeters);
-                    glassArea += panel.widthMeters * panel.heightMeters;
+                    // Each window/door panel has its own perimeter
+                    windowMeters += 2 * (panel.widthMeters + panel.heightMeters);
                 }
             });
 
-            // Calculate corners automatically based on panel intersections and external perimeter
-            let cornerCount = 4; // Base corners for external perimeter
+            // Calculate glass area: total area of all panels (structure, window, and door panels all have glass)
+            currentPanels.forEach((panel) => {
+                glassArea += panel.widthMeters * panel.heightMeters;
+            });
+
+            // Calculate corners: internal and external corners between panels and around them
+            let cornerCount = 0;
             
-            // Count internal corners where panels meet
-            // This is a simplified calculation - in a real implementation, 
-            // you'd analyze the actual panel layout to find intersections
-            const internalCorners = Math.max(0, (currentColumns - 1) * (currentRows - 1));
-            cornerCount += internalCorners;
+            // Total corners = (columns + 1) × (rows + 1)
+            // This includes all intersection points of the grid system
+            cornerCount = (currentColumns + 1) * (currentRows + 1);
 
             // Calculate costs based on material and glass type
             const materialCosts = {
@@ -334,6 +348,8 @@ export function CurtainWallDesigner({
             }
         }
         setPanels(newPanels);
+        // Calculate design with the new panels
+        calculateDesign(newPanels, columns, rows);
         // Clear design history when generating new grid
         setDesignHistory([]);
         setCurrentHistoryIndex(-1);
@@ -1651,6 +1667,67 @@ export function CurtainWallDesigner({
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
+                                    <Calculator className="h-5 w-5" />
+                                    Measurements
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between text-sm">
+                                            <span>Frame Meters:</span>
+                                            <span className="font-medium">
+                                                {(() => {
+                                                    let frameMeters = 2 * (wallWidth + wallHeight);
+                                                    // Add shared sides between panels
+                                                    for (let col = 1; col < columns; col++) {
+                                                        frameMeters += wallHeight;
+                                                    }
+                                                    for (let row = 1; row < rows; row++) {
+                                                        frameMeters += wallWidth;
+                                                    }
+                                                    return frameMeters.toFixed(1);
+                                                })()} m
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span>Window Meters:</span>
+                                            <span className="font-medium">
+                                                {panels
+                                                    .filter((p) => p.type === "window" || p.type === "door")
+                                                    .reduce((acc, panel) => acc + 2 * (panel.widthMeters + panel.heightMeters), 0)
+                                                    .toFixed(1)} m
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span>Glass Area:</span>
+                                            <span className="font-medium">
+                                                {panels
+                                                    .reduce((acc, panel) => acc + panel.widthMeters * panel.heightMeters, 0)
+                                                    .toFixed(1)} m²
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span>Corner Count:</span>
+                                            <span className="font-medium">
+                                                {(columns + 1) * (rows + 1)}
+                                            </span>
+                                        </div>
+                                        <Separator />
+                                        <div className="flex justify-between font-medium">
+                                            <span>Total Wall Area:</span>
+                                            <span>
+                                                {(wallWidth * wallHeight).toFixed(1)} m²
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="lg:col-span-2">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
                                     <DollarSign className="h-5 w-5" />
                                     Cost Estimation
                                 </CardTitle>
@@ -1660,115 +1737,133 @@ export function CurtainWallDesigner({
                                     <div className="text-center p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
                                         <div className="text-3xl font-bold text-green-600 mb-2">
                                             $
-                                            {panels.length > 0
-                                                ? panels
-                                                      .reduce((acc, panel) => {
-                                                          const frameCost =
-                                                              2 *
-                                                              (panel.widthMeters +
-                                                                  panel.heightMeters) *
-                                                              45;
-                                                          const glassCost =
-                                                              panel.type ===
-                                                                  "window" ||
-                                                              panel.type ===
-                                                                  "door"
-                                                                  ? panel.widthMeters *
-                                                                    panel.heightMeters *
-                                                                    120
-                                                                  : 0;
-                                                          return (
-                                                              acc +
-                                                              frameCost +
-                                                              glassCost
-                                                          );
-                                                      }, 0)
-                                                      .toLocaleString()
-                                                : "0"}
+                                            {(() => {
+                                                // Calculate frame meters
+                                                let frameMeters = 2 * (wallWidth + wallHeight);
+                                                for (let col = 1; col < columns; col++) {
+                                                    frameMeters += wallHeight;
+                                                }
+                                                for (let row = 1; row < rows; row++) {
+                                                    frameMeters += wallWidth;
+                                                }
+                                                
+                                                // Calculate glass area (all panels have glass)
+                                                const glassArea = panels
+                                                    .reduce((acc, panel) => acc + panel.widthMeters * panel.heightMeters, 0);
+                                                
+                                                // Calculate costs
+                                                const materialCosts = {
+                                                    aluminum: 45,
+                                                    steel: 65,
+                                                    composite: 55,
+                                                    glass: {
+                                                        single: 80,
+                                                        double: 120,
+                                                        triple: 180,
+                                                        laminated: 150,
+                                                    },
+                                                };
+                                                
+                                                const frameCost = frameMeters * materialCosts[material];
+                                                const glassCost = glassArea * materialCosts.glass[glassType];
+                                                const hardwareCost = (frameCost + glassCost) * 0.15;
+                                                
+                                                return (frameCost + glassCost + hardwareCost).toLocaleString();
+                                            })()}
                                         </div>
                                         <div className="text-sm text-gray-600">
                                             Estimated Total Cost
                                         </div>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <div className="flex justify-between text-sm">
-                                            <span>
-                                                Frame Material ({material}):
-                                            </span>
-                                            <span>
-                                                $
-                                                {(
-                                                    2 *
-                                                    (wallWidth + wallHeight) *
-                                                    (material === "aluminum"
-                                                        ? 45
-                                                        : material === "steel"
-                                                        ? 65
-                                                        : 55)
-                                                ).toLocaleString()}
-                                            </span>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <div className="flex justify-between text-sm">
+                                                <span>Frame Material ({material}):</span>
+                                                <span>
+                                                    $
+                                                    {(() => {
+                                                        let frameMeters = 2 * (wallWidth + wallHeight);
+                                                        for (let col = 1; col < columns; col++) {
+                                                            frameMeters += wallHeight;
+                                                        }
+                                                        for (let row = 1; row < rows; row++) {
+                                                            frameMeters += wallWidth;
+                                                        }
+                                                        const materialCosts = {
+                                                            aluminum: 45,
+                                                            steel: 65,
+                                                            composite: 55,
+                                                        };
+                                                        return (frameMeters * materialCosts[material]).toLocaleString();
+                                                    })()}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between text-sm">
+                                                <span>Glass Cost:</span>
+                                                <span>
+                                                    $
+                                                    {(() => {
+                                                        const glassArea = panels
+                                                            .reduce((acc, panel) => acc + panel.widthMeters * panel.heightMeters, 0);
+                                                        const materialCosts = {
+                                                            single: 80,
+                                                            double: 120,
+                                                            triple: 180,
+                                                            laminated: 150,
+                                                        };
+                                                        return (glassArea * materialCosts[glassType]).toLocaleString();
+                                                    })()}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div className="flex justify-between text-sm">
-                                            <span>Glass Area:</span>
-                                            <span>
-                                                {panels
-                                                    .filter(
-                                                        (p) =>
-                                                            p.type ===
-                                                                "window" ||
-                                                            p.type === "door"
-                                                    )
-                                                    .reduce(
-                                                        (acc, panel) =>
-                                                            acc +
-                                                            panel.widthMeters *
-                                                                panel.heightMeters,
-                                                        0
-                                                    )
-                                                    .toFixed(1)}{" "}
-                                                m²
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between text-sm">
-                                            <span>Glass Cost:</span>
-                                            <span>
-                                                $
-                                                {(
-                                                    panels
-                                                        .filter(
-                                                            (p) =>
-                                                                p.type ===
-                                                                    "window" ||
-                                                                p.type ===
-                                                                    "door"
-                                                        )
-                                                        .reduce(
-                                                            (acc, panel) =>
-                                                                acc +
-                                                                panel.widthMeters *
-                                                                    panel.heightMeters,
-                                                            0
-                                                        ) *
-                                                    (glassType === "single"
-                                                        ? 80
-                                                        : glassType === "double"
-                                                        ? 120
-                                                        : glassType === "triple"
-                                                        ? 180
-                                                        : 150)
-                                                ).toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <Separator />
-                                        <div className="flex justify-between font-medium">
-                                            <span>Total Area:</span>
-                                            <span>
-                                                {(
-                                                    wallWidth * wallHeight
-                                                ).toFixed(1)}{" "}
-                                                m²
-                                            </span>
+                                        <div className="space-y-2">
+                                            <div className="flex justify-between text-sm">
+                                                <span>Hardware Cost:</span>
+                                                <span>
+                                                    $
+                                                    {(() => {
+                                                        let frameMeters = 2 * (wallWidth + wallHeight);
+                                                        for (let col = 1; col < columns; col++) {
+                                                            frameMeters += wallHeight;
+                                                        }
+                                                        for (let row = 1; row < rows; row++) {
+                                                            frameMeters += wallWidth;
+                                                        }
+                                                        const glassArea = panels
+                                                            .reduce((acc, panel) => acc + panel.widthMeters * panel.heightMeters, 0);
+                                                        const materialCosts = {
+                                                            aluminum: 45,
+                                                            steel: 65,
+                                                            composite: 55,
+                                                            glass: {
+                                                                single: 80,
+                                                                double: 120,
+                                                                triple: 180,
+                                                                laminated: 150,
+                                                            },
+                                                        };
+                                                        const frameCost = frameMeters * materialCosts[material];
+                                                        const glassCost = glassArea * materialCosts.glass[glassType];
+                                                        return ((frameCost + glassCost) * 0.15).toLocaleString();
+                                                    })()}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between text-sm">
+                                                <span>Frame Meters:</span>
+                                                <span>
+                                                    {(() => {
+                                                        let frameMeters = 2 * (wallWidth + wallHeight);
+                                                        for (let col = 1; col < columns; col++) {
+                                                            frameMeters += wallHeight;
+                                                        }
+                                                        for (let row = 1; row < rows; row++) {
+                                                            frameMeters += wallWidth;
+                                                        }
+                                                        return frameMeters.toFixed(1);
+                                                    })()} m
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
