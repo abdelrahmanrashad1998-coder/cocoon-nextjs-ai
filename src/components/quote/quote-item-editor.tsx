@@ -35,7 +35,9 @@ import { QuoteItem } from "@/types/quote";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { CurtainWallDesigner } from "./curtain-wall-designer";
 import ProfileManager, { AluminiumProfile } from "../profile/profile-manager";
-import { Database, X } from "lucide-react";
+import ColorManager from "../color/color-manager";
+import { ColorOption } from "@/types/quote";
+import { Database, X, Palette } from "lucide-react";
 import { calculateItemPricing } from "@/lib/pricing-calculator";
 
 interface QuoteItemEditorProps {
@@ -54,10 +56,17 @@ export function QuoteItemEditor({
     const [isExpanded, setIsExpanded] = useState(true);
     const [showProfileManager, setShowProfileManager] = useState(false);
     const [showPricingDetails, setShowPricingDetails] = useState(false);
+    const [showColorManager, setShowColorManager] = useState(false);
 
     const handleUpdate = (
         field: keyof QuoteItem,
-        value: string | number | boolean | undefined | AluminiumProfile
+        value:
+            | string
+            | number
+            | boolean
+            | undefined
+            | AluminiumProfile
+            | ColorOption
     ) => {
         onUpdate({
             ...item,
@@ -115,6 +124,11 @@ export function QuoteItemEditor({
     const handleProfileSelect = (profile: AluminiumProfile) => {
         handleUpdate("profile", profile);
         setShowProfileManager(false);
+    };
+
+    const handleColorSelect = (color: ColorOption) => {
+        handleUpdate("color", color);
+        setShowColorManager(false);
     };
 
     const getNormalizedSystemType = (system: string) => {
@@ -899,16 +913,30 @@ export function QuoteItemEditor({
                                                                 ?.wallHeight ||
                                                             0
                                                         }
-                                                        onDesignChange={(design) =>
-                                                            handleCurtainWallDesignChange({
-                                                                ...design,
-                                                                // Provide default values for missing fields to match expected type
-                                                                frameMeters: design.frameMeters ?? 0,
-                                                                windowMeters: design.windowMeters ?? 0,
-                                                                glassArea: design.glassArea ?? 0,
-                                                                cornerCount: design.cornerCount ?? 0,
-                                                                panels: design.panels ?? [],
-                                                            })
+                                                        onDesignChange={(
+                                                            design
+                                                        ) =>
+                                                            handleCurtainWallDesignChange(
+                                                                {
+                                                                    ...design,
+                                                                    // Provide default values for missing fields to match expected type
+                                                                    frameMeters:
+                                                                        design.frameMeters ??
+                                                                        0,
+                                                                    windowMeters:
+                                                                        design.windowMeters ??
+                                                                        0,
+                                                                    glassArea:
+                                                                        design.glassArea ??
+                                                                        0,
+                                                                    cornerCount:
+                                                                        design.cornerCount ??
+                                                                        0,
+                                                                    panels:
+                                                                        design.panels ??
+                                                                        [],
+                                                                }
+                                                            )
                                                         }
                                                     />
                                                 </div>
@@ -1017,7 +1045,7 @@ export function QuoteItemEditor({
                                                         Frame Price:
                                                     </span>
                                                     <span className="text-red-600 ml-2">
-                                                        EGP 
+                                                        EGP
                                                         {
                                                             item.profile
                                                                 .frame_price
@@ -1029,7 +1057,7 @@ export function QuoteItemEditor({
                                                         Leaf Price:
                                                     </span>
                                                     <span className="text-red-600 ml-2">
-                                                        EGP 
+                                                        EGP
                                                         {
                                                             item.profile
                                                                 .leaf_price
@@ -1041,7 +1069,11 @@ export function QuoteItemEditor({
                                                         Glass (Double):
                                                     </span>
                                                     <span className="text-red-600 ml-2">
-                                                        EGP {item.profile.glass_price_double}
+                                                        EGP{" "}
+                                                        {
+                                                            item.profile
+                                                                .glass_price_double
+                                                        }
                                                     </span>
                                                 </div>
                                                 <div>
@@ -1049,10 +1081,9 @@ export function QuoteItemEditor({
                                                         Profit Rate:
                                                     </span>
                                                     <span className="text-orange-600 ml-2">
-                                                        {
-                                                            item.profile
-                                                                .base_profit_rate * 100
-                                                        }
+                                                        {item.profile
+                                                            .base_profit_rate *
+                                                            100}
                                                         %
                                                     </span>
                                                 </div>
@@ -1111,6 +1142,86 @@ export function QuoteItemEditor({
                                     </div>
                                 </>
                             )}
+
+                            {/* Color Information */}
+                            <Separator />
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-sm font-medium">
+                                        Color Information
+                                    </Label>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                            setShowColorManager(true)
+                                        }
+                                        className="flex items-center gap-2"
+                                    >
+                                        <Palette className="h-4 w-4" />
+                                        Select Color
+                                    </Button>
+                                </div>
+
+                                {item.color ? (
+                                    <Card className="border-blue-200 bg-blue-50">
+                                        <CardContent className="pt-4">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <h4 className="font-semibold text-blue-800">
+                                                        {item.color.code}
+                                                    </h4>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="text-blue-700"
+                                                        >
+                                                            {item.color.brand}
+                                                        </Badge>
+                                                        <Badge
+                                                            variant="secondary"
+                                                            className="text-blue-700"
+                                                        >
+                                                            {item.color.color}
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        handleUpdate(
+                                                            "color",
+                                                            undefined
+                                                        )
+                                                    }
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                            <div className="mt-3 text-sm">
+                                                <span className="font-medium">
+                                                    Finish:
+                                                </span>{" "}
+                                                <span className="text-blue-600 ml-2">
+                                                    {item.color.finish}
+                                                </span>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ) : (
+                                    <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
+                                        <Palette className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                        <p className="text-gray-600">
+                                            No color selected
+                                        </p>
+                                        <p className="text-sm text-gray-500">
+                                            Click "Select Color" to choose a
+                                            color option
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Item Summary */}
                             <div className="bg-muted p-4 rounded-lg">
@@ -1199,6 +1310,31 @@ export function QuoteItemEditor({
                             initialSystemTypeFilter={getNormalizedSystemType(
                                 item.system
                             )}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* Color Manager Modal */}
+            {showColorManager && (
+                <div className="fixed inset-0 bg-white border-gray-600 border bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-[1400px] w-full max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold">
+                                Select Color Option
+                            </h3>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowColorManager(false)}
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <ColorManager
+                            onColorSelect={handleColorSelect}
+                            selectedColor={item.color}
+                            showSelection={true}
                         />
                     </div>
                 </div>

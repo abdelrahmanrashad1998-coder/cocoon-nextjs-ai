@@ -180,6 +180,7 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                                 <TableHead>Item</TableHead>
                                 <TableHead>Dimensions</TableHead>
                                 <TableHead>System</TableHead>
+                                <TableHead>Color</TableHead>
                                 <TableHead>Specifications</TableHead>
                                 <TableHead className="text-right">
                                     Area
@@ -207,9 +208,6 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                                                         : item.type === "door"
                                                         ? "Door"
                                                         : item.type ===
-                                                          "sliding_door"
-                                                        ? "Sliding Door"
-                                                        : item.type ===
                                                           "sky_light"
                                                         ? "Sky Light"
                                                         : "Curtain Wall"}{" "}
@@ -233,6 +231,28 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                                                 <div className="text-xs text-muted-foreground">
                                                     {item.leaves} leaves
                                                 </div>
+                                            )}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="text-sm">
+                                            {item.color ? (
+                                                <div className="space-y-1">
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="text-xs"
+                                                    >
+                                                        {item.color.code}
+                                                    </Badge>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        {item.color.color} -{" "}
+                                                        {item.color.finish}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <span className="text-muted-foreground text-xs">
+                                                    No color selected
+                                                </span>
                                             )}
                                         </div>
                                     </TableCell>
