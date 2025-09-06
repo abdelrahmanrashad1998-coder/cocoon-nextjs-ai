@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
     Card,
     CardContent,
@@ -19,6 +20,9 @@ import { QuoteItemEditor } from "@/components/quote/quote-item-editor";
 import { QuotePreview } from "@/components/quote/quote-preview";
 import { QuoteSettings } from "@/components/quote/quote-settings";
 import { useQuoteGenerator } from "@/hooks/use-quote-generator";
+import ColorManager from "@/components/color/color-manager";
+import { ColorOption } from "@/types/quote";
+import { Palette } from "lucide-react";
 
 export default function QuoteGeneratorPage() {
     const {
@@ -28,6 +32,7 @@ export default function QuoteGeneratorPage() {
         removeItem,
         updateContactInfo,
         updateSettings,
+        updateGlobalColor,
         calculateTotals,
         saveQuote,
         exportQuote,
@@ -36,6 +41,7 @@ export default function QuoteGeneratorPage() {
     } = useQuoteGenerator();
 
     const [activeTab, setActiveTab] = useState("items");
+    const [showGlobalColorManager, setShowGlobalColorManager] = useState(false);
 
     const handleAddItem = () => {
         addItem({
@@ -59,6 +65,11 @@ export default function QuoteGeneratorPage() {
         } catch (error) {
             console.error("Error saving quote:", error);
         }
+    };
+
+    const handleGlobalColorSelect = (color: ColorOption) => {
+        updateGlobalColor(color);
+        setShowGlobalColorManager(false);
     };
 
     return (
@@ -155,6 +166,9 @@ export default function QuoteGeneratorPage() {
                                                     )
                                                 }
                                                 index={index}
+                                                globalColor={
+                                                    quoteData.globalColor
+                                                }
                                             />
                                         ))}
                                     </div>
@@ -317,6 +331,113 @@ export default function QuoteGeneratorPage() {
                         value="settings"
                         className="space-y-6"
                     >
+                        {/* Global Color Settings */}
+                        <Card>
+                            <CardHeader>
+                                <div className="flex items-center gap-2">
+                                    <Palette className="h-5 w-5 text-primary" />
+                                    <CardTitle>Global Color Settings</CardTitle>
+                                </div>
+                                <CardDescription>
+                                    Set a global color that will be applied to
+                                    all items by default
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-sm font-medium">
+                                        Global Color
+                                    </Label>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                            setShowGlobalColorManager(true)
+                                        }
+                                        className="flex items-center gap-2"
+                                    >
+                                        <Palette className="h-4 w-4" />
+                                        {quoteData.globalColor
+                                            ? "Change Color"
+                                            : "Select Color"}
+                                    </Button>
+                                </div>
+
+                                {quoteData.globalColor ? (
+                                    <Card className="border-blue-200 bg-blue-50">
+                                        <CardContent className="pt-4">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <h4 className="font-semibold text-blue-800">
+                                                        {
+                                                            quoteData
+                                                                .globalColor
+                                                                .code
+                                                        }
+                                                    </h4>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="text-blue-700"
+                                                        >
+                                                            {
+                                                                quoteData
+                                                                    .globalColor
+                                                                    .brand
+                                                            }
+                                                        </Badge>
+                                                        <Badge
+                                                            variant="secondary"
+                                                            className="text-blue-700"
+                                                        >
+                                                            {
+                                                                quoteData
+                                                                    .globalColor
+                                                                    .color
+                                                            }
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        updateGlobalColor(
+                                                            undefined
+                                                        )
+                                                    }
+                                                >
+                                                    Remove
+                                                </Button>
+                                            </div>
+                                            <div className="mt-3 text-sm">
+                                                <span className="font-medium">
+                                                    Finish:
+                                                </span>{" "}
+                                                <span className="text-blue-600 ml-2">
+                                                    {
+                                                        quoteData.globalColor
+                                                            .finish
+                                                    }
+                                                </span>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ) : (
+                                    <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
+                                        <Palette className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                                        <p className="text-gray-600">
+                                            No global color selected
+                                        </p>
+                                        <p className="text-sm text-gray-500">
+                                            Select a color to apply to all items
+                                            by default
+                                        </p>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
                         <QuoteSettings
                             settings={quoteData.settings}
                             onUpdate={updateSettings}
@@ -339,6 +460,31 @@ export default function QuoteGeneratorPage() {
                     </TabsContent>
                 </Tabs>
             </div>
+
+            {/* Global Color Manager Modal */}
+            {showGlobalColorManager && (
+                <div className="fixed inset-0 bg-white border-gray-600 border bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-[1400px] w-full max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold">
+                                Select Global Color
+                            </h3>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowGlobalColorManager(false)}
+                            >
+                                Close
+                            </Button>
+                        </div>
+                        <ColorManager
+                            onColorSelect={handleGlobalColorSelect}
+                            selectedColor={quoteData.globalColor}
+                            showSelection={true}
+                        />
+                    </div>
+                </div>
+            )}
         </DashboardLayout>
     );
 }

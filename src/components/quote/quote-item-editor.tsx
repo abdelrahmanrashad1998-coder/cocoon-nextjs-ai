@@ -51,6 +51,7 @@ interface QuoteItemEditorProps {
     onUpdate: (item: QuoteItem) => void;
     onRemove: () => void;
     index: number;
+    globalColor?: ColorOption;
 }
 
 export function QuoteItemEditor({
@@ -58,6 +59,7 @@ export function QuoteItemEditor({
     onUpdate,
     onRemove,
     index,
+    globalColor,
 }: QuoteItemEditorProps) {
     const [isExpanded, setIsExpanded] = useState(true);
     const [showProfileManager, setShowProfileManager] = useState(false);
@@ -1520,61 +1522,120 @@ export function QuoteItemEditor({
                                     <Label className="text-sm font-medium">
                                         Color Information
                                     </Label>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() =>
-                                            setShowColorManager(true)
-                                        }
-                                        className="flex items-center gap-2"
-                                    >
-                                        <Palette className="h-4 w-4" />
-                                        Select Color
-                                    </Button>
+                                    <div className="flex gap-2">
+                                        {globalColor && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() =>
+                                                    handleUpdate(
+                                                        "color",
+                                                        undefined
+                                                    )
+                                                }
+                                                className="text-xs"
+                                            >
+                                                Use Global
+                                            </Button>
+                                        )}
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() =>
+                                                setShowColorManager(true)
+                                            }
+                                            className="flex items-center gap-2"
+                                        >
+                                            <Palette className="h-4 w-4" />
+                                            {item.color
+                                                ? "Change Color"
+                                                : "Select Color"}
+                                        </Button>
+                                    </div>
                                 </div>
 
-                                {item.color ? (
+                                {/* Show effective color (item-specific or global) */}
+                                {item.color || globalColor ? (
                                     <Card className="border-blue-200 bg-blue-50">
                                         <CardContent className="pt-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <h4 className="font-semibold text-blue-800">
-                                                        {item.color.code}
-                                                    </h4>
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <h4 className="font-semibold text-blue-800">
+                                                            {
+                                                                (
+                                                                    item.color ||
+                                                                    globalColor
+                                                                )?.code
+                                                            }
+                                                        </h4>
+                                                        {item.color ? (
+                                                            <Badge
+                                                                variant="secondary"
+                                                                className="text-xs"
+                                                            >
+                                                                Item Override
+                                                            </Badge>
+                                                        ) : globalColor ? (
+                                                            <Badge
+                                                                variant="outline"
+                                                                className="text-xs"
+                                                            >
+                                                                Global Color
+                                                            </Badge>
+                                                        ) : null}
+                                                    </div>
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <Badge
                                                             variant="outline"
                                                             className="text-blue-700"
                                                         >
-                                                            {item.color.brand}
+                                                            {
+                                                                (
+                                                                    item.color ||
+                                                                    globalColor
+                                                                )?.brand
+                                                            }
                                                         </Badge>
                                                         <Badge
                                                             variant="secondary"
                                                             className="text-blue-700"
                                                         >
-                                                            {item.color.color}
+                                                            {
+                                                                (
+                                                                    item.color ||
+                                                                    globalColor
+                                                                )?.color
+                                                            }
                                                         </Badge>
                                                     </div>
                                                 </div>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        handleUpdate(
-                                                            "color",
-                                                            undefined
-                                                        )
-                                                    }
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
+                                                {item.color && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            handleUpdate(
+                                                                "color",
+                                                                undefined
+                                                            )
+                                                        }
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                )}
                                             </div>
                                             <div className="mt-3 text-sm">
                                                 <span className="font-medium">
                                                     Finish:
                                                 </span>{" "}
                                                 <span className="text-blue-600 ml-2">
-                                                    {item.color.finish}
+                                                    {
+                                                        (
+                                                            item.color ||
+                                                            globalColor
+                                                        )?.finish
+                                                    }
                                                 </span>
                                             </div>
                                         </CardContent>
@@ -1586,7 +1647,7 @@ export function QuoteItemEditor({
                                             No color selected
                                         </p>
                                         <p className="text-sm text-gray-500">
-                                            Click \&quot;Select Color\&quot; to
+                                            Click &quot;Select Color&quot; to
                                             choose a color option
                                         </p>
                                     </div>

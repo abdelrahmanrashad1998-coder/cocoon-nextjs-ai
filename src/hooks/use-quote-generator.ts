@@ -5,6 +5,7 @@ import {
     ContactInfo,
     QuoteSettings,
     QuoteTotals,
+    ColorOption,
 } from "@/types/quote";
 
 export const useQuoteGenerator = () => {
@@ -27,6 +28,7 @@ export const useQuoteGenerator = () => {
             pricingType: "totals",
             exportFormat: "pdf",
         },
+        globalColor: undefined,
     });
 
     const [loading, setLoading] = useState(false);
@@ -78,6 +80,13 @@ export const useQuoteGenerator = () => {
         }));
     }, []);
 
+    const updateGlobalColor = useCallback((color: ColorOption | undefined) => {
+        setQuoteData((prev) => ({
+            ...prev,
+            globalColor: color,
+        }));
+    }, []);
+
     const updateSettingsField = useCallback(
         (field: keyof QuoteSettings, value: string | number) => {
             setQuoteData((prev) => ({
@@ -107,13 +116,19 @@ export const useQuoteGenerator = () => {
         const discountedTotal = totalPrice - discountAmount;
 
         return {
-            totalArea,
-            totalBeforeProfit: discountedTotal,
-            totalPrice: discountedTotal,
+            totalM2: totalArea,
+            totalBefore: discountedTotal,
+            totalAfter: discountedTotal,
             totalProfit: 0, // Mock value
+            totalProfitPercentage: 0, // Mock value
+            totalM2Price: totalArea > 0 ? discountedTotal / totalArea : 0,
             downPayment: discountedTotal * 0.8,
             supplyPayment: discountedTotal * 0.1,
             completePayment: discountedTotal * 0.1,
+            // Legacy fields for compatibility
+            totalArea,
+            totalBeforeProfit: discountedTotal,
+            totalPrice: discountedTotal,
             m2Price: totalArea > 0 ? discountedTotal / totalArea : 0,
             profitPercentage: 0, // Mock value
         };
@@ -992,6 +1007,7 @@ export const useQuoteGenerator = () => {
         removeItem,
         updateContactInfo,
         updateSettings: updateSettingsField,
+        updateGlobalColor,
         calculateTotals,
         saveQuote,
         exportQuote,

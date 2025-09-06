@@ -70,6 +70,7 @@ export interface QuoteData {
     contactInfo: ContactInfo;
     items: QuoteItem[];
     settings: QuoteSettings;
+    globalColor?: ColorOption;
 }
 
 export interface QuoteTotals {
