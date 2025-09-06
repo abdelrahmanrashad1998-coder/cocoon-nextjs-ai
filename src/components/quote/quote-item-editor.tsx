@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,6 +65,7 @@ export function QuoteItemEditor({
     const [showProfileManager, setShowProfileManager] = useState(false);
     const [showPricingDetails, setShowPricingDetails] = useState(false);
     const [showColorManager, setShowColorManager] = useState(false);
+    const [svgContent, setSvgContent] = useState<string>("");
 
     const isCurtainWall = item.type === "curtain_wall";
 
@@ -207,6 +208,162 @@ export function QuoteItemEditor({
             type: newType,
             system: newSystem,
         });
+    };
+
+    const generateItemSvg = () => {
+        let svgContent = "";
+
+        if (item.type === "curtain_wall") {
+            // For curtain wall, use the existing logic from ItemSvgGenerator
+            if (item.designData?.panels) {
+                const { panels, wallWidth, wallHeight } = item.designData;
+                const scale = Math.min(300 / wallWidth, 200 / wallHeight) * 0.9;
+                const scaledWallWidth = wallWidth * scale;
+                const scaledWallHeight = wallHeight * scale;
+                const offsetX = (300 - scaledWallWidth) / 2;
+                const offsetY = (200 - scaledWallHeight) / 2;
+
+                let svgElements = "";
+                svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWallWidth}" height="${scaledWallHeight}" fill="none" stroke="#374151" stroke-width="2"/>`;
+
+                panels.forEach((panel) => {
+                    const panelX =
+                        offsetX + (panel.left / 100) * scaledWallWidth;
+                    const panelY =
+                        offsetY + (panel.top / 100) * scaledWallHeight;
+                    const panelWidth =
+                        (panel.widthMeters / wallWidth) * scaledWallWidth;
+                    const panelHeight =
+                        (panel.heightMeters / wallHeight) * scaledWallHeight;
+
+                    let fillColor = "#87CEEB";
+                    let strokeColor = "#666";
+
+                    switch (panel.type) {
+                        case "window":
+                            fillColor = "#87CEEB";
+                            strokeColor = "#3b82f6";
+                            break;
+                        case "door":
+                            fillColor = "#98FB98";
+                            strokeColor = "#f59e0b";
+                            break;
+                        case "structure":
+                            fillColor = "#D3D3D3";
+                            strokeColor = "#10b981";
+                            break;
+                    }
+
+                    svgElements += `<rect x="${panelX}" y="${panelY}" width="${panelWidth}" height="${panelHeight}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1" opacity="0.8"/>`;
+
+                    const label =
+                        panel.type === "structure"
+                            ? "Fixed"
+                            : panel.type.charAt(0).toUpperCase() +
+                              panel.type.slice(1);
+                    svgElements += `<text x="${panelX + panelWidth / 2}" y="${
+                        panelY + panelHeight / 2
+                    }" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="#333">${label}</text>`;
+                });
+
+                svgElements += `<text x="${offsetX + scaledWallWidth / 2}" y="${
+                    offsetY - 5
+                }" text-anchor="middle" font-size="10" fill="#666">${wallWidth}m</text>`;
+                svgElements += `<text x="${offsetX - 5}" y="${
+                    offsetY + scaledWallHeight / 2
+                }" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#666" transform="rotate(-90, ${
+                    offsetX - 5
+                }, ${offsetY + scaledWallHeight / 2})">${wallHeight}m</text>`;
+
+                svgContent = `<svg width="300" height="200" viewBox="0 0 300 200">${svgElements}</svg>`;
+            }
+        } else {
+            // For regular items
+            const {
+                width: itemWidth,
+                height: itemHeight,
+                system,
+                leaves,
+                type,
+            } = item;
+            const scale = Math.min(300 / itemWidth, 200 / itemHeight) * 0.8;
+            const scaledWidth = itemWidth * scale;
+            const scaledHeight = itemHeight * scale;
+            const offsetX = (300 - scaledWidth) / 2;
+            const offsetY = (200 - scaledHeight) / 2;
+
+            let svgElements = "";
+            svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWidth}" height="${scaledHeight}" fill="none" stroke="#374151" stroke-width="2" rx="4"/>`;
+
+            const glassInset = 8;
+            svgElements += `<rect x="${offsetX + glassInset}" y="${
+                offsetY + glassInset
+            }" width="${scaledWidth - glassInset * 2}" height="${
+                scaledHeight - glassInset * 2
+            }" fill="#87CEEB" stroke="#666" stroke-width="1" opacity="0.7"/>`;
+
+            if (system === "Sliding") {
+                const panelWidth = (scaledWidth - glassInset * 2) / leaves;
+                for (let i = 0; i < leaves; i++) {
+                    const panelX = offsetX + glassInset + i * panelWidth;
+                    if (i > 0) {
+                        svgElements += `<line x1="${panelX}" y1="${
+                            offsetY + glassInset
+                        }" x2="${panelX}" y2="${
+                            offsetY + scaledHeight - glassInset
+                        }" stroke="#666" stroke-width="1"/>`;
+                    }
+                    const handleY = offsetY + scaledHeight / 2;
+                    const handleSize = 8;
+                    if (i === 0 || i === leaves - 1) {
+                        svgElements += `<circle cx="${
+                            panelX + panelWidth / 2
+                        }" cy="${handleY}" r="${handleSize}" fill="#666"/><rect x="${
+                            panelX + panelWidth / 2 - handleSize / 2
+                        }" y="${
+                            handleY - 2
+                        }" width="${handleSize}" height="4" fill="#666"/>`;
+                    }
+                }
+            } else if (system === "hinged") {
+                const hingeSpacing = scaledHeight / (leaves + 1);
+                for (let i = 1; i <= leaves; i++) {
+                    const hingeY = offsetY + i * hingeSpacing;
+                    svgElements += `<circle cx="${offsetX}" cy="${hingeY}" r="3" fill="#666"/><circle cx="${
+                        offsetX + scaledWidth
+                    }" cy="${hingeY}" r="3" fill="#666"/>`;
+                }
+                if (type === "door") {
+                    const handleX =
+                        leaves === 1
+                            ? offsetX + scaledWidth - 20
+                            : offsetX + scaledWidth / 2;
+                    const handleY = offsetY + scaledHeight / 2;
+                    svgElements += `<circle cx="${handleX}" cy="${handleY}" r="4" fill="#FFD700"/><rect x="${
+                        handleX - 8
+                    }" y="${
+                        handleY - 2
+                    }" width="16" height="4" fill="#FFD700"/>`;
+                }
+            } else if (system === "fixed") {
+                svgElements += `<text x="${offsetX + scaledWidth / 2}" y="${
+                    offsetY + scaledHeight / 2
+                }" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#666">Fixed</text>`;
+            }
+
+            svgElements += `<text x="${offsetX + scaledWidth / 2}" y="${
+                offsetY - 5
+            }" text-anchor="middle" font-size="10" fill="#666">${itemWidth}m</text>`;
+            svgElements += `<text x="${offsetX - 5}" y="${
+                offsetY + scaledHeight / 2
+            }" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#666" transform="rotate(-90, ${
+                offsetX - 5
+            }, ${offsetY + scaledHeight / 2})">${itemHeight}m</text>`;
+
+            svgContent = `<svg width="300" height="200" viewBox="0 0 300 200">${svgElements}</svg>`;
+        }
+
+        setSvgContent(svgContent);
     };
 
     const renderPricingBreakdown = (item: QuoteItem) => {
@@ -1694,6 +1851,45 @@ export function QuoteItemEditor({
                                         </p>
                                     </div>
                                 )}
+                            </div>
+
+                            {/* Item SVG Preview */}
+                            <Separator />
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-sm font-medium">
+                                        Item Preview
+                                    </Label>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={generateItemSvg}
+                                        className="flex items-center gap-2"
+                                    >
+                                        Generate SVG
+                                    </Button>
+                                </div>
+                                <div className="border rounded-lg p-4 bg-white">
+                                    <div className="text-xs text-muted-foreground mb-2 text-center">
+                                        {item.type === "curtain_wall"
+                                            ? "Curtain Wall Layout"
+                                            : `${item.system} System`}
+                                    </div>
+                                    <div className="flex justify-center">
+                                        {svgContent ? (
+                                            <div
+                                                dangerouslySetInnerHTML={{
+                                                    __html: svgContent,
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="text-center text-muted-foreground py-8">
+                                                Click "Generate SVG" to create
+                                                the preview
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Item Summary */}

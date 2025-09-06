@@ -23,7 +23,7 @@ import { QuotePreview } from "@/components/quote/quote-preview";
 import { QuoteSettings } from "@/components/quote/quote-settings";
 import { useQuoteGenerator } from "@/hooks/use-quote-generator";
 import ColorManager from "@/components/color/color-manager";
-import { ColorOption, QuoteData } from "@/types/quote";
+import { ColorOption, QuoteData, QuoteItem } from "@/types/quote";
 import { Palette } from "lucide-react";
 
 export default function QuoteGeneratorPage() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
     Card,
     CardContent,
@@ -61,6 +61,162 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
         if (item.mosquito) features.push("Mosquito Net");
         if (item.arch) features.push("Arch Trave");
         return features;
+    };
+
+    const generateItemSvg = (item: QuoteItem) => {
+        let svgContent = "";
+
+        if (item.type === "curtain_wall") {
+            // For curtain wall, use the existing logic from ItemSvgGenerator
+            if (item.designData?.panels) {
+                const { panels, wallWidth, wallHeight } = item.designData;
+                const scale = Math.min(150 / wallWidth, 100 / wallHeight) * 0.9;
+                const scaledWallWidth = wallWidth * scale;
+                const scaledWallHeight = wallHeight * scale;
+                const offsetX = (150 - scaledWallWidth) / 2;
+                const offsetY = (100 - scaledWallHeight) / 2;
+
+                let svgElements = "";
+                svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWallWidth}" height="${scaledWallHeight}" fill="none" stroke="#374151" stroke-width="1"/>`;
+
+                panels.forEach((panel) => {
+                    const panelX =
+                        offsetX + (panel.left / 100) * scaledWallWidth;
+                    const panelY =
+                        offsetY + (panel.top / 100) * scaledWallHeight;
+                    const panelWidth =
+                        (panel.widthMeters / wallWidth) * scaledWallWidth;
+                    const panelHeight =
+                        (panel.heightMeters / wallHeight) * scaledWallHeight;
+
+                    let fillColor = "#87CEEB";
+                    let strokeColor = "#666";
+
+                    switch (panel.type) {
+                        case "window":
+                            fillColor = "#87CEEB";
+                            strokeColor = "#3b82f6";
+                            break;
+                        case "door":
+                            fillColor = "#98FB98";
+                            strokeColor = "#f59e0b";
+                            break;
+                        case "structure":
+                            fillColor = "#D3D3D3";
+                            strokeColor = "#10b981";
+                            break;
+                    }
+
+                    svgElements += `<rect x="${panelX}" y="${panelY}" width="${panelWidth}" height="${panelHeight}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1" opacity="0.8"/>`;
+
+                    const label =
+                        panel.type === "structure"
+                            ? "Fixed"
+                            : panel.type.charAt(0).toUpperCase() +
+                              panel.type.slice(1);
+                    svgElements += `<text x="${panelX + panelWidth / 2}" y="${
+                        panelY + panelHeight / 2
+                    }" text-anchor="middle" dominant-baseline="middle" font-size="6" fill="#333">${label}</text>`;
+                });
+
+                svgElements += `<text x="${offsetX + scaledWallWidth / 2}" y="${
+                    offsetY - 3
+                }" text-anchor="middle" font-size="8" fill="#666">${wallWidth}m</text>`;
+                svgElements += `<text x="${offsetX - 3}" y="${
+                    offsetY + scaledWallHeight / 2
+                }" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="#666" transform="rotate(-90, ${
+                    offsetX - 3
+                }, ${offsetY + scaledWallHeight / 2})">${wallHeight}m</text>`;
+
+                svgContent = `<svg width="150" height="100" viewBox="0 0 150 100">${svgElements}</svg>`;
+            }
+        } else {
+            // For regular items
+            const {
+                width: itemWidth,
+                height: itemHeight,
+                system,
+                leaves,
+                type,
+            } = item;
+            const scale = Math.min(150 / itemWidth, 100 / itemHeight) * 0.8;
+            const scaledWidth = itemWidth * scale;
+            const scaledHeight = itemHeight * scale;
+            const offsetX = (150 - scaledWidth) / 2;
+            const offsetY = (100 - scaledHeight) / 2;
+
+            let svgElements = "";
+            svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWidth}" height="${scaledHeight}" fill="none" stroke="#374151" stroke-width="1" rx="2"/>`;
+
+            const glassInset = 4;
+            svgElements += `<rect x="${offsetX + glassInset}" y="${
+                offsetY + glassInset
+            }" width="${scaledWidth - glassInset * 2}" height="${
+                scaledHeight - glassInset * 2
+            }" fill="#87CEEB" stroke="#666" stroke-width="0.5" opacity="0.7"/>`;
+
+            if (system === "Sliding") {
+                const panelWidth = (scaledWidth - glassInset * 2) / leaves;
+                for (let i = 0; i < leaves; i++) {
+                    const panelX = offsetX + glassInset + i * panelWidth;
+                    if (i > 0) {
+                        svgElements += `<line x1="${panelX}" y1="${
+                            offsetY + glassInset
+                        }" x2="${panelX}" y2="${
+                            offsetY + scaledHeight - glassInset
+                        }" stroke="#666" stroke-width="0.5"/>`;
+                    }
+                    const handleY = offsetY + scaledHeight / 2;
+                    const handleSize = 4;
+                    if (i === 0 || i === leaves - 1) {
+                        svgElements += `<circle cx="${
+                            panelX + panelWidth / 2
+                        }" cy="${handleY}" r="${handleSize}" fill="#666"/><rect x="${
+                            panelX + panelWidth / 2 - handleSize / 2
+                        }" y="${
+                            handleY - 1
+                        }" width="${handleSize}" height="2" fill="#666"/>`;
+                    }
+                }
+            } else if (system === "hinged") {
+                const hingeSpacing = scaledHeight / (leaves + 1);
+                for (let i = 1; i <= leaves; i++) {
+                    const hingeY = offsetY + i * hingeSpacing;
+                    svgElements += `<circle cx="${offsetX}" cy="${hingeY}" r="2" fill="#666"/><circle cx="${
+                        offsetX + scaledWidth
+                    }" cy="${hingeY}" r="2" fill="#666"/>`;
+                }
+                if (type === "door") {
+                    const handleX =
+                        leaves === 1
+                            ? offsetX + scaledWidth - 10
+                            : offsetX + scaledWidth / 2;
+                    const handleY = offsetY + scaledHeight / 2;
+                    svgElements += `<circle cx="${handleX}" cy="${handleY}" r="2" fill="#FFD700"/><rect x="${
+                        handleX - 4
+                    }" y="${
+                        handleY - 1
+                    }" width="8" height="2" fill="#FFD700"/>`;
+                }
+            } else if (system === "fixed") {
+                svgElements += `<text x="${offsetX + scaledWidth / 2}" y="${
+                    offsetY + scaledHeight / 2
+                }" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="#666">Fixed</text>`;
+            }
+
+            svgElements += `<text x="${offsetX + scaledWidth / 2}" y="${
+                offsetY - 3
+            }" text-anchor="middle" font-size="8" fill="#666">${itemWidth}m</text>`;
+            svgElements += `<text x="${offsetX - 3}" y="${
+                offsetY + scaledHeight / 2
+            }" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="#666" transform="rotate(-90, ${
+                offsetX - 3
+            }, ${offsetY + scaledHeight / 2})">${itemHeight}m</text>`;
+
+            svgContent = `<svg width="150" height="100" viewBox="0 0 150 100">${svgElements}</svg>`;
+        }
+
+        return svgContent;
     };
 
     return (
@@ -186,6 +342,7 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Item</TableHead>
+                                <TableHead>Preview</TableHead>
                                 <TableHead>Dimensions</TableHead>
                                 <TableHead>System</TableHead>
                                 <TableHead>Color</TableHead>
@@ -225,6 +382,18 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                                                     Qty: {item.quantity}
                                                 </div>
                                             </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex justify-center">
+                                            <div
+                                                className="border rounded bg-white p-1"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: generateItemSvg(
+                                                        item
+                                                    ),
+                                                }}
+                                            />
                                         </div>
                                     </TableCell>
                                     <TableCell>
