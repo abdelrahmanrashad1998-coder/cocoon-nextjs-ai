@@ -78,6 +78,7 @@ export default function ProfileManager({
 }: ProfileManagerProps) {
     const { user, loading: authLoading } = useAuth();
     const [profiles, setProfiles] = useState<AluminiumProfile[]>([]);
+    const [colors, setColors] = useState<ColorOption[]>([]); // Add colors state
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -129,6 +130,7 @@ export default function ProfileManager({
         if (user && !authLoading) {
             loadUserRole();
             loadProfiles();
+            loadColors(); // Add this line
         }
     }, [user, authLoading]);
 
@@ -783,6 +785,77 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
         }
     };
 
+    // Load colors from Firebase
+    const loadColors = async () => {
+        if (!user) {
+            setError("Please log in to access colors");
+            return;
+        }
+
+        setLoading(true);
+        setError("");
+
+        try {
+            const colorsCollection = collection(db, "colorOptions");
+            const colorsSnapshot = await getDocs(colorsCollection);
+            const colorsList = colorsSnapshot.docs.map((doc) => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    code: data.code || "",
+                    brand: data.brand || "",
+                    color: data.color || "",
+                    finish: data.finish || "",
+                } as ColorOption;
+            });
+
+            setColors(colorsList);
+            setSuccess(`Loaded ${colorsList.length} colors`);
+        } catch (error: unknown) {
+            console.error("Error loading colors:", error);
+            const err = error as { code?: string; message?: string };
+            if (err.code === "permission-denied") {
+                setError(
+                    "Permission denied. Please check your Firebase security rules."
+                );
+            } else if (err.code === "unauthenticated") {
+                setError("Please log in to access colors");
+            } else {
+                setError(
+                    `Error loading colors: ${err.message || "Unknown error"}`
+                );
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Filter colors based on search and brand
+    const filteredColors = colors.filter((color) => {
+        const matchesSearch =
+            color.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            color.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            color.color.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            color.finish.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const matchesBrand =
+            brandFilter === "all" || color.brand === brandFilter;
+
+        return matchesSearch && matchesBrand;
+    });
+
+    // Get unique brands from colors
+    const getColorBrands = () => {
+        const brands = colors.map((color) => color.brand).filter(Boolean);
+        return [...new Set(brands)];
+    };
+
+    // Get unique finish types from colors
+    const getFinishTypes = () => {
+        const finishTypes = colors.map((color) => color.finish).filter(Boolean);
+        return [...new Set(finishTypes)];
+    };
+
     return (
         <div className="space-y-6">
             {/* Authentication Loading */}
@@ -874,10 +947,15 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                         value={activeTab}
                         onValueChange={setActiveTab}
                     >
-                        <TabsList className="grid w-full grid-cols-3">
+                        <TabsList className="grid w-full grid-cols-4">
                             <TabsTrigger value="browse">
                                 Browse Profiles
                             </TabsTrigger>
+                            
+                            <TabsTrigger value="browseColors">
+                                Browse Colors
+                            </TabsTrigger>
+                            
                             {canManageProfiles && (
                                 <TabsTrigger value="import">
                                     Import Profiles
@@ -888,6 +966,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                     Import Colors
                                 </TabsTrigger>
                             )}
+                            
                         </TabsList>
 
                         <TabsContent
@@ -1366,9 +1445,158 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                 </Card>
                             </TabsContent>
                         )}
+                        {/* Colors browse */}
+                        <TabsContent
+                            value="browseColors"
+                            className="space-y-6"
+                        >
+                            {/* Search and Filter */}
+                            <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-purple-50">
+                                <CardHeader className="pb-4">
+                                    <CardTitle className="flex items-center gap-2 text-gray-800">
+                                        <Search className="h-5 w-5 text-blue-600" />
+                                        Search & Filter Colors
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium text-gray-700">
+                                                Search Colors
+                                            </Label>
+                                            <Input
+                                                placeholder="Search by code, brand, color, or finish..."
+                                                value={searchTerm}
+                                                onChange={(e) =>
+                                                    setSearchTerm(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-medium text-gray-700">
+                                                Filter by Brand
+                                            </Label>
+                                            <Select
+                                                value={brandFilter}
+                                                onValueChange={setBrandFilter}
+                                            >
+                                                <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                                                    <SelectValue placeholder="All brands" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">
+                                                        All brands
+                                                    </SelectItem>
+                                                    {getColorBrands()
+                                                        .filter(
+                                                            (brand) => brand
+                                                        )
+                                                        .map((brand) => (
+                                                            <SelectItem
+                                                                key={brand}
+                                                                value={brand}
+                                                            >
+                                                                {brand}
+                                                            </SelectItem>
+                                                        ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Colors List */}
+                            <Card className="border-0 shadow-sm">
+                                <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b">
+                                    <CardTitle className="flex items-center justify-between">
+                                        <span className="text-gray-800">
+                                            Available Colors
+                                        </span>
+                                        <Badge
+                                            variant="secondary"
+                                            className="text-sm"
+                                        >
+                                            {filteredColors.length}{" "}
+                                            {filteredColors.length === 1
+                                                ? "color"
+                                                : "colors"}
+                                        </Badge>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    {loading ? (
+                                        <div className="text-center py-8">
+                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                                            <p className="mt-2 text-gray-600">
+                                                Loading colors...
+                                            </p>
+                                        </div>
+                                    ) : filteredColors.length === 0 ? (
+                                        <div className="text-center py-8">
+                                            <p className="text-gray-600">
+                                                No colors found
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {filteredColors.map(
+                                                (color, index) => (                                        
+
+                                                    <Card
+                                                        key={index}
+                                                        className="cursor-pointer transition-all hover:shadow-md"
+                                                    >
+                                                        <CardContent className="p-4">
+                                                            <div className="flex items-center justify-between mb-2">
+                                                                <h4 className="font-semibold text-gray-800">
+                                                                    {color.code}
+                                                                </h4>
+                                                            </div>
+                                                            <div className="space-y-1 text-sm">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Badge
+                                                                        variant="outline"
+                                                                        className="text-blue-700"
+                                                                    >
+                                                                        {color.brand}
+                                                                    </Badge>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="font-medium">
+                                                                        Color:
+                                                                    </span>{" "}
+                                                                    <span className="text-gray-600">
+                                                                        {color.color}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="font-medium">
+                                                                        Finish:
+                                                                    </span>{" "}
+                                                                    <span className="text-gray-600">
+                                                                        {color.finish}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+                                                )
+                                            )}
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                        
                     </Tabs>
                 </>
             )}
+
+            
 
             {/* Create Profile Modal */}
             {showCreateModal && (
