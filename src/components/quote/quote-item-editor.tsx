@@ -1,7 +1,6 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,6 +44,7 @@ import ColorManager from "../color/color-manager";
 import { ColorOption } from "@/types/quote";
 import { Database, X, Palette } from "lucide-react";
 import { calculateItemPricing } from "@/lib/pricing-calculator";
+import { CurtainPanel } from "@/types/types";
 
 interface QuoteItemEditorProps {
     item: QuoteItem;
@@ -102,19 +102,20 @@ export function QuoteItemEditor({
 
     const handleCurtainWallDesignChange = useCallback(
         (design: {
-            panels: Array<{
-                type: "window" | "door" | "structure";
-                widthMeters: number;
-                heightMeters: number;
-                left: number;
-                top: number;
-                col: number;
-                row: number;
-                colSpan: number;
-                rowSpan: number;
-                mergedId?: string;
-                isSpanned?: boolean;
-            }>;
+            panels: CurtainPanel[];
+            //Array<{
+            //    type: "window" | "door" | "structure";
+            //    widthMeters: number;
+            //    heightMeters: number;
+            //    left: number;
+            //    top: number;
+            //    col: number;
+            //    row: number;
+            //    colSpan: number;
+            //    rowSpan: number;
+            //    mergedId?: string;
+            //    isSpanned?: boolean;
+            //}>;
             frameMeters: number;
             windowMeters: number;
             glassArea: number;
@@ -1884,8 +1885,8 @@ export function QuoteItemEditor({
                                             />
                                         ) : (
                                             <div className="text-center text-muted-foreground py-8">
-                                                Click "Generate SVG" to create
-                                                the preview
+                                                Click &quot;Generate SVG&quot;
+                                                to create the preview
                                             </div>
                                         )}
                                     </div>

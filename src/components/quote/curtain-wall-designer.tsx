@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -16,12 +17,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
     Square,
     Layout,
     DoorOpen,
@@ -39,77 +34,35 @@ import {
     Minus,
     Undo2,
     Redo2,
-    ChevronDown,
 } from "lucide-react";
-
-interface CurtainPanel {
-    id: string;
-    type: "structure" | "window" | "door";
-    widthMeters: number;
-    heightMeters: number;
-    left: number;
-    top: number;
-    col: number;
-    row: number;
-    colSpan: number;
-    rowSpan: number;
-    mergedId?: string;
-    selected?: boolean;
-    material?: "aluminum" | "steel" | "composite";
-    glassType?: "single" | "double" | "triple" | "laminated";
-    frameColor?: string;
-    isSpanned?: boolean;
-}
-
-interface DesignState {
-    id: string;
-    panels: CurtainPanel[];
-    columns: number;
-    rows: number;
-    material: "aluminum" | "steel" | "composite";
-    glassType: "single" | "double" | "triple" | "laminated";
-    frameColor: string;
-    timestamp: number;
-    action: string;
-    description: string;
-}
-
-interface DesignPreset {
-    name: string;
-    description: string;
-    columns: number;
-    rows: number;
-    layout: string[][];
-}
-
-interface CurtainWallDesignerProps {
-    wallWidth: number;
-    wallHeight: number;
-    onDesignChange: (design: {
-        panels: CurtainPanel[];
-        frameMeters: number;
-        windowMeters: number;
-        glassArea: number;
-        cornerCount: number;
-        totalCost: number;
-        materialBreakdown: Record<string, number>;
-    }) => void;
-}
+import {
+    CurtainPanel,
+    DesignState,
+    DesignPreset,
+    CurtainWallDesignerProps,
+} from "@/types/types";
 
 export function CurtainWallDesigner({
     wallWidth,
     wallHeight,
+    initialDesignData,
     onDesignChange,
 }: CurtainWallDesignerProps) {
     const [mode, setMode] = useState<"structure" | "window" | "door">(
         "structure"
     );
-    const [columns, setColumns] = useState(4);
-    const [rows, setRows] = useState(3);
-    const [panels, setPanels] = useState<CurtainPanel[]>([]);
+    const [columns, setColumns] = useState(initialDesignData?.columns || 4);
+    const [rows, setRows] = useState(initialDesignData?.rows || 3);
+    const [panels, setPanels] = useState<CurtainPanel[]>(
+        initialDesignData?.panels || []
+    );
     const [selectedPanels, setSelectedPanels] = useState<string[]>([]);
-    const [columnSizes, setColumnSizes] = useState<number[]>([]);
-    const [rowSizes, setRowSizes] = useState<number[]>([]);
+    const [columnSizes, setColumnSizes] = useState<number[]>(
+        initialDesignData?.columnSizes || []
+    );
+    const [rowSizes, setRowSizes] = useState<number[]>(
+        initialDesignData?.rowSizes || []
+    );
     const [material, setMaterial] = useState<
         "aluminum" | "steel" | "composite"
     >("aluminum");
@@ -127,6 +80,27 @@ export function CurtainWallDesigner({
     const [primaryColumnIndex, setPrimaryColumnIndex] = useState(0);
     const [primaryRowIndex, setPrimaryRowIndex] = useState(0);
     const canvasRef = useRef<HTMLDivElement>(null);
+
+    // Handle initial data loading
+    useEffect(() => {
+        if (initialDesignData) {
+            // Show custom sizes when we have saved data
+            setShowCustomSizes(true);
+            // Ensure column and row sizes are set from initial data
+            if (
+                initialDesignData.columnSizes &&
+                initialDesignData.columnSizes.length > 0
+            ) {
+                setColumnSizes(initialDesignData.columnSizes);
+            }
+            if (
+                initialDesignData.rowSizes &&
+                initialDesignData.rowSizes.length > 0
+            ) {
+                setRowSizes(initialDesignData.rowSizes);
+            }
+        }
+    }, [initialDesignData]);
 
     // Design presets
     const presets: DesignPreset[] = [
@@ -269,6 +243,10 @@ export function CurtainWallDesigner({
                 cornerCount,
                 totalCost,
                 materialBreakdown,
+                columns,
+                rows,
+                columnSizes,
+                rowSizes,
             });
         },
         [
@@ -322,7 +300,6 @@ export function CurtainWallDesigner({
             glassType,
             frameColor,
             currentHistoryIndex,
-            isUndoRedoOperation,
         ]
     );
 
@@ -338,7 +315,8 @@ export function CurtainWallDesigner({
             setFrameColor(state.frameColor);
             setSelectedPanels([]);
             calculateDesign(state.panels, state.columns, state.rows);
-            setTimeout(() => setIsUndoRedoOperation(false), 100);
+            // Use requestAnimationFrame instead of setTimeout for more reliable timing
+            requestAnimationFrame(() => setIsUndoRedoOperation(false));
         },
         [calculateDesign]
     );
@@ -391,19 +369,31 @@ export function CurtainWallDesigner({
 
     // Update column sizes when columns change
     useEffect(() => {
-        const newColumnSizes = Array(columns).fill(wallWidth / columns);
-        setColumnSizes(newColumnSizes);
+        // Only reset sizes if we don't have initial data or if sizes are empty
+        if (
+            !initialDesignData?.columnSizes ||
+            initialDesignData.columnSizes.length === 0
+        ) {
+            const newColumnSizes = Array(columns).fill(wallWidth / columns);
+            setColumnSizes(newColumnSizes);
+        }
         // Show custom sizes when grid changes
         setShowCustomSizes(true);
-    }, [columns, wallWidth]);
+    }, [columns, wallWidth, initialDesignData?.columnSizes?.length]);
 
     // Update row sizes when rows change
     useEffect(() => {
-        const newRowSizes = Array(rows).fill(wallHeight / rows);
-        setRowSizes(newRowSizes);
+        // Only reset sizes if we don't have initial data or if sizes are empty
+        if (
+            !initialDesignData?.rowSizes ||
+            initialDesignData.rowSizes.length === 0
+        ) {
+            const newRowSizes = Array(rows).fill(wallHeight / rows);
+            setRowSizes(newRowSizes);
+        }
         // Show custom sizes when grid changes
         setShowCustomSizes(true);
-    }, [rows, wallHeight]);
+    }, [rows, wallHeight, initialDesignData?.rowSizes?.length]);
 
     // Handle custom column size changes
     const handleColumnSizeChange = (index: number, value: number) => {
@@ -522,10 +512,18 @@ export function CurtainWallDesigner({
         addDesignState("reset_sizes", "Reset to equal column and row sizes");
     };
 
-    // Initialize grid when dimensions change
+    // Initialize grid when dimensions change (only if no initial data)
     useEffect(() => {
-        generateGrid();
-    }, [generateGrid]);
+        if (
+            !initialDesignData?.panels ||
+            initialDesignData.panels.length === 0
+        ) {
+            generateGrid();
+        } else {
+            // If we have initial data, just calculate the design with existing panels
+            calculateDesign(panels, columns, rows);
+        }
+    }, [initialDesignData?.panels, columns, rows]);
 
     const handlePanelClick = (panelId: string, event: React.MouseEvent) => {
         if (event.ctrlKey || event.metaKey) {
@@ -678,73 +676,73 @@ export function CurtainWallDesigner({
         calculateDesign(filteredPanels, columns, rows);
     };
 
-    const splitPanels = () => {
-        const mergedPanels = panels.filter(
-            (panel) =>
-                (panel.colSpan > 1 || panel.rowSpan > 1) && panel.mergedId
-        );
+    //const splitPanels = () => {
+    //    const mergedPanels = panels.filter(
+    //        (panel) =>
+    //            (panel.colSpan > 1 || panel.rowSpan > 1) && panel.mergedId
+    //    );
 
-        if (mergedPanels.length === 0) return;
+    //    if (mergedPanels.length === 0) return;
 
-        // Add current state to history before making changes
-        addDesignState(
-            "panel_split",
-            `Split ${mergedPanels.length} merged panel(s) into individual panels`
-        );
+    //    // Add current state to history before making changes
+    //    addDesignState(
+    //        "panel_split",
+    //        `Split ${mergedPanels.length} merged panel(s) into individual panels`
+    //    );
 
-        const newPanels: CurtainPanel[] = [];
+    //    const newPanels: CurtainPanel[] = [];
 
-        // Process each merged panel
-        mergedPanels.forEach((mergedPanel) => {
-            const {
-                row,
-                col,
-                colSpan,
-                rowSpan,
-                type,
-                material,
-                glassType,
-                frameColor,
-            } = mergedPanel;
+    //    // Process each merged panel
+    //    mergedPanels.forEach((mergedPanel) => {
+    //        const {
+    //            row,
+    //            col,
+    //            colSpan,
+    //            rowSpan,
+    //            type,
+    //            material,
+    //            glassType,
+    //            frameColor,
+    //        } = mergedPanel;
 
-            // Create individual panels for each cell in the merged area
-            for (let r = row; r < row + rowSpan; r++) {
-                for (let c = col; c < col + colSpan; c++) {
-                    const panelId = `panel-${Date.now()}-${r}-${c}`;
-                    const newPanel: CurtainPanel = {
-                        id: panelId,
-                        type,
-                        widthMeters: columnSizes[c] || wallWidth / columns,
-                        heightMeters: rowSizes[r] || wallHeight / rows,
-                        left: c * (100 / columns),
-                        top: r * (100 / rows),
-                        col: c,
-                        row: r,
-                        colSpan: 1,
-                        rowSpan: 1,
-                        material,
-                        glassType,
-                        frameColor,
-                        isSpanned: false,
-                        selected: false,
-                    };
-                    newPanels.push(newPanel);
-                }
-            }
-        });
+    //        // Create individual panels for each cell in the merged area
+    //        for (let r = row; r < row + rowSpan; r++) {
+    //            for (let c = col; c < col + colSpan; c++) {
+    //                const panelId = `panel-${Date.now()}-${r}-${c}`;
+    //                const newPanel: CurtainPanel = {
+    //                    id: panelId,
+    //                    type,
+    //                    widthMeters: columnSizes[c] || wallWidth / columns,
+    //                    heightMeters: rowSizes[r] || wallHeight / rows,
+    //                    left: c * (100 / columns),
+    //                    top: r * (100 / rows),
+    //                    col: c,
+    //                    row: r,
+    //                    colSpan: 1,
+    //                    rowSpan: 1,
+    //                    material,
+    //                    glassType,
+    //                    frameColor,
+    //                    isSpanned: false,
+    //                    selected: false,
+    //                };
+    //                newPanels.push(newPanel);
+    //            }
+    //        }
+    //    });
 
-        // Add all non-merged panels
-        const nonMergedPanels = panels.filter(
-            (panel) =>
-                !((panel.colSpan > 1 || panel.rowSpan > 1) && panel.mergedId)
-        );
+    //    // Add all non-merged panels
+    //    const nonMergedPanels = panels.filter(
+    //        (panel) =>
+    //            !((panel.colSpan > 1 || panel.rowSpan > 1) && panel.mergedId)
+    //    );
 
-        const allPanels = [...nonMergedPanels, ...newPanels];
+    //    const allPanels = [...nonMergedPanels, ...newPanels];
 
-        setPanels(allPanels);
-        setSelectedPanels([]);
-        calculateDesign(allPanels, columns, rows);
-    };
+    //    setPanels(allPanels);
+    //    setSelectedPanels([]);
+    //    calculateDesign(allPanels, columns, rows);
+    //};
 
     const clearSelection = () => {
         setSelectedPanels([]);
@@ -800,30 +798,30 @@ export function CurtainWallDesigner({
         );
 
     // Wrapper functions for material changes with history tracking
-    const handleMaterialChange = (
-        newMaterial: "aluminum" | "steel" | "composite"
-    ) => {
-        addDesignState(
-            "material_change",
-            `Changed frame material to ${newMaterial}`
-        );
-        setMaterial(newMaterial);
-    };
+    //const handleMaterialChange = (
+    //    newMaterial: "aluminum" | "steel" | "composite"
+    //) => {
+    //    addDesignState(
+    //        "material_change",
+    //        `Changed frame material to ${newMaterial}`
+    //    );
+    //    setMaterial(newMaterial);
+    //};
 
-    const handleGlassTypeChange = (
-        newGlassType: "single" | "double" | "triple" | "laminated"
-    ) => {
-        addDesignState(
-            "glass_type_change",
-            `Changed glass type to ${newGlassType}`
-        );
-        setGlassType(newGlassType);
-    };
+    //const handleGlassTypeChange = (
+    //    newGlassType: "single" | "double" | "triple" | "laminated"
+    //) => {
+    //    addDesignState(
+    //        "glass_type_change",
+    //        `Changed glass type to ${newGlassType}`
+    //    );
+    //    setGlassType(newGlassType);
+    //};
 
-    const handleFrameColorChange = (newColor: string) => {
-        addDesignState("color_change", `Changed frame color to ${newColor}`);
-        setFrameColor(newColor);
-    };
+    //const handleFrameColorChange = (newColor: string) => {
+    //    addDesignState("color_change", `Changed frame color to ${newColor}`);
+    //    setFrameColor(newColor);
+    //};
 
     // Apply preset design
     const applyPreset = (preset: DesignPreset) => {
@@ -843,7 +841,6 @@ export function CurtainWallDesigner({
                     const panel: CurtainPanel = {
                         id: `panel-${panelId}`,
                         type: panelType as "structure" | "window" | "door",
-
                         widthMeters: wallWidth / preset.columns,
                         heightMeters: wallHeight / preset.rows,
                         left: col * (100 / preset.columns),

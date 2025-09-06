@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { QuoteItem, PricedItem } from "@/types/quote";
-import { AluminiumProfile } from "@/components/profile/profile-manager";
 
 export function calculateItemPricing(item: QuoteItem): PricedItem {
     // Clone so we don't mutate original input object
