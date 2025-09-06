@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Calculator, Save, Plus } from "lucide-react";
+import { Calculator, Save, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/dashboard-layout";
 import { QuoteItemEditor } from "@/components/quote/quote-item-editor";
@@ -28,6 +28,7 @@ import { Palette } from "lucide-react";
 
 export default function QuoteGeneratorPage() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const quoteId = searchParams.get("id");
 
     const {
@@ -44,6 +45,7 @@ export default function QuoteGeneratorPage() {
         exportQuote,
         fetchQuoteById,
         loadQuote,
+        resetQuote,
         loading,
         error,
     } = useQuoteGenerator();
@@ -53,7 +55,7 @@ export default function QuoteGeneratorPage() {
 
     // Load quote data if ID is provided
     useEffect(() => {
-        const loadQuote = async () => {
+        const loadQuoteData = async () => {
             if (quoteId) {
                 try {
                     console.log("Loading quote with ID:", quoteId);
@@ -63,32 +65,8 @@ export default function QuoteGeneratorPage() {
                     console.log("Fetched quote:", quote);
                     if (quote) {
                         console.log("Quote found, loading data...");
-                        // Update the quote data with the loaded quote
-                        // Note: We need to update each field individually since the hook doesn't have a setQuoteData function
-                        const loadedQuote = quote as any;
-                        if (loadedQuote.contactInfo)
-                            updateContactInfo(loadedQuote.contactInfo);
-                        if (loadedQuote.name) updateQuoteName(loadedQuote.name);
-                        if (loadedQuote.settings) {
-                            Object.entries(loadedQuote.settings).forEach(
-                                ([key, value]: [string, any]) => {
-                                    updateSettings(
-                                        key as keyof typeof loadedQuote.settings,
-                                        value
-                                    );
-                                }
-                            );
-                        }
-                        if (loadedQuote.globalColor)
-                            updateGlobalColor(loadedQuote.globalColor);
-                        // For items, we need to clear existing and add new ones
-                        // This is tricky since we don't have a direct way to set items
-                        // We'll handle this by adding items one by one
-                        if (loadedQuote.items && loadedQuote.items.length > 0) {
-                            loadedQuote.items.forEach((item: any) => {
-                                addItem(item);
-                            });
-                        }
+                        // Use the proper loadQuote function from the hook
+                        loadQuote(quote);
                         toast.success("Quote loaded successfully!");
                     } else {
                         console.log("Quote not found");
@@ -101,7 +79,7 @@ export default function QuoteGeneratorPage() {
             }
         };
 
-        loadQuote();
+        loadQuoteData();
     }, [quoteId, fetchQuoteById, loadQuote]);
 
     const handleAddItem = () => {
@@ -192,6 +170,13 @@ export default function QuoteGeneratorPage() {
         }
     };
 
+    const handleCancelEdit = () => {
+        resetQuote();
+        if (quoteId) {
+            router.push("/quote-generator");
+        }
+    };
+
     const handleGlobalColorSelect = (color: ColorOption) => {
         updateGlobalColor(color);
         setShowGlobalColorManager(false);
@@ -206,6 +191,13 @@ export default function QuoteGeneratorPage() {
                         <h1 className="text-3xl font-bold">Quote Generator</h1>
                     </div>
                     <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            onClick={handleCancelEdit}
+                        >
+                            <X className="mr-2 h-4 w-4" />
+                            Cancel Edit
+                        </Button>
                         <Button
                             onClick={handleSaveQuote}
                             disabled={
