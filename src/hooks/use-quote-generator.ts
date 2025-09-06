@@ -8,7 +8,7 @@ import {
     ColorOption,
 } from "@/types/quote";
 import { db } from "@/lib/firebase";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 
 export const useQuoteGenerator = () => {
     const [quoteData, setQuoteData] = useState<QuoteData>({
@@ -209,6 +209,31 @@ export const useQuoteGenerator = () => {
             setLoading(false);
         }
     }, [quoteData]);
+
+    const fetchQuotes = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            console.log("Fetching quotes from Firebase...");
+            const querySnapshot = await getDocs(collection(db, "quotes"));
+            const quotes: QuoteData[] = [];
+            querySnapshot.forEach((doc) => {
+                quotes.push({ id: doc.id, ...doc.data() } as QuoteData);
+            });
+            console.log("Fetched quotes:", quotes);
+            return quotes;
+        } catch (err) {
+            console.error("Fetch quotes error:", err);
+            setError(
+                `Failed to fetch quotes: ${
+                    err instanceof Error ? err.message : "Unknown error"
+                }`
+            );
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     const exportQuote = useCallback(
         async (type: "pdf" | "print") => {
@@ -1078,6 +1103,7 @@ export const useQuoteGenerator = () => {
         calculateTotals,
         saveQuote,
         exportQuote,
+        fetchQuotes,
         resetQuote,
         loading,
         error,

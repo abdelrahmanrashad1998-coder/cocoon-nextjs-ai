@@ -61,6 +61,35 @@ export default function QuoteGeneratorPage() {
     };
 
     const handleSaveQuote = async () => {
+        // Validate customer name
+        if (
+            !quoteData.contactInfo.name ||
+            quoteData.contactInfo.name.trim() === ""
+        ) {
+            toast.error("Customer name is required", {
+                description:
+                    "Please enter the customer name before saving the quote.",
+                duration: 5000,
+                position: "top-center",
+                style: {
+                    fontSize: "16px",
+                    padding: "20px 28px",
+                    minWidth: "380px",
+                    background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "12px",
+                    boxShadow: "0 10px 25px rgba(239, 68, 68, 0.3)",
+                    fontWeight: "500",
+                    textAlign: "center",
+                },
+                icon: "❌",
+            });
+            // Switch to contact tab to show the required field
+            setActiveTab("contact");
+            return;
+        }
+
         try {
             await saveQuote();
             toast.success("Quote saved successfully!", {
@@ -120,7 +149,12 @@ export default function QuoteGeneratorPage() {
                     <div className="flex gap-2">
                         <Button
                             onClick={handleSaveQuote}
-                            disabled={loading || quoteData.items.length === 0}
+                            disabled={
+                                loading ||
+                                quoteData.items.length === 0 ||
+                                !quoteData.contactInfo.name ||
+                                quoteData.contactInfo.name.trim() === ""
+                            }
                         >
                             <Save className="mr-2 h-4 w-4" />
                             Save Quote
