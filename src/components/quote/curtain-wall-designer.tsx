@@ -85,6 +85,13 @@ interface DesignPreset {
 interface CurtainWallDesignerProps {
     wallWidth: number;
     wallHeight: number;
+    initialDesignData?: {
+        panels: CurtainPanel[];
+        columns: number;
+        rows: number;
+        columnSizes: number[];
+        rowSizes: number[];
+    };
     onDesignChange: (design: {
         panels: CurtainPanel[];
         frameMeters: number;
@@ -93,23 +100,34 @@ interface CurtainWallDesignerProps {
         cornerCount: number;
         totalCost: number;
         materialBreakdown: Record<string, number>;
+        columns: number;
+        rows: number;
+        columnSizes: number[];
+        rowSizes: number[];
     }) => void;
 }
 
 export function CurtainWallDesigner({
     wallWidth,
     wallHeight,
+    initialDesignData,
     onDesignChange,
 }: CurtainWallDesignerProps) {
     const [mode, setMode] = useState<"structure" | "window" | "door">(
         "structure"
     );
-    const [columns, setColumns] = useState(4);
-    const [rows, setRows] = useState(3);
-    const [panels, setPanels] = useState<CurtainPanel[]>([]);
+    const [columns, setColumns] = useState(initialDesignData?.columns || 4);
+    const [rows, setRows] = useState(initialDesignData?.rows || 3);
+    const [panels, setPanels] = useState<CurtainPanel[]>(
+        initialDesignData?.panels || []
+    );
     const [selectedPanels, setSelectedPanels] = useState<string[]>([]);
-    const [columnSizes, setColumnSizes] = useState<number[]>([]);
-    const [rowSizes, setRowSizes] = useState<number[]>([]);
+    const [columnSizes, setColumnSizes] = useState<number[]>(
+        initialDesignData?.columnSizes || []
+    );
+    const [rowSizes, setRowSizes] = useState<number[]>(
+        initialDesignData?.rowSizes || []
+    );
     const [material, setMaterial] = useState<
         "aluminum" | "steel" | "composite"
     >("aluminum");
@@ -127,6 +145,27 @@ export function CurtainWallDesigner({
     const [primaryColumnIndex, setPrimaryColumnIndex] = useState(0);
     const [primaryRowIndex, setPrimaryRowIndex] = useState(0);
     const canvasRef = useRef<HTMLDivElement>(null);
+
+    // Handle initial data loading
+    useEffect(() => {
+        if (initialDesignData) {
+            // Show custom sizes when we have saved data
+            setShowCustomSizes(true);
+            // Ensure column and row sizes are set from initial data
+            if (
+                initialDesignData.columnSizes &&
+                initialDesignData.columnSizes.length > 0
+            ) {
+                setColumnSizes(initialDesignData.columnSizes);
+            }
+            if (
+                initialDesignData.rowSizes &&
+                initialDesignData.rowSizes.length > 0
+            ) {
+                setRowSizes(initialDesignData.rowSizes);
+            }
+        }
+    }, [initialDesignData]);
 
     // Design presets
     const presets: DesignPreset[] = [
@@ -269,6 +308,10 @@ export function CurtainWallDesigner({
                 cornerCount,
                 totalCost,
                 materialBreakdown,
+                columns,
+                rows,
+                columnSizes,
+                rowSizes,
             });
         },
         [
@@ -322,7 +365,6 @@ export function CurtainWallDesigner({
             glassType,
             frameColor,
             currentHistoryIndex,
-            isUndoRedoOperation,
         ]
     );
 
@@ -338,7 +380,8 @@ export function CurtainWallDesigner({
             setFrameColor(state.frameColor);
             setSelectedPanels([]);
             calculateDesign(state.panels, state.columns, state.rows);
-            setTimeout(() => setIsUndoRedoOperation(false), 100);
+            // Use requestAnimationFrame instead of setTimeout for more reliable timing
+            requestAnimationFrame(() => setIsUndoRedoOperation(false));
         },
         [calculateDesign]
     );
@@ -391,19 +434,31 @@ export function CurtainWallDesigner({
 
     // Update column sizes when columns change
     useEffect(() => {
-        const newColumnSizes = Array(columns).fill(wallWidth / columns);
-        setColumnSizes(newColumnSizes);
+        // Only reset sizes if we don't have initial data or if sizes are empty
+        if (
+            !initialDesignData?.columnSizes ||
+            initialDesignData.columnSizes.length === 0
+        ) {
+            const newColumnSizes = Array(columns).fill(wallWidth / columns);
+            setColumnSizes(newColumnSizes);
+        }
         // Show custom sizes when grid changes
         setShowCustomSizes(true);
-    }, [columns, wallWidth]);
+    }, [columns, wallWidth, initialDesignData?.columnSizes?.length]);
 
     // Update row sizes when rows change
     useEffect(() => {
-        const newRowSizes = Array(rows).fill(wallHeight / rows);
-        setRowSizes(newRowSizes);
+        // Only reset sizes if we don't have initial data or if sizes are empty
+        if (
+            !initialDesignData?.rowSizes ||
+            initialDesignData.rowSizes.length === 0
+        ) {
+            const newRowSizes = Array(rows).fill(wallHeight / rows);
+            setRowSizes(newRowSizes);
+        }
         // Show custom sizes when grid changes
         setShowCustomSizes(true);
-    }, [rows, wallHeight]);
+    }, [rows, wallHeight, initialDesignData?.rowSizes?.length]);
 
     // Handle custom column size changes
     const handleColumnSizeChange = (index: number, value: number) => {
@@ -522,10 +577,18 @@ export function CurtainWallDesigner({
         addDesignState("reset_sizes", "Reset to equal column and row sizes");
     };
 
-    // Initialize grid when dimensions change
+    // Initialize grid when dimensions change (only if no initial data)
     useEffect(() => {
-        generateGrid();
-    }, [generateGrid]);
+        if (
+            !initialDesignData?.panels ||
+            initialDesignData.panels.length === 0
+        ) {
+            generateGrid();
+        } else {
+            // If we have initial data, just calculate the design with existing panels
+            calculateDesign(panels, columns, rows);
+        }
+    }, [initialDesignData?.panels, columns, rows]);
 
     const handlePanelClick = (panelId: string, event: React.MouseEvent) => {
         if (event.ctrlKey || event.metaKey) {

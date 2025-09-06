@@ -203,9 +203,37 @@ export const useQuoteGenerator = () => {
                 .replace(/^_+|_+$/g, "") // Remove leading/trailing underscores
                 .substring(0, 150); // Limit length
 
+            // Function to recursively remove undefined values and replace with null
+            const sanitizeForFirestore = (obj: unknown): unknown => {
+                if (obj === null || obj === undefined) {
+                    return null;
+                }
+                if (
+                    typeof obj === "object" &&
+                    !Array.isArray(obj) &&
+                    obj !== null
+                ) {
+                    const sanitized: Record<string, unknown> = {};
+                    for (const key in obj) {
+                        if (obj.hasOwnProperty(key)) {
+                            sanitized[key] = sanitizeForFirestore(
+                                (obj as Record<string, unknown>)[key]
+                            );
+                        }
+                    }
+                    return sanitized;
+                }
+                if (Array.isArray(obj)) {
+                    return obj.map(sanitizeForFirestore);
+                }
+                return obj;
+            };
+
+            const sanitizedQuoteData = sanitizeForFirestore(quoteData);
+
             const { setDoc, doc } = await import("firebase/firestore");
             const docRef = doc(db, "quotes", sanitizedQuoteName);
-            await setDoc(docRef, quoteData);
+            await setDoc(docRef, sanitizedQuoteData);
             console.log(
                 "Quote saved successfully with ID:",
                 sanitizedQuoteName

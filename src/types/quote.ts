@@ -32,6 +32,12 @@ export interface QuoteItem {
         windowMeters: number;
         glassArea: number;
         cornerCount: number;
+        totalCost?: number;
+        materialBreakdown?: Record<string, number>;
+        columns: number;
+        rows: number;
+        columnSizes: number[];
+        rowSizes: number[];
         panels: Array<{
             type: "window" | "door" | "structure";
             widthMeters: number;
@@ -40,7 +46,10 @@ export interface QuoteItem {
             top: number;
             col: number;
             row: number;
+            colSpan: number;
+            rowSpan: number;
             mergedId?: string;
+            isSpanned?: boolean;
         }>;
         visualSvg?: string;
     };

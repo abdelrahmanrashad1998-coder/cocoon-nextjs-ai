@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -66,6 +66,8 @@ export function QuoteItemEditor({
     const [showPricingDetails, setShowPricingDetails] = useState(false);
     const [showColorManager, setShowColorManager] = useState(false);
 
+    const isCurtainWall = item.type === "curtain_wall";
+
     const handleUpdate = (
         field: keyof QuoteItem,
         value:
@@ -97,37 +99,55 @@ export function QuoteItemEditor({
         });
     };
 
-    const handleCurtainWallDesignChange = (design: {
-        panels: Array<{
-            type: "window" | "door" | "structure";
-            widthMeters: number;
-            heightMeters: number;
-            left: number;
-            top: number;
-            col: number;
-            row: number;
-            mergedId?: string;
-        }>;
-        frameMeters: number;
-        windowMeters: number;
-        glassArea: number;
-        cornerCount: number;
-    }) => {
-        // Update the entire designData object at once to ensure proper state updates
-        onUpdate({
-            ...item,
-            designData: {
-                wallWidth: item.designData?.wallWidth || 0,
-                wallHeight: item.designData?.wallHeight || 0,
-                panels: design.panels,
-                frameMeters: design.frameMeters,
-                windowMeters: design.windowMeters,
-                glassArea: design.glassArea,
-                cornerCount: design.cornerCount,
-                visualSvg: item.designData?.visualSvg,
-            },
-        });
-    };
+    const handleCurtainWallDesignChange = useCallback(
+        (design: {
+            panels: Array<{
+                type: "window" | "door" | "structure";
+                widthMeters: number;
+                heightMeters: number;
+                left: number;
+                top: number;
+                col: number;
+                row: number;
+                colSpan: number;
+                rowSpan: number;
+                mergedId?: string;
+                isSpanned?: boolean;
+            }>;
+            frameMeters: number;
+            windowMeters: number;
+            glassArea: number;
+            cornerCount: number;
+            totalCost?: number;
+            materialBreakdown?: Record<string, number>;
+            columns: number;
+            rows: number;
+            columnSizes: number[];
+            rowSizes: number[];
+        }) => {
+            // Update the entire designData object at once to ensure proper state updates
+            onUpdate({
+                ...item,
+                designData: {
+                    wallWidth: item.designData?.wallWidth || 0,
+                    wallHeight: item.designData?.wallHeight || 0,
+                    panels: design.panels,
+                    frameMeters: design.frameMeters,
+                    windowMeters: design.windowMeters,
+                    glassArea: design.glassArea,
+                    cornerCount: design.cornerCount,
+                    totalCost: design.totalCost,
+                    materialBreakdown: design.materialBreakdown,
+                    columns: design.columns,
+                    rows: design.rows,
+                    columnSizes: design.columnSizes,
+                    rowSizes: design.rowSizes,
+                    visualSvg: item.designData?.visualSvg,
+                },
+            });
+        },
+        [item, onUpdate]
+    );
 
     const handleProfileSelect = (profile: AluminiumProfile) => {
         handleUpdate("profile", profile);
@@ -176,18 +196,18 @@ export function QuoteItemEditor({
         return `${typeNames[item.type]} ${index + 1}`;
     };
 
-    // Check if curtain wall is selected to disable system dropdown
-    const isCurtainWall = item.type === "curtain_wall";
-
-    // Update system to "Curtain Wall" when curtain wall type is selected
-    useEffect(() => {
-        if (isCurtainWall && item.system !== "Curtain Wall") {
-            handleUpdate("system", "Curtain Wall");
-        }
-        if (!isCurtainWall && item.system === "Curtain Wall") {
-            handleUpdate("system", "Sliding");
-        }
-    }, [isCurtainWall, item.system]);
+    // Handle type change with automatic system update
+    const handleTypeChange = (
+        newType: "window" | "door" | "sky_light" | "curtain_wall"
+    ) => {
+        const newSystem =
+            newType === "curtain_wall" ? "Curtain Wall" : "Sliding";
+        onUpdate({
+            ...item,
+            type: newType,
+            system: newSystem,
+        });
+    };
 
     const renderPricingBreakdown = (item: QuoteItem) => {
         const pricing = calculateItemPricing(item);
@@ -912,9 +932,7 @@ export function QuoteItemEditor({
                                     </Label>
                                     <Select
                                         value={item.type}
-                                        onValueChange={(value) =>
-                                            handleUpdate("type", value)
-                                        }
+                                        onValueChange={handleTypeChange}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select type" />
@@ -1272,6 +1290,30 @@ export function QuoteItemEditor({
                                                             item.designData
                                                                 ?.wallHeight ||
                                                             0
+                                                        }
+                                                        initialDesignData={
+                                                            item.designData
+                                                                ? {
+                                                                      panels: item
+                                                                          .designData
+                                                                          .panels,
+                                                                      columns:
+                                                                          item
+                                                                              .designData
+                                                                              .columns,
+                                                                      rows: item
+                                                                          .designData
+                                                                          .rows,
+                                                                      columnSizes:
+                                                                          item
+                                                                              .designData
+                                                                              .columnSizes,
+                                                                      rowSizes:
+                                                                          item
+                                                                              .designData
+                                                                              .rowSizes,
+                                                                  }
+                                                                : undefined
                                                         }
                                                         onDesignChange={(
                                                             design
