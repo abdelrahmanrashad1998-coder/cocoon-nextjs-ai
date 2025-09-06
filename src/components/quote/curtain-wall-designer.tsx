@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -16,12 +17,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
     Square,
     Layout,
     DoorOpen,
@@ -39,73 +34,13 @@ import {
     Minus,
     Undo2,
     Redo2,
-    ChevronDown,
 } from "lucide-react";
-
-interface CurtainPanel {
-    id: string;
-    type: "structure" | "window" | "door";
-    widthMeters: number;
-    heightMeters: number;
-    left: number;
-    top: number;
-    col: number;
-    row: number;
-    colSpan: number;
-    rowSpan: number;
-    mergedId?: string;
-    selected?: boolean;
-    material?: "aluminum" | "steel" | "composite";
-    glassType?: "single" | "double" | "triple" | "laminated";
-    frameColor?: string;
-    isSpanned?: boolean;
-}
-
-interface DesignState {
-    id: string;
-    panels: CurtainPanel[];
-    columns: number;
-    rows: number;
-    material: "aluminum" | "steel" | "composite";
-    glassType: "single" | "double" | "triple" | "laminated";
-    frameColor: string;
-    timestamp: number;
-    action: string;
-    description: string;
-}
-
-interface DesignPreset {
-    name: string;
-    description: string;
-    columns: number;
-    rows: number;
-    layout: string[][];
-}
-
-interface CurtainWallDesignerProps {
-    wallWidth: number;
-    wallHeight: number;
-    initialDesignData?: {
-        panels: CurtainPanel[];
-        columns: number;
-        rows: number;
-        columnSizes: number[];
-        rowSizes: number[];
-    };
-    onDesignChange: (design: {
-        panels: CurtainPanel[];
-        frameMeters: number;
-        windowMeters: number;
-        glassArea: number;
-        cornerCount: number;
-        totalCost: number;
-        materialBreakdown: Record<string, number>;
-        columns: number;
-        rows: number;
-        columnSizes: number[];
-        rowSizes: number[];
-    }) => void;
-}
+import {
+    CurtainPanel,
+    DesignState,
+    DesignPreset,
+    CurtainWallDesignerProps,
+} from "@/types/types";
 
 export function CurtainWallDesigner({
     wallWidth,
@@ -741,73 +676,73 @@ export function CurtainWallDesigner({
         calculateDesign(filteredPanels, columns, rows);
     };
 
-    const splitPanels = () => {
-        const mergedPanels = panels.filter(
-            (panel) =>
-                (panel.colSpan > 1 || panel.rowSpan > 1) && panel.mergedId
-        );
+    //const splitPanels = () => {
+    //    const mergedPanels = panels.filter(
+    //        (panel) =>
+    //            (panel.colSpan > 1 || panel.rowSpan > 1) && panel.mergedId
+    //    );
 
-        if (mergedPanels.length === 0) return;
+    //    if (mergedPanels.length === 0) return;
 
-        // Add current state to history before making changes
-        addDesignState(
-            "panel_split",
-            `Split ${mergedPanels.length} merged panel(s) into individual panels`
-        );
+    //    // Add current state to history before making changes
+    //    addDesignState(
+    //        "panel_split",
+    //        `Split ${mergedPanels.length} merged panel(s) into individual panels`
+    //    );
 
-        const newPanels: CurtainPanel[] = [];
+    //    const newPanels: CurtainPanel[] = [];
 
-        // Process each merged panel
-        mergedPanels.forEach((mergedPanel) => {
-            const {
-                row,
-                col,
-                colSpan,
-                rowSpan,
-                type,
-                material,
-                glassType,
-                frameColor,
-            } = mergedPanel;
+    //    // Process each merged panel
+    //    mergedPanels.forEach((mergedPanel) => {
+    //        const {
+    //            row,
+    //            col,
+    //            colSpan,
+    //            rowSpan,
+    //            type,
+    //            material,
+    //            glassType,
+    //            frameColor,
+    //        } = mergedPanel;
 
-            // Create individual panels for each cell in the merged area
-            for (let r = row; r < row + rowSpan; r++) {
-                for (let c = col; c < col + colSpan; c++) {
-                    const panelId = `panel-${Date.now()}-${r}-${c}`;
-                    const newPanel: CurtainPanel = {
-                        id: panelId,
-                        type,
-                        widthMeters: columnSizes[c] || wallWidth / columns,
-                        heightMeters: rowSizes[r] || wallHeight / rows,
-                        left: c * (100 / columns),
-                        top: r * (100 / rows),
-                        col: c,
-                        row: r,
-                        colSpan: 1,
-                        rowSpan: 1,
-                        material,
-                        glassType,
-                        frameColor,
-                        isSpanned: false,
-                        selected: false,
-                    };
-                    newPanels.push(newPanel);
-                }
-            }
-        });
+    //        // Create individual panels for each cell in the merged area
+    //        for (let r = row; r < row + rowSpan; r++) {
+    //            for (let c = col; c < col + colSpan; c++) {
+    //                const panelId = `panel-${Date.now()}-${r}-${c}`;
+    //                const newPanel: CurtainPanel = {
+    //                    id: panelId,
+    //                    type,
+    //                    widthMeters: columnSizes[c] || wallWidth / columns,
+    //                    heightMeters: rowSizes[r] || wallHeight / rows,
+    //                    left: c * (100 / columns),
+    //                    top: r * (100 / rows),
+    //                    col: c,
+    //                    row: r,
+    //                    colSpan: 1,
+    //                    rowSpan: 1,
+    //                    material,
+    //                    glassType,
+    //                    frameColor,
+    //                    isSpanned: false,
+    //                    selected: false,
+    //                };
+    //                newPanels.push(newPanel);
+    //            }
+    //        }
+    //    });
 
-        // Add all non-merged panels
-        const nonMergedPanels = panels.filter(
-            (panel) =>
-                !((panel.colSpan > 1 || panel.rowSpan > 1) && panel.mergedId)
-        );
+    //    // Add all non-merged panels
+    //    const nonMergedPanels = panels.filter(
+    //        (panel) =>
+    //            !((panel.colSpan > 1 || panel.rowSpan > 1) && panel.mergedId)
+    //    );
 
-        const allPanels = [...nonMergedPanels, ...newPanels];
+    //    const allPanels = [...nonMergedPanels, ...newPanels];
 
-        setPanels(allPanels);
-        setSelectedPanels([]);
-        calculateDesign(allPanels, columns, rows);
-    };
+    //    setPanels(allPanels);
+    //    setSelectedPanels([]);
+    //    calculateDesign(allPanels, columns, rows);
+    //};
 
     const clearSelection = () => {
         setSelectedPanels([]);
@@ -863,30 +798,30 @@ export function CurtainWallDesigner({
         );
 
     // Wrapper functions for material changes with history tracking
-    const handleMaterialChange = (
-        newMaterial: "aluminum" | "steel" | "composite"
-    ) => {
-        addDesignState(
-            "material_change",
-            `Changed frame material to ${newMaterial}`
-        );
-        setMaterial(newMaterial);
-    };
+    //const handleMaterialChange = (
+    //    newMaterial: "aluminum" | "steel" | "composite"
+    //) => {
+    //    addDesignState(
+    //        "material_change",
+    //        `Changed frame material to ${newMaterial}`
+    //    );
+    //    setMaterial(newMaterial);
+    //};
 
-    const handleGlassTypeChange = (
-        newGlassType: "single" | "double" | "triple" | "laminated"
-    ) => {
-        addDesignState(
-            "glass_type_change",
-            `Changed glass type to ${newGlassType}`
-        );
-        setGlassType(newGlassType);
-    };
+    //const handleGlassTypeChange = (
+    //    newGlassType: "single" | "double" | "triple" | "laminated"
+    //) => {
+    //    addDesignState(
+    //        "glass_type_change",
+    //        `Changed glass type to ${newGlassType}`
+    //    );
+    //    setGlassType(newGlassType);
+    //};
 
-    const handleFrameColorChange = (newColor: string) => {
-        addDesignState("color_change", `Changed frame color to ${newColor}`);
-        setFrameColor(newColor);
-    };
+    //const handleFrameColorChange = (newColor: string) => {
+    //    addDesignState("color_change", `Changed frame color to ${newColor}`);
+    //    setFrameColor(newColor);
+    //};
 
     // Apply preset design
     const applyPreset = (preset: DesignPreset) => {

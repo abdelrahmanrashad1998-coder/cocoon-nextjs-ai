@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +23,7 @@ import { QuotePreview } from "@/components/quote/quote-preview";
 import { QuoteSettings } from "@/components/quote/quote-settings";
 import { useQuoteGenerator } from "@/hooks/use-quote-generator";
 import ColorManager from "@/components/color/color-manager";
-import { ColorOption, QuoteData, QuoteItem } from "@/types/quote";
+import { ColorOption, QuoteData } from "@/types/quote";
 import { Palette } from "lucide-react";
 
 export default function QuoteGeneratorPage() {

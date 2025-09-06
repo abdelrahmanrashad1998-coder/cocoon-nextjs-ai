@@ -1,5 +1,6 @@
 // Quote Generator Types
 import { AluminiumProfile } from "@/components/profile/profile-manager";
+import { CurtainPanel } from "./types";
 
 export interface ColorOption {
     id?: string;
@@ -38,19 +39,7 @@ export interface QuoteItem {
         rows: number;
         columnSizes: number[];
         rowSizes: number[];
-        panels: Array<{
-            type: "window" | "door" | "structure";
-            widthMeters: number;
-            heightMeters: number;
-            left: number;
-            top: number;
-            col: number;
-            row: number;
-            colSpan: number;
-            rowSpan: number;
-            mergedId?: string;
-            isSpanned?: boolean;
-        }>;
+        panels: CurtainPanel[];
         visualSvg?: string;
     };
     visualSvg?: string;
