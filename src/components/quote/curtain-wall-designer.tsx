@@ -66,14 +66,13 @@ interface DesignState {
     panels: CurtainPanel[];
     columns: number;
     rows: number;
-    material: 'aluminum' | 'steel' | 'composite';
-    glassType: 'single' | 'double' | 'triple' | 'laminated';
+    material: "aluminum" | "steel" | "composite";
+    glassType: "single" | "double" | "triple" | "laminated";
     frameColor: string;
     timestamp: number;
     action: string;
     description: string;
 }
-
 
 interface DesignPreset {
     name: string;
@@ -102,9 +101,9 @@ export function CurtainWallDesigner({
     wallHeight,
     onDesignChange,
 }: CurtainWallDesignerProps) {
-    const [mode, setMode] = useState<
-        "structure" | "window" | "door"
-    >("structure");
+    const [mode, setMode] = useState<"structure" | "window" | "door">(
+        "structure"
+    );
     const [columns, setColumns] = useState(4);
     const [rows, setRows] = useState(3);
     const [panels, setPanels] = useState<CurtainPanel[]>([]);
@@ -182,7 +181,11 @@ export function CurtainWallDesigner({
 
     // Enhanced calculations with pricing
     const calculateDesign = useCallback(
-        (currentPanels: CurtainPanel[], currentColumns: number = columns, currentRows: number = rows) => {
+        (
+            currentPanels: CurtainPanel[],
+            currentColumns: number = columns,
+            currentRows: number = rows
+        ) => {
             let frameMeters = 0;
             let windowMeters = 0;
             let glassArea = 0;
@@ -198,13 +201,13 @@ export function CurtainWallDesigner({
             // Calculate frame meters: total perimeter + length of shared sides between panels
             // Start with external perimeter
             frameMeters = 2 * (wallWidth + wallHeight);
-            
+
             // Add shared sides between panels (internal frame lines)
             // Vertical shared sides
             for (let col = 1; col < currentColumns; col++) {
                 frameMeters += wallHeight; // Each vertical divider spans full height
             }
-            
+
             // Horizontal shared sides
             for (let row = 1; row < currentRows; row++) {
                 frameMeters += wallWidth; // Each horizontal divider spans full width
@@ -214,7 +217,8 @@ export function CurtainWallDesigner({
             currentPanels.forEach((panel) => {
                 if (panel.type === "window" || panel.type === "door") {
                     // Each window/door panel has its own perimeter
-                    windowMeters += 2 * (panel.widthMeters + panel.heightMeters);
+                    windowMeters +=
+                        2 * (panel.widthMeters + panel.heightMeters);
                 }
             });
 
@@ -225,7 +229,7 @@ export function CurtainWallDesigner({
 
             // Calculate corners: internal and external corners between panels and around them
             let cornerCount = 0;
-            
+
             // Total corners = (columns + 1) × (rows + 1)
             // This includes all intersection points of the grid system
             cornerCount = (currentColumns + 1) * (currentRows + 1);
@@ -267,7 +271,15 @@ export function CurtainWallDesigner({
                 materialBreakdown,
             });
         },
-        [wallWidth, wallHeight, material, glassType, onDesignChange]
+        [
+            columns,
+            rows,
+            wallWidth,
+            wallHeight,
+            material,
+            glassType,
+            onDesignChange,
+        ]
     );
 
     // Helper function to add a design state to history
@@ -276,8 +288,10 @@ export function CurtainWallDesigner({
             if (isUndoRedoOperation) return; // Don't add to history during undo/redo operations
 
             const newState: DesignState = {
-                id: `state-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                panels: panels.map(p => ({ ...p })),
+                id: `state-${Date.now()}-${Math.random()
+                    .toString(36)
+                    .substr(2, 9)}`,
+                panels: panels.map((p) => ({ ...p })),
                 columns,
                 rows,
                 material,
@@ -300,22 +314,32 @@ export function CurtainWallDesigner({
                 return newIndex;
             });
         },
-        [panels, columns, rows, material, glassType, frameColor, currentHistoryIndex, isUndoRedoOperation]
+        [
+            panels,
+            columns,
+            rows,
+            material,
+            glassType,
+            frameColor,
+            currentHistoryIndex,
+            isUndoRedoOperation,
+        ]
     );
 
     // Helper function to restore design from a state
-    const restoreFromState = useCallback((state: DesignState) => {
-        setIsUndoRedoOperation(true);
-        setPanels(state.panels.map(p => ({ ...p })));
-        setColumns(state.columns);
-        setRows(state.rows);
-        setMaterial(state.material);
-        setGlassType(state.glassType);
-        setFrameColor(state.frameColor);
-        setSelectedPanels([]);
-        calculateDesign(state.panels, state.columns, state.rows);
-        setTimeout(() => setIsUndoRedoOperation(false), 100);
-    },
+    const restoreFromState = useCallback(
+        (state: DesignState) => {
+            setIsUndoRedoOperation(true);
+            setPanels(state.panels.map((p) => ({ ...p })));
+            setColumns(state.columns);
+            setRows(state.rows);
+            setMaterial(state.material);
+            setGlassType(state.glassType);
+            setFrameColor(state.frameColor);
+            setSelectedPanels([]);
+            calculateDesign(state.panels, state.columns, state.rows);
+            setTimeout(() => setIsUndoRedoOperation(false), 100);
+        },
         [calculateDesign]
     );
 
@@ -352,7 +376,7 @@ export function CurtainWallDesigner({
         setDesignHistory([]);
         setCurrentHistoryIndex(-1);
         // Add initial state to history
-        addDesignState('grid_generate', `Generated ${columns}×${rows} grid`);
+        addDesignState("grid_generate", `Generated ${columns}×${rows} grid`);
     }, [
         columns,
         rows,
@@ -385,18 +409,18 @@ export function CurtainWallDesigner({
     const handleColumnSizeChange = (index: number, value: number) => {
         const constrainedValue = Math.max(0.1, Math.min(wallWidth, value));
         const newColumnSizes = [...columnSizes];
-        
+
         // Set this column as the primary one
         setPrimaryColumnIndex(index);
-        
+
         // Calculate remaining space
         const remainingSpace = wallWidth - constrainedValue;
         const otherColumnsCount = columns - 1;
-        
+
         if (otherColumnsCount > 0) {
             // Distribute remaining space equally among other columns
             const remainingSizePerColumn = remainingSpace / otherColumnsCount;
-            
+
             // Update all columns
             for (let i = 0; i < columns; i++) {
                 if (i === index) {
@@ -409,37 +433,42 @@ export function CurtainWallDesigner({
             // Only one column, use the constrained value
             newColumnSizes[index] = constrainedValue;
         }
-        
+
         setColumnSizes(newColumnSizes);
-        
+
         // Update all panels with new column sizes
-        const updatedPanels = panels.map(panel => ({
+        const updatedPanels = panels.map((panel) => ({
             ...panel,
             widthMeters: newColumnSizes[panel.col],
         }));
         setPanels(updatedPanels);
         calculateDesign(updatedPanels, columns, rows);
-        
+
         // Add to history
-        addDesignState('column_size_change', `Updated column ${index + 1} size to ${constrainedValue.toFixed(1)}m`);
+        addDesignState(
+            "column_size_change",
+            `Updated column ${index + 1} size to ${constrainedValue.toFixed(
+                1
+            )}m`
+        );
     };
 
     // Handle custom row size changes
     const handleRowSizeChange = (index: number, value: number) => {
         const constrainedValue = Math.max(0.1, Math.min(wallHeight, value));
         const newRowSizes = [...rowSizes];
-        
+
         // Set this row as the primary one
         setPrimaryRowIndex(index);
-        
+
         // Calculate remaining space
         const remainingSpace = wallHeight - constrainedValue;
         const otherRowsCount = rows - 1;
-        
+
         if (otherRowsCount > 0) {
             // Distribute remaining space equally among other rows
             const remainingSizePerRow = remainingSpace / otherRowsCount;
-            
+
             // Update all rows
             for (let i = 0; i < rows; i++) {
                 if (i === index) {
@@ -452,49 +481,51 @@ export function CurtainWallDesigner({
             // Only one row, use the constrained value
             newRowSizes[index] = constrainedValue;
         }
-        
+
         setRowSizes(newRowSizes);
-        
+
         // Update all panels with new row sizes
-        const updatedPanels = panels.map(panel => ({
+        const updatedPanels = panels.map((panel) => ({
             ...panel,
             heightMeters: newRowSizes[panel.row],
         }));
         setPanels(updatedPanels);
         calculateDesign(updatedPanels, columns, rows);
-        
+
         // Add to history
-        addDesignState('row_size_change', `Updated row ${index + 1} size to ${constrainedValue.toFixed(1)}m`);
+        addDesignState(
+            "row_size_change",
+            `Updated row ${index + 1} size to ${constrainedValue.toFixed(1)}m`
+        );
     };
 
     // Reset to equal sizes
     const resetToEqualSizes = () => {
         const equalColumnSize = wallWidth / columns;
         const equalRowSize = wallHeight / rows;
-        
+
         setColumnSizes(Array(columns).fill(equalColumnSize));
         setRowSizes(Array(rows).fill(equalRowSize));
         setShowCustomSizes(false);
         setPrimaryColumnIndex(0);
         setPrimaryRowIndex(0);
-        
+
         // Update all panels with equal sizes
-        const updatedPanels = panels.map(panel => ({
+        const updatedPanels = panels.map((panel) => ({
             ...panel,
             widthMeters: equalColumnSize,
             heightMeters: equalRowSize,
         }));
         setPanels(updatedPanels);
         calculateDesign(updatedPanels, columns, rows);
-        
-        addDesignState('reset_sizes', 'Reset to equal column and row sizes');
+
+        addDesignState("reset_sizes", "Reset to equal column and row sizes");
     };
 
     // Initialize grid when dimensions change
     useEffect(() => {
         generateGrid();
     }, [generateGrid]);
-
 
     const handlePanelClick = (panelId: string, event: React.MouseEvent) => {
         if (event.ctrlKey || event.metaKey) {
@@ -514,7 +545,10 @@ export function CurtainWallDesigner({
         if (selectedPanels.length === 0) return;
 
         // Add current state to history before making changes
-        addDesignState('panel_type_change', `Changed ${selectedPanels.length} panel(s) to ${mode}`);
+        addDesignState(
+            "panel_type_change",
+            `Changed ${selectedPanels.length} panel(s) to ${mode}`
+        );
 
         const updatedPanels = panels.map((panel) =>
             selectedPanels.includes(panel.id) ? { ...panel, type: mode } : panel
@@ -595,6 +629,8 @@ export function CurtainWallDesigner({
         if (masterIndex === -1) return;
 
         const master = newPanels[masterIndex];
+        master.col = minCol;
+        master.row = minRow;
         master.colSpan = maxCol - minCol + 1;
         master.rowSpan = maxRow - minRow + 1;
         master.mergedId = mergedGroupId;
@@ -617,6 +653,8 @@ export function CurtainWallDesigner({
                 0
             );
 
+        master.left = minCol * (100 / columns);
+        master.top = minRow * (100 / rows);
         master.widthMeters = combinedWidth;
         master.heightMeters = combinedHeight;
 
@@ -630,7 +668,10 @@ export function CurtainWallDesigner({
         });
 
         // Add current state to history before making changes
-        addDesignState('panel_merge', `Merged ${selectedPanels.length} panels into ${master.colSpan}×${master.rowSpan} group`);
+        addDesignState(
+            "panel_merge",
+            `Merged ${selectedPanels.length} panels into ${master.colSpan}×${master.rowSpan} group`
+        );
 
         setPanels(filteredPanels);
         setSelectedPanels([master.id]);
@@ -646,7 +687,10 @@ export function CurtainWallDesigner({
         if (mergedPanels.length === 0) return;
 
         // Add current state to history before making changes
-        addDesignState('panel_split', `Split ${mergedPanels.length} merged panel(s) into individual panels`);
+        addDesignState(
+            "panel_split",
+            `Split ${mergedPanels.length} merged panel(s) into individual panels`
+        );
 
         const newPanels: CurtainPanel[] = [];
 
@@ -733,7 +777,7 @@ export function CurtainWallDesigner({
         // Find the most recent merge operation by traversing backwards from current position
         let targetIndex = -1;
         for (let i = currentHistoryIndex; i >= 0; i--) {
-            if (designHistory[i].action === 'panel_merge') {
+            if (designHistory[i].action === "panel_merge") {
                 targetIndex = i;
                 break;
             }
@@ -748,31 +792,44 @@ export function CurtainWallDesigner({
     };
 
     // Check if there are any merge operations to undo
-    const canUndoMerge = currentHistoryIndex >= 0 && designHistory.some((state, index) => 
-        index <= currentHistoryIndex && state.action === 'panel_merge'
-    );
+    const canUndoMerge =
+        currentHistoryIndex >= 0 &&
+        designHistory.some(
+            (state, index) =>
+                index <= currentHistoryIndex && state.action === "panel_merge"
+        );
 
     // Wrapper functions for material changes with history tracking
-    const handleMaterialChange = (newMaterial: 'aluminum' | 'steel' | 'composite') => {
-        addDesignState('material_change', `Changed frame material to ${newMaterial}`);
+    const handleMaterialChange = (
+        newMaterial: "aluminum" | "steel" | "composite"
+    ) => {
+        addDesignState(
+            "material_change",
+            `Changed frame material to ${newMaterial}`
+        );
         setMaterial(newMaterial);
     };
 
-    const handleGlassTypeChange = (newGlassType: 'single' | 'double' | 'triple' | 'laminated') => {
-        addDesignState('glass_type_change', `Changed glass type to ${newGlassType}`);
+    const handleGlassTypeChange = (
+        newGlassType: "single" | "double" | "triple" | "laminated"
+    ) => {
+        addDesignState(
+            "glass_type_change",
+            `Changed glass type to ${newGlassType}`
+        );
         setGlassType(newGlassType);
     };
 
     const handleFrameColorChange = (newColor: string) => {
-        addDesignState('color_change', `Changed frame color to ${newColor}`);
+        addDesignState("color_change", `Changed frame color to ${newColor}`);
         setFrameColor(newColor);
     };
 
     // Apply preset design
     const applyPreset = (preset: DesignPreset) => {
         // Add current state to history before applying preset
-        addDesignState('preset_apply', `Applied preset: ${preset.name}`);
-        
+        addDesignState("preset_apply", `Applied preset: ${preset.name}`);
+
         setColumns(preset.columns);
         setRows(preset.rows);
 
@@ -785,10 +842,7 @@ export function CurtainWallDesigner({
                     const panelType = preset.layout[row]?.[col] || "structure";
                     const panel: CurtainPanel = {
                         id: `panel-${panelId}`,
-                        type: panelType as
-                            | "structure"
-                            | "window"
-                            | "door",
+                        type: panelType as "structure" | "window" | "door",
                         widthMeters: wallWidth / preset.columns,
                         heightMeters: wallHeight / preset.rows,
                         left: col * (100 / preset.columns),
@@ -815,25 +869,25 @@ export function CurtainWallDesigner({
         // Calculate position and size based on custom sizes
         const totalWidth = columnSizes.reduce((sum, size) => sum + size, 0);
         const totalHeight = rowSizes.reduce((sum, size) => sum + size, 0);
-        
+
         // Calculate left position based on column sizes
         let leftPercent = 0;
         for (let i = 0; i < panel.col; i++) {
             leftPercent += (columnSizes[i] / totalWidth) * 100;
         }
-        
+
         // Calculate top position based on row sizes
         let topPercent = 0;
         for (let i = 0; i < panel.row; i++) {
             topPercent += (rowSizes[i] / totalHeight) * 100;
         }
-        
+
         // Calculate width based on column spans
         let widthPercent = 0;
         for (let i = panel.col; i < panel.col + panel.colSpan; i++) {
             widthPercent += (columnSizes[i] / totalWidth) * 100;
         }
-        
+
         // Calculate height based on row spans
         let heightPercent = 0;
         for (let i = panel.row; i < panel.row + panel.rowSpan; i++) {
@@ -1005,7 +1059,15 @@ export function CurtainWallDesigner({
                                     <Label className="text-sm font-medium mb-3 block">
                                         Panel Type
                                     </Label>
-                                    <Select value={mode} onValueChange={(value: "structure" | "window" | "door") => setMode(value)}>
+                                    <Select
+                                        value={mode}
+                                        onValueChange={(
+                                            value:
+                                                | "structure"
+                                                | "window"
+                                                | "door"
+                                        ) => setMode(value)}
+                                    >
                                         <SelectTrigger>
                                             <SelectValue />
                                         </SelectTrigger>
@@ -1086,7 +1148,7 @@ export function CurtainWallDesigner({
                                             />
                                         </div>
                                     </div>
-                                    
+
                                     {/* Custom Size Controls */}
                                     {showCustomSizes && (
                                         <div className="mt-4 space-y-3">
@@ -1103,80 +1165,159 @@ export function CurtainWallDesigner({
                                                     Reset to Equal
                                                 </Button>
                                             </div>
-                                            
+
                                             {/* Column Sizes */}
                                             <div>
                                                 <Label className="text-xs text-muted-foreground mb-2 block">
-                                                    Column Widths (m) - Auto-calculated values are shown in gray
+                                                    Column Widths (m) -
+                                                    Auto-calculated values are
+                                                    shown in gray
                                                 </Label>
                                                 <div className="grid grid-cols-2 gap-1">
-                                                    {columnSizes.map((size, index) => (
-                                                        <div key={index} className="flex items-center gap-1">
-                                                            <Label className="text-xs w-6">
-                                                                C{index + 1}:
-                                                            </Label>
-                                                            <Input
-                                                                type="number"
-                                                                min="0.1"
-                                                                max={wallWidth}
-                                                                step="0.1"
-                                                                value={size.toFixed(1)}
-                                                                onChange={(e) =>
-                                                                    handleColumnSizeChange(
-                                                                        index,
-                                                                        parseFloat(e.target.value) || 0.1
-                                                                    )
-                                                                }
-                                                                className="h-6 text-xs"
-                                                                style={{
-                                                                    backgroundColor: index === primaryColumnIndex ? 'white' : '#f9fafb',
-                                                                    color: index === primaryColumnIndex ? 'black' : '#6b7280'
-                                                                }}
-                                                                title={index === primaryColumnIndex ? "Primary input - other columns auto-calculate" : "Auto-calculated based on primary input"}
-                                                            />
-                                                        </div>
-                                                    ))}
+                                                    {columnSizes.map(
+                                                        (size, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className="flex items-center gap-1"
+                                                            >
+                                                                <Label className="text-xs w-6">
+                                                                    C{index + 1}
+                                                                    :
+                                                                </Label>
+                                                                <Input
+                                                                    type="number"
+                                                                    min="0.1"
+                                                                    max={
+                                                                        wallWidth
+                                                                    }
+                                                                    step="0.1"
+                                                                    value={size.toFixed(
+                                                                        1
+                                                                    )}
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleColumnSizeChange(
+                                                                            index,
+                                                                            parseFloat(
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            ) ||
+                                                                                0.1
+                                                                        )
+                                                                    }
+                                                                    className="h-6 text-xs"
+                                                                    style={{
+                                                                        backgroundColor:
+                                                                            index ===
+                                                                            primaryColumnIndex
+                                                                                ? "white"
+                                                                                : "#f9fafb",
+                                                                        color:
+                                                                            index ===
+                                                                            primaryColumnIndex
+                                                                                ? "black"
+                                                                                : "#6b7280",
+                                                                    }}
+                                                                    title={
+                                                                        index ===
+                                                                        primaryColumnIndex
+                                                                            ? "Primary input - other columns auto-calculate"
+                                                                            : "Auto-calculated based on primary input"
+                                                                    }
+                                                                />
+                                                            </div>
+                                                        )
+                                                    )}
                                                 </div>
                                             </div>
-                                            
+
                                             {/* Row Sizes */}
                                             <div>
                                                 <Label className="text-xs text-muted-foreground mb-2 block">
-                                                    Row Heights (m) - Auto-calculated values are shown in gray
+                                                    Row Heights (m) -
+                                                    Auto-calculated values are
+                                                    shown in gray
                                                 </Label>
                                                 <div className="grid grid-cols-2 gap-1">
-                                                    {rowSizes.map((size, index) => (
-                                                        <div key={index} className="flex items-center gap-1">
-                                                            <Label className="text-xs w-6">
-                                                                R{index + 1}:
-                                                            </Label>
-                                                            <Input
-                                                                type="number"
-                                                                min="0.1"
-                                                                max={wallHeight}
-                                                                step="0.1"
-                                                                value={size.toFixed(1)}
-                                                                onChange={(e) =>
-                                                                    handleRowSizeChange(
-                                                                        index,
-                                                                        parseFloat(e.target.value) || 0.1
-                                                                    )
-                                                                }
-                                                                className="h-6 text-xs"
-                                                                style={{
-                                                                    backgroundColor: index === primaryRowIndex ? 'white' : '#f9fafb',
-                                                                    color: index === primaryRowIndex ? 'black' : '#6b7280'
-                                                                }}
-                                                                title={index === primaryRowIndex ? "Primary input - other rows auto-calculate" : "Auto-calculated based on primary input"}
-                                                            />
-                                                        </div>
-                                                    ))}
+                                                    {rowSizes.map(
+                                                        (size, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className="flex items-center gap-1"
+                                                            >
+                                                                <Label className="text-xs w-6">
+                                                                    R{index + 1}
+                                                                    :
+                                                                </Label>
+                                                                <Input
+                                                                    type="number"
+                                                                    min="0.1"
+                                                                    max={
+                                                                        wallHeight
+                                                                    }
+                                                                    step="0.1"
+                                                                    value={size.toFixed(
+                                                                        1
+                                                                    )}
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleRowSizeChange(
+                                                                            index,
+                                                                            parseFloat(
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            ) ||
+                                                                                0.1
+                                                                        )
+                                                                    }
+                                                                    className="h-6 text-xs"
+                                                                    style={{
+                                                                        backgroundColor:
+                                                                            index ===
+                                                                            primaryRowIndex
+                                                                                ? "white"
+                                                                                : "#f9fafb",
+                                                                        color:
+                                                                            index ===
+                                                                            primaryRowIndex
+                                                                                ? "black"
+                                                                                : "#6b7280",
+                                                                    }}
+                                                                    title={
+                                                                        index ===
+                                                                        primaryRowIndex
+                                                                            ? "Primary input - other rows auto-calculate"
+                                                                            : "Auto-calculated based on primary input"
+                                                                    }
+                                                                />
+                                                            </div>
+                                                        )
+                                                    )}
                                                 </div>
                                             </div>
-                                            
+
                                             <div className="text-xs text-muted-foreground">
-                                                Total Width: {columnSizes.reduce((sum, size) => sum + size, 0).toFixed(1)}m | 
-                                                Total Height: {rowSizes.reduce((sum, size) => sum + size, 0).toFixed(1)}m
+                                                Total Width:{" "}
+                                                {columnSizes
+                                                    .reduce(
+                                                        (sum, size) =>
+                                                            sum + size,
+                                                        0
+                                                    )
+                                                    .toFixed(1)}
+                                                m | Total Height:{" "}
+                                                {rowSizes
+                                                    .reduce(
+                                                        (sum, size) =>
+                                                            sum + size,
+                                                        0
+                                                    )
+                                                    .toFixed(1)}
+                                                m
                                             </div>
                                         </div>
                                     )}
@@ -1340,33 +1481,63 @@ export function CurtainWallDesigner({
                                                 <div className="absolute inset-0 pointer-events-none">
                                                     {/* Vertical grid lines based on custom column sizes */}
                                                     {(() => {
-                                                        const totalWidth = columnSizes.reduce((sum, size) => sum + size, 0);
+                                                        const totalWidth =
+                                                            columnSizes.reduce(
+                                                                (sum, size) =>
+                                                                    sum + size,
+                                                                0
+                                                            );
                                                         let cumulativeWidth = 0;
-                                                        return Array.from({ length: columns + 1 }).map((_, i) => {
-                                                            const leftPercent = (cumulativeWidth / totalWidth) * 100;
-                                                            if (i < columns) cumulativeWidth += columnSizes[i];
+                                                        return Array.from({
+                                                            length: columns + 1,
+                                                        }).map((_, i) => {
+                                                            const leftPercent =
+                                                                (cumulativeWidth /
+                                                                    totalWidth) *
+                                                                100;
+                                                            if (i < columns)
+                                                                cumulativeWidth +=
+                                                                    columnSizes[
+                                                                        i
+                                                                    ];
                                                             return (
                                                                 <div
                                                                     key={`v-${i}`}
                                                                     className="absolute top-0 bottom-0 w-px bg-gray-200"
-                                                                    style={{ left: `${leftPercent}%` }}
+                                                                    style={{
+                                                                        left: `${leftPercent}%`,
+                                                                    }}
                                                                 />
                                                             );
                                                         });
                                                     })()}
-                                                    
+
                                                     {/* Horizontal grid lines based on custom row sizes */}
                                                     {(() => {
-                                                        const totalHeight = rowSizes.reduce((sum, size) => sum + size, 0);
+                                                        const totalHeight =
+                                                            rowSizes.reduce(
+                                                                (sum, size) =>
+                                                                    sum + size,
+                                                                0
+                                                            );
                                                         let cumulativeHeight = 0;
-                                                        return Array.from({ length: rows + 1 }).map((_, i) => {
-                                                            const topPercent = (cumulativeHeight / totalHeight) * 100;
-                                                            if (i < rows) cumulativeHeight += rowSizes[i];
+                                                        return Array.from({
+                                                            length: rows + 1,
+                                                        }).map((_, i) => {
+                                                            const topPercent =
+                                                                (cumulativeHeight /
+                                                                    totalHeight) *
+                                                                100;
+                                                            if (i < rows)
+                                                                cumulativeHeight +=
+                                                                    rowSizes[i];
                                                             return (
                                                                 <div
                                                                     key={`h-${i}`}
                                                                     className="absolute left-0 right-0 h-px bg-gray-200"
-                                                                    style={{ top: `${topPercent}%` }}
+                                                                    style={{
+                                                                        top: `${topPercent}%`,
+                                                                    }}
                                                                 />
                                                             );
                                                         });
@@ -1392,10 +1563,15 @@ export function CurtainWallDesigner({
                                                             panel.type
                                                         )}
                                                         <span className="text-xs font-medium text-center leading-tight">
-                                                            {panel.type === "structure" 
+                                                            {panel.type ===
+                                                            "structure"
                                                                 ? "Fixed"
-                                                                : panel.type.charAt(0).toUpperCase() + panel.type.slice(1)
-                                                            }
+                                                                : panel.type
+                                                                      .charAt(0)
+                                                                      .toUpperCase() +
+                                                                  panel.type.slice(
+                                                                      1
+                                                                  )}
                                                         </span>
                                                         <div className="text-[10px] text-muted-foreground text-center">
                                                             {panel.widthMeters.toFixed(
@@ -1430,7 +1606,6 @@ export function CurtainWallDesigner({
                         </div>
                     </div>
                 </TabsContent>
-
 
                 {/* Calculations Tab */}
                 <TabsContent
@@ -1516,33 +1691,69 @@ export function CurtainWallDesigner({
                                             <span>Frame Meters:</span>
                                             <span className="font-medium">
                                                 {(() => {
-                                                    let frameMeters = 2 * (wallWidth + wallHeight);
+                                                    let frameMeters =
+                                                        2 *
+                                                        (wallWidth +
+                                                            wallHeight);
                                                     // Add shared sides between panels
-                                                    for (let col = 1; col < columns; col++) {
-                                                        frameMeters += wallHeight;
+                                                    for (
+                                                        let col = 1;
+                                                        col < columns;
+                                                        col++
+                                                    ) {
+                                                        frameMeters +=
+                                                            wallHeight;
                                                     }
-                                                    for (let row = 1; row < rows; row++) {
-                                                        frameMeters += wallWidth;
+                                                    for (
+                                                        let row = 1;
+                                                        row < rows;
+                                                        row++
+                                                    ) {
+                                                        frameMeters +=
+                                                            wallWidth;
                                                     }
-                                                    return frameMeters.toFixed(1);
-                                                })()} m
+                                                    return frameMeters.toFixed(
+                                                        1
+                                                    );
+                                                })()}{" "}
+                                                m
                                             </span>
                                         </div>
                                         <div className="flex justify-between text-sm">
                                             <span>Window Meters:</span>
                                             <span className="font-medium">
                                                 {panels
-                                                    .filter((p) => p.type === "window" || p.type === "door")
-                                                    .reduce((acc, panel) => acc + 2 * (panel.widthMeters + panel.heightMeters), 0)
-                                                    .toFixed(1)} m
+                                                    .filter(
+                                                        (p) =>
+                                                            p.type ===
+                                                                "window" ||
+                                                            p.type === "door"
+                                                    )
+                                                    .reduce(
+                                                        (acc, panel) =>
+                                                            acc +
+                                                            2 *
+                                                                (panel.widthMeters +
+                                                                    panel.heightMeters),
+                                                        0
+                                                    )
+                                                    .toFixed(1)}{" "}
+                                                m
                                             </span>
                                         </div>
                                         <div className="flex justify-between text-sm">
                                             <span>Glass Area:</span>
                                             <span className="font-medium">
                                                 {panels
-                                                    .reduce((acc, panel) => acc + panel.widthMeters * panel.heightMeters, 0)
-                                                    .toFixed(1)} m²
+                                                    .reduce(
+                                                        (acc, panel) =>
+                                                            acc +
+                                                            panel.widthMeters *
+                                                                panel.heightMeters,
+                                                        0
+                                                    )
+                                                    .toFixed(1)}{" "}
+                                                m²
                                             </span>
                                         </div>
                                         <div className="flex justify-between text-sm">
@@ -1555,14 +1766,16 @@ export function CurtainWallDesigner({
                                         <div className="flex justify-between font-medium">
                                             <span>Total Wall Area:</span>
                                             <span>
-                                                {(wallWidth * wallHeight).toFixed(1)} m²
+                                                {(
+                                                    wallWidth * wallHeight
+                                                ).toFixed(1)}{" "}
+                                                m²
                                             </span>
                                         </div>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
-
                     </div>
                 </TabsContent>
 
