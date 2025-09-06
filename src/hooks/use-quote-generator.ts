@@ -110,6 +110,11 @@ export const useQuoteGenerator = () => {
         []
     );
 
+    const loadQuote = useCallback((quote: QuoteData) => {
+        setQuoteData(quote);
+        setError(null);
+    }, []);
+
     const resetQuote = useCallback(() => {
         setQuoteData({
             id: `QT${Date.now()}`,
@@ -192,8 +197,19 @@ export const useQuoteGenerator = () => {
             }
 
             console.log("Attempting to save to Firestore...");
-            const docRef = await addDoc(collection(db, "quotes"), quoteData);
-            console.log("Quote saved successfully with ID:", docRef.id);
+            // Use quote name as document ID, sanitized for Firestore
+            const sanitizedQuoteName = quoteData.name
+                .replace(/[^a-zA-Z0-9]/g, "_") // Replace special chars with underscores
+                .replace(/^_+|_+$/g, "") // Remove leading/trailing underscores
+                .substring(0, 150); // Limit length
+
+            const { setDoc, doc } = await import("firebase/firestore");
+            const docRef = doc(db, "quotes", sanitizedQuoteName);
+            await setDoc(docRef, quoteData);
+            console.log(
+                "Quote saved successfully with ID:",
+                sanitizedQuoteName
+            );
 
             // Reset the quote data after successful save
             resetQuote();
@@ -226,6 +242,36 @@ export const useQuoteGenerator = () => {
             console.error("Fetch quotes error:", err);
             setError(
                 `Failed to fetch quotes: ${
+                    err instanceof Error ? err.message : "Unknown error"
+                }`
+            );
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    const fetchQuoteById = useCallback(async (id: string) => {
+        setLoading(true);
+        setError(null);
+        try {
+            console.log("Fetching quote by ID from Firebase:", id);
+            const querySnapshot = await getDocs(collection(db, "quotes"));
+            let quote: QuoteData | null = null;
+            querySnapshot.forEach((doc) => {
+                if (doc.data().id === id) {
+                    quote = { id: doc.id, ...doc.data() } as QuoteData;
+                }
+            });
+            if (!quote) {
+                throw new Error("Quote not found");
+            }
+            console.log("Fetched quote:", quote);
+            return quote;
+        } catch (err) {
+            console.error("Fetch quote by ID error:", err);
+            setError(
+                `Failed to fetch quote: ${
                     err instanceof Error ? err.message : "Unknown error"
                 }`
             );
@@ -1104,6 +1150,8 @@ export const useQuoteGenerator = () => {
         saveQuote,
         exportQuote,
         fetchQuotes,
+        fetchQuoteById,
+        loadQuote,
         resetQuote,
         loading,
         error,

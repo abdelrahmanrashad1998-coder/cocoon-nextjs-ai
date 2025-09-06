@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,10 +23,13 @@ import { QuotePreview } from "@/components/quote/quote-preview";
 import { QuoteSettings } from "@/components/quote/quote-settings";
 import { useQuoteGenerator } from "@/hooks/use-quote-generator";
 import ColorManager from "@/components/color/color-manager";
-import { ColorOption } from "@/types/quote";
+import { ColorOption, QuoteData } from "@/types/quote";
 import { Palette } from "lucide-react";
 
 export default function QuoteGeneratorPage() {
+    const searchParams = useSearchParams();
+    const quoteId = searchParams.get("id");
+
     const {
         quoteData,
         addItem,
@@ -38,12 +42,67 @@ export default function QuoteGeneratorPage() {
         calculateTotals,
         saveQuote,
         exportQuote,
+        fetchQuoteById,
+        loadQuote,
         loading,
         error,
     } = useQuoteGenerator();
 
     const [activeTab, setActiveTab] = useState("items");
     const [showGlobalColorManager, setShowGlobalColorManager] = useState(false);
+
+    // Load quote data if ID is provided
+    useEffect(() => {
+        const loadQuote = async () => {
+            if (quoteId) {
+                try {
+                    console.log("Loading quote with ID:", quoteId);
+                    const quote: QuoteData | null = await fetchQuoteById(
+                        quoteId
+                    );
+                    console.log("Fetched quote:", quote);
+                    if (quote) {
+                        console.log("Quote found, loading data...");
+                        // Update the quote data with the loaded quote
+                        // Note: We need to update each field individually since the hook doesn't have a setQuoteData function
+                        const loadedQuote = quote as any;
+                        if (loadedQuote.contactInfo)
+                            updateContactInfo(loadedQuote.contactInfo);
+                        if (loadedQuote.name) updateQuoteName(loadedQuote.name);
+                        if (loadedQuote.settings) {
+                            Object.entries(loadedQuote.settings).forEach(
+                                ([key, value]: [string, any]) => {
+                                    updateSettings(
+                                        key as keyof typeof loadedQuote.settings,
+                                        value
+                                    );
+                                }
+                            );
+                        }
+                        if (loadedQuote.globalColor)
+                            updateGlobalColor(loadedQuote.globalColor);
+                        // For items, we need to clear existing and add new ones
+                        // This is tricky since we don't have a direct way to set items
+                        // We'll handle this by adding items one by one
+                        if (loadedQuote.items && loadedQuote.items.length > 0) {
+                            loadedQuote.items.forEach((item: any) => {
+                                addItem(item);
+                            });
+                        }
+                        toast.success("Quote loaded successfully!");
+                    } else {
+                        console.log("Quote not found");
+                        toast.error("Quote not found");
+                    }
+                } catch (error) {
+                    console.error("Failed to load quote:", error);
+                    toast.error("Failed to load quote for editing");
+                }
+            }
+        };
+
+        loadQuote();
+    }, [quoteId, fetchQuoteById, loadQuote]);
 
     const handleAddItem = () => {
         addItem({
@@ -222,7 +281,7 @@ export default function QuoteGeneratorPage() {
                                     <div className="space-y-4">
                                         {quoteData.items.map((item, index) => (
                                             <QuoteItemEditor
-                                                key={item.id}
+                                                key={index}
                                                 item={item}
                                                 onUpdate={(updatedItem) =>
                                                     updateItem(
