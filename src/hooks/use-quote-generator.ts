@@ -147,10 +147,34 @@ export const useQuoteGenerator = () => {
     const saveQuote = useCallback(async () => {
         setLoading(true);
         try {
+            console.log("Starting save quote process...");
+            console.log("Quote data:", quoteData);
+
+            // Check authentication status
+            const { getAuth } = await import("firebase/auth");
+            const auth = getAuth();
+            const user = auth.currentUser;
+            console.log(
+                "Current user:",
+                user ? user.email : "No user authenticated"
+            );
+
+            if (!user) {
+                throw new Error(
+                    "User not authenticated. Please log in to save quotes."
+                );
+            }
+
+            console.log("Attempting to save to Firestore...");
             const docRef = await addDoc(collection(db, "quotes"), quoteData);
-            console.log("Quote saved with ID:", docRef.id);
+            console.log("Quote saved successfully with ID:", docRef.id);
         } catch (err) {
-            setError("Failed to save quote");
+            console.error("Save quote error:", err);
+            setError(
+                `Failed to save quote: ${
+                    err instanceof Error ? err.message : "Unknown error"
+                }`
+            );
             throw err;
         } finally {
             setLoading(false);
