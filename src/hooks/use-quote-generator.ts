@@ -110,6 +110,32 @@ export const useQuoteGenerator = () => {
         []
     );
 
+    const resetQuote = useCallback(() => {
+        setQuoteData({
+            id: `QT${Date.now()}`,
+            name: `Quote QT${Date.now()}`,
+            createdAt: new Date().toISOString(),
+            items: [],
+            contactInfo: {
+                name: "",
+                email: "",
+                phone: "",
+                location: "",
+                notes: "",
+            },
+            settings: {
+                expirationDays: 30,
+                projectDuration: 60,
+                discountPercentage: 0,
+                customNotes: "",
+                pricingType: "totals",
+                exportFormat: "pdf",
+            },
+            globalColor: undefined,
+        });
+        setError(null);
+    }, []);
+
     const calculateTotals = useCallback((): QuoteTotals => {
         const totalArea = quoteData.items.reduce(
             (sum, item) => sum + item.width * item.height * item.quantity,
@@ -168,6 +194,9 @@ export const useQuoteGenerator = () => {
             console.log("Attempting to save to Firestore...");
             const docRef = await addDoc(collection(db, "quotes"), quoteData);
             console.log("Quote saved successfully with ID:", docRef.id);
+
+            // Reset the quote data after successful save
+            resetQuote();
         } catch (err) {
             console.error("Save quote error:", err);
             setError(
@@ -1049,6 +1078,7 @@ export const useQuoteGenerator = () => {
         calculateTotals,
         saveQuote,
         exportQuote,
+        resetQuote,
         loading,
         error,
     };

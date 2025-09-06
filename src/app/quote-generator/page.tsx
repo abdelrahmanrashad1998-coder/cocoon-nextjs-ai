@@ -15,6 +15,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Calculator, Save, Plus } from "lucide-react";
+import { toast } from "sonner";
 import DashboardLayout from "@/components/dashboard-layout";
 import { QuoteItemEditor } from "@/components/quote/quote-item-editor";
 import { QuotePreview } from "@/components/quote/quote-preview";
@@ -62,9 +63,44 @@ export default function QuoteGeneratorPage() {
     const handleSaveQuote = async () => {
         try {
             await saveQuote();
-            // Show success message
+            toast.success("Quote saved successfully!", {
+                description: "Your quote has been saved to the database.",
+                duration: 5000,
+                position: "top-center",
+                style: {
+                    fontSize: "16px",
+                    padding: "20px 28px",
+                    minWidth: "380px",
+                    background: "linear-gradient(135deg, #10b981, #059669)",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "12px",
+                    boxShadow: "0 10px 25px rgba(16, 185, 129, 0.3)",
+                    fontWeight: "500",
+                    textAlign: "center",
+                },
+                icon: "✅",
+            });
         } catch (error) {
             console.error("Error saving quote:", error);
+            toast.error("Failed to save quote", {
+                description: "Please check your connection and try again.",
+                duration: 5000,
+                position: "top-center",
+                style: {
+                    fontSize: "16px",
+                    padding: "20px 28px",
+                    minWidth: "380px",
+                    background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "12px",
+                    boxShadow: "0 10px 25px rgba(239, 68, 68, 0.3)",
+                    fontWeight: "500",
+                    textAlign: "center",
+                },
+                icon: "❌",
+            });
         }
     };
 
