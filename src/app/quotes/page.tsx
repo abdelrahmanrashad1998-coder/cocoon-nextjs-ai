@@ -19,7 +19,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { FileText, Search, Download, Edit, Trash2, Plus } from "lucide-react";
+import { FileText, Search, Edit, Trash2, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/dashboard-layout";
 import { QuoteData } from "@/types/quote";
@@ -30,7 +30,7 @@ export default function QuotesPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const { fetchQuotes } = useQuoteGenerator();
+    const { fetchQuotes, deleteQuote } = useQuoteGenerator();
 
     useEffect(() => {
         const loadQuotes = async () => {
@@ -78,13 +78,16 @@ export default function QuotesPage() {
 
     const handleDelete = async (quoteId: string) => {
         if (confirm("Are you sure you want to delete this quote?")) {
-            setQuotes((prev) => prev.filter((quote) => quote.id !== quoteId));
+            try {
+                await deleteQuote(quoteId);
+                setQuotes((prev) =>
+                    prev.filter((quote) => quote.id !== quoteId)
+                );
+            } catch (error) {
+                console.error("Failed to delete quote:", error);
+                alert("Failed to delete quote. Please try again.");
+            }
         }
-    };
-
-    const handleDownload = (quoteId: string) => {
-        // TODO: Implement PDF download
-        console.log("Downloading quote:", quoteId);
     };
 
     if (loading) {
@@ -185,17 +188,6 @@ export default function QuotesPage() {
                                                         }
                                                     >
                                                         <Edit className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        onClick={() =>
-                                                            handleDownload(
-                                                                quote.id
-                                                            )
-                                                        }
-                                                    >
-                                                        <Download className="h-4 w-4" />
                                                     </Button>
                                                     <Button
                                                         size="sm"

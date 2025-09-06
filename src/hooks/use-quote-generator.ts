@@ -281,6 +281,37 @@ export const useQuoteGenerator = () => {
         }
     }, []);
 
+    const deleteQuote = useCallback(async (id: string) => {
+        setLoading(true);
+        setError(null);
+        try {
+            console.log("Deleting quote from Firebase:", id);
+            const querySnapshot = await getDocs(collection(db, "quotes"));
+            let docId: string | null = null;
+            querySnapshot.forEach((doc) => {
+                if (doc.data().id === id) {
+                    docId = doc.id;
+                }
+            });
+            if (!docId) {
+                throw new Error("Quote not found");
+            }
+            const { deleteDoc, doc } = await import("firebase/firestore");
+            await deleteDoc(doc(db, "quotes", docId));
+            console.log("Quote deleted successfully:", id);
+        } catch (err) {
+            console.error("Delete quote error:", err);
+            setError(
+                `Failed to delete quote: ${
+                    err instanceof Error ? err.message : "Unknown error"
+                }`
+            );
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     const exportQuote = useCallback(
         async (type: "pdf" | "print") => {
             setLoading(true);
@@ -1151,6 +1182,7 @@ export const useQuoteGenerator = () => {
         exportQuote,
         fetchQuotes,
         fetchQuoteById,
+        deleteQuote,
         loadQuote,
         resetQuote,
         loading,
