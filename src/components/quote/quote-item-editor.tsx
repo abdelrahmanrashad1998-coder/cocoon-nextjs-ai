@@ -1884,8 +1884,8 @@ export function QuoteItemEditor({
                                             />
                                         ) : (
                                             <div className="text-center text-muted-foreground py-8">
-                                                Click &quot;Generate SVG&quot;
-                                                to create the preview
+                                                Click "Generate SVG" to create
+                                                the preview
                                             </div>
                                         )}
                                     </div>
