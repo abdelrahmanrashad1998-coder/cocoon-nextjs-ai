@@ -563,11 +563,6 @@ export default function QuoteGeneratorPage() {
                         <QuoteSettings
                             settings={quoteData.settings}
                             onUpdate={updateSettings}
-                            onExport={(type) => {
-                                if (type === "pdf" || type === "print") {
-                                    exportQuote(type);
-                                }
-                            }}
                             quoteName={quoteData.name}
                             onUpdateQuoteName={updateQuoteName}
                         />
@@ -580,6 +575,7 @@ export default function QuoteGeneratorPage() {
                         <QuotePreview
                             quoteData={quoteData}
                             totals={calculateTotals()}
+                            onExport={exportQuote}
                         />
                     </TabsContent>
                 </Tabs>

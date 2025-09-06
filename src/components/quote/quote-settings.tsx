@@ -18,21 +18,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    Settings,
-    Calendar,
-    Percent,
-    FileText,
-    Download,
-    Mail,
-    Printer,
-} from "lucide-react";
+import { Settings, Calendar, Percent, FileText } from "lucide-react";
 import { QuoteSettings as QuoteSettingsType } from "@/types/quote";
 
 interface QuoteSettingsProps {
     settings: QuoteSettingsType;
     onUpdate: (field: keyof QuoteSettingsType, value: string | number) => void;
-    onExport?: (type: "pdf" | "print" | "email") => void;
     quoteName: string;
     onUpdateQuoteName: (name: string) => void;
 }
@@ -40,7 +31,6 @@ interface QuoteSettingsProps {
 export function QuoteSettings({
     settings,
     onUpdate,
-    onExport,
     quoteName,
     onUpdateQuoteName,
 }: QuoteSettingsProps) {
@@ -207,73 +197,6 @@ export function QuoteSettings({
                             rows={4}
                         />
                     </div>
-                </CardContent>
-            </Card>
-
-            {/* Export Settings */}
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center gap-2">
-                        <Download className="h-5 w-5 text-primary" />
-                        <CardTitle>Export Settings</CardTitle>
-                    </div>
-                    <CardDescription>
-                        Configure export format and export your quote
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="exportFormat">Export Format</Label>
-                        <Select
-                            value={settings.exportFormat}
-                            onValueChange={(value) =>
-                                onUpdate("exportFormat", value)
-                            }
-                        >
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="pdf">
-                                    PDF Document
-                                </SelectItem>
-                                <SelectItem value="print">Print</SelectItem>
-                                <SelectItem value="email">Email</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    {onExport && (
-                        <div className="space-y-4">
-                            <Label className="text-sm font-medium">
-                                Export Actions
-                            </Label>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                <Button
-                                    onClick={() => onExport("pdf")}
-                                    className="w-full"
-                                >
-                                    <Download className="mr-2 h-4 w-4" />
-                                    Export PDF
-                                </Button>
-                                <Button
-                                    onClick={() => onExport("print")}
-                                    variant="outline"
-                                    className="w-full"
-                                >
-                                    <Printer className="mr-2 h-4 w-4" />
-                                    Print Quote
-                                </Button>
-                                <Button
-                                    onClick={() => onExport("email")}
-                                    variant="outline"
-                                    className="w-full"
-                                >
-                                    <Mail className="mr-2 h-4 w-4" />
-                                    Email Quote
-                                </Button>
-                            </div>
-                        </div>
-                    )}
                 </CardContent>
             </Card>
 

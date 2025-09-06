@@ -22,14 +22,19 @@ import {
 import { QuoteData, QuoteTotals, QuoteItem } from "@/types/quote";
 import { calculateItemPricing } from "@/lib/pricing-calculator";
 import { DetailedPricingBreakdown } from "./detailed-pricing-breakdown";
-import { Calculator, Eye, EyeOff } from "lucide-react";
+import { Calculator, Eye, EyeOff, Download, Printer } from "lucide-react";
 
 interface QuotePreviewProps {
     quoteData: QuoteData;
     totals: QuoteTotals;
+    onExport?: (type: "pdf" | "print") => void;
 }
 
-export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
+export function QuotePreview({
+    quoteData,
+    totals,
+    onExport,
+}: QuotePreviewProps) {
     const [showDetailedPricing, setShowDetailedPricing] = useState(false);
 
     const formatCurrency = (amount: number) => {
@@ -273,6 +278,27 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                     </div>
                 </CardHeader>
             </Card>
+
+            {/* Export Actions */}
+            {onExport && (
+                <div className="flex justify-center gap-4">
+                    <Button
+                        onClick={() => onExport("pdf")}
+                        className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-2 px-6 py-3"
+                    >
+                        <Download className="h-5 w-5" />
+                        Export PDF
+                    </Button>
+                    <Button
+                        onClick={() => onExport("print")}
+                        variant="outline"
+                        className="flex items-center gap-2 px-6 py-3"
+                    >
+                        <Printer className="h-5 w-5" />
+                        Print Quote
+                    </Button>
+                </div>
+            )}
 
             {/* Customer Information */}
             <Card>
