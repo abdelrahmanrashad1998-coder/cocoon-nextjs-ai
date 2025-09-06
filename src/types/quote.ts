@@ -66,6 +66,7 @@ export interface QuoteSettings {
 
 export interface QuoteData {
     id: string;
+    name: string;
     createdAt: string;
     contactInfo: ContactInfo;
     items: QuoteItem[];

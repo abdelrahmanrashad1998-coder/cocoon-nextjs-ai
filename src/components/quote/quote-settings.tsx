@@ -33,15 +33,43 @@ interface QuoteSettingsProps {
     settings: QuoteSettingsType;
     onUpdate: (field: keyof QuoteSettingsType, value: string | number) => void;
     onExport?: (type: "pdf" | "print" | "email") => void;
+    quoteName: string;
+    onUpdateQuoteName: (name: string) => void;
 }
 
 export function QuoteSettings({
     settings,
     onUpdate,
     onExport,
+    quoteName,
+    onUpdateQuoteName,
 }: QuoteSettingsProps) {
     return (
         <div className="space-y-6">
+            {/* Quote Name Settings */}
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center gap-2">
+                        <Settings className="h-5 w-5 text-primary" />
+                        <CardTitle>Quote Name</CardTitle>
+                    </div>
+                    <CardDescription>
+                        Give your quote a custom name
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2">
+                        <Label htmlFor="quoteName">Quote Name</Label>
+                        <Input
+                            id="quoteName"
+                            value={quoteName}
+                            onChange={(e) => onUpdateQuoteName(e.target.value)}
+                            placeholder="Enter quote name"
+                        />
+                    </div>
+                </CardContent>
+            </Card>
+
             {/* Quote Validity Settings */}
             <Card>
                 <CardHeader>

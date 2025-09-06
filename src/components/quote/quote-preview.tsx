@@ -81,7 +81,9 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setShowDetailedPricing(!showDetailedPricing)}
+                                onClick={() =>
+                                    setShowDetailedPricing(!showDetailedPricing)
+                                }
                                 className="flex items-center gap-2"
                             >
                                 <Calculator className="h-4 w-4" />
@@ -99,6 +101,12 @@ export function QuotePreview({ quoteData, totals }: QuotePreviewProps) {
                             </Button>
                             <div className="text-right">
                                 <div className="text-sm text-muted-foreground">
+                                    Quote Name
+                                </div>
+                                <div className="font-medium text-sm">
+                                    {quoteData.name}
+                                </div>
+                                <div className="text-sm text-muted-foreground mt-1">
                                     Quote ID
                                 </div>
                                 <div className="font-mono text-sm">

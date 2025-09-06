@@ -7,10 +7,13 @@ import {
     QuoteTotals,
     ColorOption,
 } from "@/types/quote";
+import { db } from "@/lib/firebase";
+import { addDoc, collection } from "firebase/firestore";
 
 export const useQuoteGenerator = () => {
     const [quoteData, setQuoteData] = useState<QuoteData>({
         id: `QT${Date.now()}`,
+        name: `Quote QT${Date.now()}`,
         createdAt: new Date().toISOString(),
         items: [],
         contactInfo: {
@@ -70,6 +73,13 @@ export const useQuoteGenerator = () => {
         setQuoteData((prev) => ({
             ...prev,
             contactInfo: { ...prev.contactInfo, ...updates },
+        }));
+    }, []);
+
+    const updateQuoteName = useCallback((name: string) => {
+        setQuoteData((prev) => ({
+            ...prev,
+            name,
         }));
     }, []);
 
@@ -137,11 +147,11 @@ export const useQuoteGenerator = () => {
     const saveQuote = useCallback(async () => {
         setLoading(true);
         try {
-            // Mock save functionality
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            console.log("Quote saved:", quoteData);
+            const docRef = await addDoc(collection(db, "quotes"), quoteData);
+            console.log("Quote saved with ID:", docRef.id);
         } catch (err) {
             setError("Failed to save quote");
+            throw err;
         } finally {
             setLoading(false);
         }
@@ -661,6 +671,9 @@ export const useQuoteGenerator = () => {
               <div class="quote-details">
                 <div class="detail-card">
                   <h3>📋 Quote Information</h3>
+                  <p><span class="detail-label">Quote Name:</span> <span class="detail-value">${
+                      quoteData.name
+                  }</span></p>
                   <p><span class="detail-label">Quote ID:</span> <span class="detail-value">${
                       quoteData.id
                   }</span></p>
@@ -924,9 +937,9 @@ export const useQuoteGenerator = () => {
             <body>
               <div class="header">
                 <h1>COCOON ALUMINUM QUOTATION</h1>
-                <p>Quote ID: ${
-                    quoteData.id
-                } | Date: ${new Date().toLocaleDateString()}</p>
+                <p>Quote Name: ${quoteData.name} | Quote ID: ${
+                            quoteData.id
+                        } | Date: ${new Date().toLocaleDateString()}</p>
               </div>
               <div class="section">
                 <h2>Customer Information</h2>
@@ -1006,6 +1019,7 @@ export const useQuoteGenerator = () => {
         updateItem,
         removeItem,
         updateContactInfo,
+        updateQuoteName,
         updateSettings: updateSettingsField,
         updateGlobalColor,
         calculateTotals,

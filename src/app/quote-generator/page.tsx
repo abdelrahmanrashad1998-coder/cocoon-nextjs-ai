@@ -31,6 +31,7 @@ export default function QuoteGeneratorPage() {
         updateItem,
         removeItem,
         updateContactInfo,
+        updateQuoteName,
         updateSettings,
         updateGlobalColor,
         calculateTotals,
@@ -83,7 +84,7 @@ export default function QuoteGeneratorPage() {
                     <div className="flex gap-2">
                         <Button
                             onClick={handleSaveQuote}
-                            disabled={loading}
+                            disabled={loading || quoteData.items.length === 0}
                         >
                             <Save className="mr-2 h-4 w-4" />
                             Save Quote
@@ -446,6 +447,8 @@ export default function QuoteGeneratorPage() {
                                     exportQuote(type);
                                 }
                             }}
+                            quoteName={quoteData.name}
+                            onUpdateQuoteName={updateQuoteName}
                         />
                     </TabsContent>
 
