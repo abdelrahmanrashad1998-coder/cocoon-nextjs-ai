@@ -348,6 +348,185 @@ export const useQuoteGenerator = () => {
             try {
                 const totals = calculateTotals();
 
+                // Function to generate SVG for PDF export
+                const generateItemSvgForPdf = (item: QuoteItem) => {
+                    let svgContent = "";
+
+                    if (item.type === "curtain_wall") {
+                        // For curtain wall, use the existing logic
+                        if (item.designData?.panels) {
+                            const { panels, wallWidth, wallHeight } =
+                                item.designData;
+                            const scale =
+                                Math.min(120 / wallWidth, 80 / wallHeight) *
+                                0.9;
+                            const scaledWallWidth = wallWidth * scale;
+                            const scaledWallHeight = wallHeight * scale;
+                            const offsetX = (120 - scaledWallWidth) / 2;
+                            const offsetY = (80 - scaledWallHeight) / 2;
+
+                            let svgElements = "";
+                            svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWallWidth}" height="${scaledWallHeight}" fill="none" stroke="#374151" stroke-width="1"/>`;
+
+                            panels.forEach((panel) => {
+                                const panelX =
+                                    offsetX +
+                                    (panel.left / 100) * scaledWallWidth;
+                                const panelY =
+                                    offsetY +
+                                    (panel.top / 100) * scaledWallHeight;
+                                const panelWidth =
+                                    (panel.widthMeters / wallWidth) *
+                                    scaledWallWidth;
+                                const panelHeight =
+                                    (panel.heightMeters / wallHeight) *
+                                    scaledWallHeight;
+
+                                let fillColor = "#87CEEB";
+                                let strokeColor = "#666";
+
+                                switch (panel.type) {
+                                    case "window":
+                                        fillColor = "#87CEEB";
+                                        strokeColor = "#3b82f6";
+                                        break;
+                                    case "door":
+                                        fillColor = "#98FB98";
+                                        strokeColor = "#f59e0b";
+                                        break;
+                                    case "structure":
+                                        fillColor = "#D3D3D3";
+                                        strokeColor = "#10b981";
+                                        break;
+                                }
+
+                                svgElements += `<rect x="${panelX}" y="${panelY}" width="${panelWidth}" height="${panelHeight}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1" opacity="0.8"/>`;
+
+                                const label =
+                                    panel.type === "structure"
+                                        ? "Fixed"
+                                        : panel.type.charAt(0).toUpperCase() +
+                                          panel.type.slice(1);
+                                svgElements += `<text x="${
+                                    panelX + panelWidth / 2
+                                }" y="${
+                                    panelY + panelHeight / 2
+                                }" text-anchor="middle" dominant-baseline="middle" font-size="5" fill="#333">${label}</text>`;
+                            });
+
+                            svgElements += `<text x="${
+                                offsetX + scaledWallWidth / 2
+                            }" y="${
+                                offsetY - 2
+                            }" text-anchor="middle" font-size="6" fill="#666">${wallWidth}m</text>`;
+                            svgElements += `<text x="${offsetX - 2}" y="${
+                                offsetY + scaledWallHeight / 2
+                            }" text-anchor="middle" dominant-baseline="middle" font-size="6" fill="#666" transform="rotate(-90, ${
+                                offsetX - 2
+                            }, ${
+                                offsetY + scaledWallHeight / 2
+                            })">${wallHeight}m</text>`;
+
+                            svgContent = `<svg width="120" height="80" viewBox="0 0 120 80">${svgElements}</svg>`;
+                        }
+                    } else {
+                        // For regular items
+                        const {
+                            width: itemWidth,
+                            height: itemHeight,
+                            system,
+                            leaves,
+                            type,
+                        } = item;
+                        const scale =
+                            Math.min(120 / itemWidth, 80 / itemHeight) * 0.8;
+                        const scaledWidth = itemWidth * scale;
+                        const scaledHeight = itemHeight * scale;
+                        const offsetX = (120 - scaledWidth) / 2;
+                        const offsetY = (80 - scaledHeight) / 2;
+
+                        let svgElements = "";
+                        svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWidth}" height="${scaledHeight}" fill="none" stroke="#374151" stroke-width="1" rx="1"/>`;
+
+                        const glassInset = 3;
+                        svgElements += `<rect x="${offsetX + glassInset}" y="${
+                            offsetY + glassInset
+                        }" width="${scaledWidth - glassInset * 2}" height="${
+                            scaledHeight - glassInset * 2
+                        }" fill="#87CEEB" stroke="#666" stroke-width="0.5" opacity="0.7"/>`;
+
+                        if (system === "Sliding") {
+                            const panelWidth =
+                                (scaledWidth - glassInset * 2) / leaves;
+                            for (let i = 0; i < leaves; i++) {
+                                const panelX =
+                                    offsetX + glassInset + i * panelWidth;
+                                if (i > 0) {
+                                    svgElements += `<line x1="${panelX}" y1="${
+                                        offsetY + glassInset
+                                    }" x2="${panelX}" y2="${
+                                        offsetY + scaledHeight - glassInset
+                                    }" stroke="#666" stroke-width="0.5"/>`;
+                                }
+                                const handleY = offsetY + scaledHeight / 2;
+                                const handleSize = 3;
+                                if (i === 0 || i === leaves - 1) {
+                                    svgElements += `<circle cx="${
+                                        panelX + panelWidth / 2
+                                    }" cy="${handleY}" r="${handleSize}" fill="#666"/><rect x="${
+                                        panelX + panelWidth / 2 - handleSize / 2
+                                    }" y="${
+                                        handleY - 0.5
+                                    }" width="${handleSize}" height="1" fill="#666"/>`;
+                                }
+                            }
+                        } else if (system === "hinged") {
+                            const hingeSpacing = scaledHeight / (leaves + 1);
+                            for (let i = 1; i <= leaves; i++) {
+                                const hingeY = offsetY + i * hingeSpacing;
+                                svgElements += `<circle cx="${offsetX}" cy="${hingeY}" r="1.5" fill="#666"/><circle cx="${
+                                    offsetX + scaledWidth
+                                }" cy="${hingeY}" r="1.5" fill="#666"/>`;
+                            }
+                            if (type === "door") {
+                                const handleX =
+                                    leaves === 1
+                                        ? offsetX + scaledWidth - 6
+                                        : offsetX + scaledWidth / 2;
+                                const handleY = offsetY + scaledHeight / 2;
+                                svgElements += `<circle cx="${handleX}" cy="${handleY}" r="1.5" fill="#FFD700"/><rect x="${
+                                    handleX - 2
+                                }" y="${
+                                    handleY - 0.5
+                                }" width="4" height="1" fill="#FFD700"/>`;
+                            }
+                        } else if (system === "fixed") {
+                            svgElements += `<text x="${
+                                offsetX + scaledWidth / 2
+                            }" y="${
+                                offsetY + scaledHeight / 2
+                            }" text-anchor="middle" dominant-baseline="middle" font-size="6" fill="#666">Fixed</text>`;
+                        }
+
+                        svgElements += `<text x="${
+                            offsetX + scaledWidth / 2
+                        }" y="${
+                            offsetY - 2
+                        }" text-anchor="middle" font-size="6" fill="#666">${itemWidth}m</text>`;
+                        svgElements += `<text x="${offsetX - 2}" y="${
+                            offsetY + scaledHeight / 2
+                        }" text-anchor="middle" dominant-baseline="middle" font-size="6" fill="#666" transform="rotate(-90, ${
+                            offsetX - 2
+                        }, ${
+                            offsetY + scaledHeight / 2
+                        })">${itemHeight}m</text>`;
+
+                        svgContent = `<svg width="120" height="80" viewBox="0 0 120 80">${svgElements}</svg>`;
+                    }
+
+                    return svgContent;
+                };
+
                 if (type === "pdf") {
                     const printWindow = window.open(
                         "",
@@ -623,6 +802,20 @@ export const useQuoteGenerator = () => {
                 font-size: 14px;
                 text-align: right;
               }
+
+              .preview-cell {
+                text-align: center;
+                padding: 8px;
+                background: #ffffff;
+                border-radius: 6px;
+              }
+
+              .preview-cell svg {
+                max-width: 120px;
+                max-height: 80px;
+                border: 1px solid #e2e8f0;
+                border-radius: 4px;
+              }
               
               .totals-section {
                 margin-bottom: 30px;
@@ -888,6 +1081,7 @@ export const useQuoteGenerator = () => {
                   <thead>
                     <tr>
                       <th>Item Description</th>
+                      <th>Preview</th>
                       <th>Width (m)</th>
                       <th>Height (m)</th>
                       <th>Qty</th>
@@ -945,9 +1139,12 @@ export const useQuoteGenerator = () => {
                                 calculateItemPricing(item).totalPrice
                             );
 
+                            const svgPreview = generateItemSvgForPdf(item);
+
                             return `
                         <tr>
                           <td class="item-name">${itemName}</td>
+                          <td class="preview-cell">${svgPreview}</td>
                           <td class="dimension-value">${item.width.toFixed(
                               2
                           )}</td>
