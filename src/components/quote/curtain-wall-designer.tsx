@@ -1097,14 +1097,33 @@ export function CurtainWallDesigner({
     };
 
     const getPanelStyle = (panel: CurtainPanel) => {
-        // Translate panel positioning to ensure we have percentage values
-        const translatedPanel = translatePanelPositioning(panel);
-        
-        // Use the translated percentage values
-        const leftPercent = translatedPanel.left || 0;
-        const topPercent = translatedPanel.top || 0;
-        const widthPercent = translatedPanel.width || 0;
-        const heightPercent = translatedPanel.height || 0;
+        // Calculate position and size based on custom sizes (same logic as grid lines)
+        const totalWidth = columnSizes.reduce((sum, size) => sum + size, 0);
+        const totalHeight = rowSizes.reduce((sum, size) => sum + size, 0);
+
+        // Calculate left position based on column sizes
+        let leftPercent = 0;
+        for (let i = 0; i < panel.col; i++) {
+            leftPercent += (columnSizes[i] / totalWidth) * 100;
+        }
+
+        // Calculate top position based on row sizes
+        let topPercent = 0;
+        for (let i = 0; i < panel.row; i++) {
+            topPercent += (rowSizes[i] / totalHeight) * 100;
+        }
+
+        // Calculate width based on column spans
+        let widthPercent = 0;
+        for (let i = panel.col; i < panel.col + panel.colSpan; i++) {
+            widthPercent += (columnSizes[i] / totalWidth) * 100;
+        }
+
+        // Calculate height based on row spans
+        let heightPercent = 0;
+        for (let i = panel.row; i < panel.row + panel.rowSpan; i++) {
+            heightPercent += (rowSizes[i] / totalHeight) * 100;
+        }
 
         // Adjust font size and padding based on panel size to ensure readability
         const panelArea = widthPercent * heightPercent;
