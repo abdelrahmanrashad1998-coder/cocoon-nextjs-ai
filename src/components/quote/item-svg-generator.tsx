@@ -189,72 +189,217 @@ function generateCurtainWallSvg(
 
     const { panels, wallWidth, wallHeight } = item.designData;
 
-    // Scale to fit the SVG container
-    const scale = Math.min(width / wallWidth, height / wallHeight) * 0.9;
-    const scaledWallWidth = wallWidth * scale;
-    const scaledWallHeight = wallHeight * scale;
-    const offsetX = (width - scaledWallWidth) / 2;
-    const offsetY = (height - scaledWallHeight) / 2;
+    // Filter panels to render (exclude merged children but include merged parents)
+    const panelsToRender = panels.filter(
+        (panel: any) => !panel.mergedId // Only show panels that aren't merged into another panel
+    );
+
+    if (panelsToRender.length === 0) {
+        return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="#666">No panels to display</text></svg>`;
+    }
+
+    // Calculate available space with padding
+    const padding = 15;
+    const availableWidth = width - padding * 2;
+    const availableHeight = height - padding * 2;
+
+    // Calculate content dimensions maintaining aspect ratio
+    const wallRatio = wallWidth / wallHeight;
+    let contentWidth, contentHeight;
+
+    if (wallRatio > availableWidth / availableHeight) {
+        // Wall is wider relative to available space
+        contentWidth = availableWidth * 0.9;
+        contentHeight = contentWidth / wallRatio;
+    } else {
+        // Wall is taller relative to available space
+        contentHeight = availableHeight * 0.9;
+        contentWidth = contentHeight * wallRatio;
+    }
+
+    // Center the content
+    const offsetX = (width - contentWidth) / 2;
+    const offsetY = (height - contentHeight) / 2;
 
     let svgElements = "";
 
     // Draw wall outline
     svgElements += `
-        <rect x="${offsetX}" y="${offsetY}" width="${scaledWallWidth}" height="${scaledWallHeight}"
-              fill="none" stroke="#374151" stroke-width="2"/>
+        <rect x="${offsetX}" y="${offsetY}" width="${contentWidth}" height="${contentHeight}"
+              fill="none" stroke="#374151" stroke-width="2" rx="4"/>
     `;
 
-    // Draw panels
-    panels.forEach((panel) => {
-        const panelX = offsetX + (panel.left / 100) * scaledWallWidth;
-        const panelY = offsetY + (panel.top / 100) * scaledWallHeight;
-        const panelWidth = (panel.widthMeters / wallWidth) * scaledWallWidth;
-        const panelHeight =
-            (panel.heightMeters / wallHeight) * scaledWallHeight;
+    // Generate unique IDs for gradients
+    const gradientId = `glassGradient_${Math.random()
+        .toString(36)
+        .substr(2, 9)}`;
 
-        let fillColor = "#87CEEB"; // Default glass color
+    // Define gradients for glass effect
+    svgElements = `
+        <defs>
+            <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#e3f2fd;stop-opacity:0.9" />
+                <stop offset="25%" style="stop-color:#bbdefb;stop-opacity:0.7" />
+                <stop offset="50%" style="stop-color:#90caf9;stop-opacity:0.5" />
+                <stop offset="75%" style="stop-color:#64b5f6;stop-opacity:0.7" />
+                <stop offset="100%" style="stop-color:#42a5f5;stop-opacity:0.9" />
+            </linearGradient>
+        </defs>
+        ${svgElements}
+    `;
+
+    // Process each panel
+    panelsToRender.forEach((panel: any) => {
+        let fillColor = "#87CEEB";
         let strokeColor = "#666";
+        let label = "";
 
         switch (panel.type) {
             case "window":
-                fillColor = "#87CEEB";
-                strokeColor = "#3b82f6";
+                fillColor = `url(#${gradientId})`;
+                strokeColor = "#42a5f5";
+                label = "";
                 break;
             case "door":
-                fillColor = "#98FB98";
-                strokeColor = "#f59e0b";
+                fillColor = "#ffecb3";
+                strokeColor = "#ffca28";
+                label = "D";
                 break;
             case "structure":
-                fillColor = "#D3D3D3";
-                strokeColor = "#10b981";
+                fillColor = "#e3f2fd";
+                strokeColor = "#1976d2";
+                label = "F";
                 break;
         }
 
+        // Calculate panel position and size
+        let panelX, panelY, panelWidth, panelHeight;
+
+        // Use left/top percentages if available (preferred method)
+        if (
+            panel.left !== undefined &&
+            panel.top !== undefined &&
+            panel.width !== undefined &&
+            panel.height !== undefined
+        ) {
+            panelX = offsetX + (panel.left / 100) * contentWidth;
+            panelY = offsetY + (panel.top / 100) * contentHeight;
+            panelWidth = (panel.width / 100) * contentWidth;
+            panelHeight = (panel.height / 100) * contentHeight;
+        }
+        // Use actual dimensions in meters if available
+        else if (panel.widthMeters > 0 && panel.heightMeters > 0) {
+            // For panels with absolute positions
+            if (
+                panel.leftMeters !== undefined &&
+                panel.topMeters !== undefined
+            ) {
+                panelX =
+                    offsetX + (panel.leftMeters / wallWidth) * contentWidth;
+                panelY =
+                    offsetY + (panel.topMeters / wallHeight) * contentHeight;
+            }
+            // Fallback to grid-based positioning
+            else {
+                const gridCols = item.designData.cols || 4;
+                const gridRows = item.designData.rows || 3;
+                const cellWidth = contentWidth / gridCols;
+                const cellHeight = contentHeight / gridRows;
+                panelX = offsetX + (panel.col || 0) * cellWidth;
+                panelY = offsetY + (panel.row || 0) * cellHeight;
+            }
+
+            panelWidth = (panel.widthMeters / wallWidth) * contentWidth;
+            panelHeight = (panel.heightMeters / wallHeight) * contentHeight;
+        }
+        // Fallback to grid-based positioning and sizing
+        else {
+            const gridCols =
+                item.designData.cols ||
+                Math.max(
+                    ...panelsToRender.map(
+                        (p: any) => (p.col || 0) + (p.colSpan || 1)
+                    )
+                );
+            const gridRows =
+                item.designData.rows ||
+                Math.max(
+                    ...panelsToRender.map(
+                        (p: any) => (p.row || 0) + (p.rowSpan || 1)
+                    )
+                );
+
+            const cellWidth = contentWidth / gridCols;
+            const cellHeight = contentHeight / gridRows;
+
+            panelX = offsetX + (panel.col || 0) * cellWidth;
+            panelY = offsetY + (panel.row || 0) * cellHeight;
+            panelWidth = cellWidth * (panel.colSpan || 1);
+            panelHeight = cellHeight * (panel.rowSpan || 1);
+        }
+
+        // Draw panel rectangle
         svgElements += `
             <rect x="${panelX}" y="${panelY}" width="${panelWidth}" height="${panelHeight}"
-                  fill="${fillColor}" stroke="${strokeColor}" stroke-width="1" opacity="0.8"/>
+                  fill="${fillColor}" stroke="${strokeColor}" stroke-width="2" rx="3" opacity="0.8"/>
         `;
 
-        // Add panel type label
-        const label =
-            panel.type === "structure"
-                ? "Fixed"
-                : panel.type.charAt(0).toUpperCase() + panel.type.slice(1);
-        svgElements += `
-            <text x="${panelX + panelWidth / 2}" y="${panelY + panelHeight / 2}"
-                  text-anchor="middle" dominant-baseline="middle"
-                  font-size="8" fill="#333">${label}</text>
-        `;
+        // Special handling for windows
+        if (panel.type === "window" && panelWidth > 20 && panelHeight > 20) {
+            // Add window frame lines
+            const frameInset = 2;
+            const innerX = panelX + frameInset;
+            const innerY = panelY + frameInset;
+            const innerWidth = panelWidth - frameInset * 2;
+            const innerHeight = panelHeight - frameInset * 2;
+
+            // Vertical center line
+            svgElements += `
+                <line x1="${innerX + innerWidth / 2}" y1="${innerY}" 
+                      x2="${innerX + innerWidth / 2}" y2="${
+                innerY + innerHeight
+            }"
+                      stroke="${strokeColor}" stroke-width="1.5" opacity="0.9"/>
+            `;
+
+            // Horizontal center line
+            svgElements += `
+                <line x1="${innerX}" y1="${innerY + innerHeight / 2}" 
+                      x2="${innerX + innerWidth}" y2="${
+                innerY + innerHeight / 2
+            }"
+                      stroke="${strokeColor}" stroke-width="1.5" opacity="0.9"/>
+            `;
+        }
+
+        // Add panel label for non-window panels
+        if (label && panelWidth > 25 && panelHeight > 20) {
+            const centerX = panelX + panelWidth / 2;
+            const centerY = panelY + panelHeight / 2;
+            const fontSize = Math.max(
+                10,
+                Math.min(panelWidth, panelHeight) / 4
+            );
+
+            svgElements += `
+                <text x="${centerX}" y="${centerY}"
+                      font-family="Arial, sans-serif" font-size="${fontSize}"
+                      fill="${strokeColor}" text-anchor="middle" font-weight="bold"
+                      dominant-baseline="middle">
+                    ${label}
+                </text>
+            `;
+        }
     });
 
     // Add dimensions
     svgElements += `
-        <text x="${offsetX + scaledWallWidth / 2}" y="${offsetY - 5}"
+        <text x="${offsetX + contentWidth / 2}" y="${offsetY - 5}"
               text-anchor="middle" font-size="10" fill="#666">${wallWidth}m</text>
-        <text x="${offsetX - 5}" y="${offsetY + scaledWallHeight / 2}"
+        <text x="${offsetX - 5}" y="${offsetY + contentHeight / 2}"
               text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#666"
               transform="rotate(-90, ${offsetX - 5}, ${
-        offsetY + scaledWallHeight / 2
+        offsetY + contentHeight / 2
     })">${wallHeight}m</text>
     `;
 
