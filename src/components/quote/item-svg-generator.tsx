@@ -23,14 +23,7 @@ export function ItemSvgGenerator({
             return generateNormalItemSvg(item, width, height);
         }
     }, [
-        item.type,
-        item.width,
-        item.height,
-        item.system,
-        item.leaves,
-        item.designData?.panels,
-        item.designData?.wallWidth,
-        item.designData?.wallHeight,
+        item,
         width,
         height,
     ]);
@@ -187,11 +180,11 @@ function generateCurtainWallSvg(
         return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="#666">No design data</text></svg>`;
     }
 
-    const { panels, wallWidth, wallHeight } = item.designData;
+    const { panels, wallWidth, wallHeight, columns, rows, columnSizes, rowSizes } = item.designData;
 
     // Filter panels to render (exclude merged children but include merged parents)
     const panelsToRender = panels.filter(
-        (panel: any) => !panel.mergedId // Only show panels that aren't merged into another panel
+        (panel) => !panel.mergedId // Only show panels that aren't merged into another panel
     );
 
     if (panelsToRender.length === 0) {
@@ -248,8 +241,40 @@ function generateCurtainWallSvg(
         ${svgElements}
     `;
 
+    // Calculate cumulative positions for non-uniform column and row sizes
+    const totalWidth = columnSizes?.reduce((sum, size) => sum + size, 0) || wallWidth;
+    const totalHeight = rowSizes?.reduce((sum, size) => sum + size, 0) || wallHeight;
+    
+    // Precompute cumulative positions for columns
+    const cumulativeColumnPositions = [0];
+    if (columnSizes && columnSizes.length > 0) {
+        for (let i = 0; i < columnSizes.length; i++) {
+            cumulativeColumnPositions.push(cumulativeColumnPositions[i] + columnSizes[i]);
+        }
+    } else {
+        // Fallback to uniform columns
+        const uniformColumnWidth = wallWidth / (columns || 4);
+        for (let i = 0; i <= (columns || 4); i++) {
+            cumulativeColumnPositions.push(i * uniformColumnWidth);
+        }
+    }
+    
+    // Precompute cumulative positions for rows
+    const cumulativeRowPositions = [0];
+    if (rowSizes && rowSizes.length > 0) {
+        for (let i = 0; i < rowSizes.length; i++) {
+            cumulativeRowPositions.push(cumulativeRowPositions[i] + rowSizes[i]);
+        }
+    } else {
+        // Fallback to uniform rows
+        const uniformRowHeight = wallHeight / (rows || 3);
+        for (let i = 0; i <= (rows || 3); i++) {
+            cumulativeRowPositions.push(i * uniformRowHeight);
+        }
+    }
+
     // Process each panel
-    panelsToRender.forEach((panel: any) => {
+    panelsToRender.forEach((panel) => {
         let fillColor = "#87CEEB";
         let strokeColor = "#666";
         let label = "";
@@ -272,11 +297,30 @@ function generateCurtainWallSvg(
                 break;
         }
 
-        // Calculate panel position and size
+        // Calculate panel position and size using cumulative positioning
         let panelX, panelY, panelWidth, panelHeight;
 
-        // Use left/top percentages if available (preferred method)
-        if (
+        // Use cumulative positioning for non-uniform sizes (primary method)
+        if (panel.col !== undefined && panel.row !== undefined) {
+            const col = Math.min(panel.col, cumulativeColumnPositions.length - 1);
+            const row = Math.min(panel.row, cumulativeRowPositions.length - 1);
+            const colSpan = panel.colSpan || 1;
+            const rowSpan = panel.rowSpan || 1;
+            
+            // Calculate position based on cumulative positions
+            const leftMeters = cumulativeColumnPositions[col];
+            const topMeters = cumulativeRowPositions[row];
+            const rightMeters = cumulativeColumnPositions[Math.min(col + colSpan, cumulativeColumnPositions.length - 1)];
+            const bottomMeters = cumulativeRowPositions[Math.min(row + rowSpan, cumulativeRowPositions.length - 1)];
+            
+            // Convert to SVG coordinates
+            panelX = offsetX + (leftMeters / totalWidth) * contentWidth;
+            panelY = offsetY + (topMeters / totalHeight) * contentHeight;
+            panelWidth = ((rightMeters - leftMeters) / totalWidth) * contentWidth;
+            panelHeight = ((bottomMeters - topMeters) / totalHeight) * contentHeight;
+        }
+        // Use left/top percentages if available (fallback method)
+        else if (
             panel.left !== undefined &&
             panel.top !== undefined &&
             panel.width !== undefined &&
@@ -287,48 +331,23 @@ function generateCurtainWallSvg(
             panelWidth = (panel.width / 100) * contentWidth;
             panelHeight = (panel.height / 100) * contentHeight;
         }
-        // Use actual dimensions in meters if available
+        // Fallback to actual dimensions in meters
         else if (panel.widthMeters > 0 && panel.heightMeters > 0) {
-            // For panels with absolute positions
-            if (
-                panel.leftMeters !== undefined &&
-                panel.topMeters !== undefined
-            ) {
-                panelX =
-                    offsetX + (panel.leftMeters / wallWidth) * contentWidth;
-                panelY =
-                    offsetY + (panel.topMeters / wallHeight) * contentHeight;
-            }
-            // Fallback to grid-based positioning
-            else {
-                const gridCols = item.designData.cols || 4;
-                const gridRows = item.designData.rows || 3;
-                const cellWidth = contentWidth / gridCols;
-                const cellHeight = contentHeight / gridRows;
-                panelX = offsetX + (panel.col || 0) * cellWidth;
-                panelY = offsetY + (panel.row || 0) * cellHeight;
-            }
-
             panelWidth = (panel.widthMeters / wallWidth) * contentWidth;
             panelHeight = (panel.heightMeters / wallHeight) * contentHeight;
+            
+            // Fallback to grid-based positioning
+            const gridCols = columns || 4;
+            const gridRows = rows || 3;
+            const cellWidth = contentWidth / gridCols;
+            const cellHeight = contentHeight / gridRows;
+            panelX = offsetX + (panel.col || 0) * cellWidth;
+            panelY = offsetY + (panel.row || 0) * cellHeight;
         }
-        // Fallback to grid-based positioning and sizing
+        // Final fallback to uniform grid
         else {
-            const gridCols =
-                item.designData.cols ||
-                Math.max(
-                    ...panelsToRender.map(
-                        (p: any) => (p.col || 0) + (p.colSpan || 1)
-                    )
-                );
-            const gridRows =
-                item.designData.rows ||
-                Math.max(
-                    ...panelsToRender.map(
-                        (p: any) => (p.row || 0) + (p.rowSpan || 1)
-                    )
-                );
-
+            const gridCols = columns || 4;
+            const gridRows = rows || 3;
             const cellWidth = contentWidth / gridCols;
             const cellHeight = contentHeight / gridRows;
 

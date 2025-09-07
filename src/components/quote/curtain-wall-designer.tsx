@@ -49,6 +49,8 @@ interface CurtainPanel {
     heightMeters: number;
     left: number;
     top: number;
+    width?: number; // Width percentage (0-100)
+    height?: number; // Height percentage (0-100)
     col: number;
     row: number;
     colSpan: number;
@@ -145,6 +147,94 @@ export function CurtainWallDesigner({
     const [primaryColumnIndex, setPrimaryColumnIndex] = useState(0);
     const [primaryRowIndex, setPrimaryRowIndex] = useState(0);
     const canvasRef = useRef<HTMLDivElement>(null);
+
+    // Translation function between percentage and cumulative positioning
+    const translatePanelPositioning = useCallback((panel: CurtainPanel) => {
+        // If panel has percentage values, convert to cumulative
+        if (panel.left !== undefined && panel.top !== undefined && 
+            panel.width !== undefined && panel.height !== undefined) {
+            
+            const totalWidth = columnSizes.reduce((sum, size) => sum + size, 0);
+            const totalHeight = rowSizes.reduce((sum, size) => sum + size, 0);
+            
+            // Find which column/row this percentage corresponds to
+            let targetCol = 0;
+            let targetRow = 0;
+            let cumulativeLeft = 0;
+            let cumulativeTop = 0;
+            
+            // Find column
+            for (let i = 0; i < columnSizes.length; i++) {
+                const colPercent = (columnSizes[i] / totalWidth) * 100;
+                if (panel.left < cumulativeLeft + colPercent) {
+                    targetCol = i;
+                    break;
+                }
+                cumulativeLeft += colPercent;
+                targetCol = i + 1;
+            }
+            
+            // Find row
+            for (let i = 0; i < rowSizes.length; i++) {
+                const rowPercent = (rowSizes[i] / totalHeight) * 100;
+                if (panel.top < cumulativeTop + rowPercent) {
+                    targetRow = i;
+                    break;
+                }
+                cumulativeTop += rowPercent;
+                targetRow = i + 1;
+            }
+            
+            // Clamp to valid bounds
+            targetCol = Math.min(targetCol, columns - 1);
+            targetRow = Math.min(targetRow, rows - 1);
+            
+            return {
+                ...panel,
+                col: targetCol,
+                row: targetRow,
+                colSpan: 1,
+                rowSpan: 1
+            };
+        }
+        
+        // If panel has cumulative values, convert to percentage
+        if (panel.col !== undefined && panel.row !== undefined) {
+            const totalWidth = columnSizes.reduce((sum, size) => sum + size, 0);
+            const totalHeight = rowSizes.reduce((sum, size) => sum + size, 0);
+            
+            // Calculate cumulative positions
+            let leftPercent = 0;
+            for (let i = 0; i < panel.col; i++) {
+                leftPercent += (columnSizes[i] / totalWidth) * 100;
+            }
+            
+            let topPercent = 0;
+            for (let i = 0; i < panel.row; i++) {
+                topPercent += (rowSizes[i] / totalHeight) * 100;
+            }
+            
+            let widthPercent = 0;
+            for (let i = panel.col; i < panel.col + (panel.colSpan || 1); i++) {
+                widthPercent += (columnSizes[i] / totalWidth) * 100;
+            }
+            
+            let heightPercent = 0;
+            for (let i = panel.row; i < panel.row + (panel.rowSpan || 1); i++) {
+                heightPercent += (rowSizes[i] / totalHeight) * 100;
+            }
+            
+            return {
+                ...panel,
+                left: leftPercent,
+                top: topPercent,
+                width: widthPercent,
+                height: heightPercent
+            };
+        }
+        
+        return panel;
+    }, [columnSizes, rowSizes, columns, rows]);
 
     // Handle initial data loading
     useEffect(() => {
@@ -387,18 +477,55 @@ export function CurtainWallDesigner({
     );
 
     const generateGrid = useCallback(() => {
+        // Ensure column and row sizes are properly initialized
+        const currentColumnSizes = columnSizes.length === columns ? columnSizes : Array(columns).fill(wallWidth / columns);
+        const currentRowSizes = rowSizes.length === rows ? rowSizes : Array(rows).fill(wallHeight / rows);
+        
         const newPanels: CurtainPanel[] = [];
         let panelId = 0;
 
+        // Create a map of existing panel types by position for preservation
+        const existingPanelTypes = new Map<string, "structure" | "window" | "door">();
+        panels.forEach(panel => {
+            // Only consider non-merged panels for type preservation
+            if (!panel.mergedId && panel.colSpan === 1 && panel.rowSpan === 1) {
+                const key = `${panel.col},${panel.row}`;
+                existingPanelTypes.set(key, panel.type);
+            }
+        });
+
         for (let row = 0; row < rows; row++) {
             for (let col = 0; col < columns; col++) {
+                const key = `${col},${row}`;
+                const existingType = existingPanelTypes.get(key);
+                
+                // Calculate position based on custom sizes
+                const totalWidth = currentColumnSizes.reduce((sum, size) => sum + size, 0);
+                const totalHeight = currentRowSizes.reduce((sum, size) => sum + size, 0);
+                
+                let leftPercent = 0;
+                for (let i = 0; i < col; i++) {
+                    leftPercent += (currentColumnSizes[i] / totalWidth) * 100;
+                }
+                
+                let topPercent = 0;
+                for (let i = 0; i < row; i++) {
+                    topPercent += (currentRowSizes[i] / totalHeight) * 100;
+                }
+                
+                // Calculate width and height percentages
+                const widthPercent = (currentColumnSizes[col] / totalWidth) * 100;
+                const heightPercent = (currentRowSizes[row] / totalHeight) * 100;
+                
                 const panel: CurtainPanel = {
                     id: `panel-${panelId}`,
-                    type: "structure",
-                    widthMeters: columnSizes[col] || wallWidth / columns,
-                    heightMeters: rowSizes[row] || wallHeight / rows,
-                    left: col * (100 / columns),
-                    top: row * (100 / rows),
+                    type: existingType || "structure", // Preserve existing type or default to structure
+                    widthMeters: currentColumnSizes[col] || wallWidth / columns,
+                    heightMeters: currentRowSizes[row] || wallHeight / rows,
+                    left: leftPercent,
+                    top: topPercent,
+                    width: widthPercent,
+                    height: heightPercent,
                     col,
                     row,
                     colSpan: 1,
@@ -430,35 +557,26 @@ export function CurtainWallDesigner({
         material,
         glassType,
         frameColor,
+        panels, // Add panels to dependencies to access existing types
     ]);
 
     // Update column sizes when columns change
     useEffect(() => {
-        // Only reset sizes if we don't have initial data or if sizes are empty
-        if (
-            !initialDesignData?.columnSizes ||
-            initialDesignData.columnSizes.length === 0
-        ) {
-            const newColumnSizes = Array(columns).fill(wallWidth / columns);
-            setColumnSizes(newColumnSizes);
-        }
+        // Always update column sizes when columns change
+        const newColumnSizes = Array(columns).fill(wallWidth / columns);
+        setColumnSizes(newColumnSizes);
         // Show custom sizes when grid changes
         setShowCustomSizes(true);
-    }, [columns, wallWidth, initialDesignData?.columnSizes?.length]);
+    }, [columns, wallWidth]);
 
     // Update row sizes when rows change
     useEffect(() => {
-        // Only reset sizes if we don't have initial data or if sizes are empty
-        if (
-            !initialDesignData?.rowSizes ||
-            initialDesignData.rowSizes.length === 0
-        ) {
-            const newRowSizes = Array(rows).fill(wallHeight / rows);
-            setRowSizes(newRowSizes);
-        }
+        // Always update row sizes when rows change
+        const newRowSizes = Array(rows).fill(wallHeight / rows);
+        setRowSizes(newRowSizes);
         // Show custom sizes when grid changes
         setShowCustomSizes(true);
-    }, [rows, wallHeight, initialDesignData?.rowSizes?.length]);
+    }, [rows, wallHeight]);
 
     // Handle custom column size changes
     const handleColumnSizeChange = (index: number, value: number) => {
@@ -577,7 +695,7 @@ export function CurtainWallDesigner({
         addDesignState("reset_sizes", "Reset to equal column and row sizes");
     };
 
-    // Initialize grid when dimensions change (only if no initial data)
+    // Initialize grid when dimensions change
     useEffect(() => {
         if (
             !initialDesignData?.panels ||
@@ -585,8 +703,17 @@ export function CurtainWallDesigner({
         ) {
             generateGrid();
         } else {
-            // If we have initial data, just calculate the design with existing panels
-            calculateDesign(panels, columns, rows);
+            // If we have initial data, check if columns or rows have changed
+            const currentColumns = initialDesignData.columns || 4;
+            const currentRows = initialDesignData.rows || 3;
+            
+            if (columns !== currentColumns || rows !== currentRows) {
+                // Columns or rows have changed, regenerate the grid
+                generateGrid();
+            } else {
+                // Just calculate the design with existing panels
+                calculateDesign(panels, columns, rows);
+            }
         }
     }, [initialDesignData?.panels, columns, rows]);
 
@@ -716,8 +843,27 @@ export function CurtainWallDesigner({
                 0
             );
 
-        master.left = minCol * (100 / columns);
-        master.top = minRow * (100 / rows);
+        // Calculate position percentages using cumulative positioning
+        const totalWidth = columnSizes.reduce((sum, size) => sum + size, 0);
+        const totalHeight = rowSizes.reduce((sum, size) => sum + size, 0);
+        
+        let leftPercent = 0;
+        for (let i = 0; i < minCol; i++) {
+            leftPercent += (columnSizes[i] / totalWidth) * 100;
+        }
+        
+        let topPercent = 0;
+        for (let i = 0; i < minRow; i++) {
+            topPercent += (rowSizes[i] / totalHeight) * 100;
+        }
+        
+        const widthPercent = (combinedWidth / totalWidth) * 100;
+        const heightPercent = (combinedHeight / totalHeight) * 100;
+        
+        master.left = leftPercent;
+        master.top = topPercent;
+        master.width = widthPercent;
+        master.height = heightPercent;
         master.widthMeters = combinedWidth;
         master.heightMeters = combinedHeight;
 
@@ -774,13 +920,33 @@ export function CurtainWallDesigner({
             for (let r = row; r < row + rowSpan; r++) {
                 for (let c = col; c < col + colSpan; c++) {
                     const panelId = `panel-${Date.now()}-${r}-${c}`;
+                    
+                    // Calculate position percentages using cumulative positioning
+                    const totalWidth = columnSizes.reduce((sum, size) => sum + size, 0);
+                    const totalHeight = rowSizes.reduce((sum, size) => sum + size, 0);
+                    
+                    let leftPercent = 0;
+                    for (let i = 0; i < c; i++) {
+                        leftPercent += (columnSizes[i] / totalWidth) * 100;
+                    }
+                    
+                    let topPercent = 0;
+                    for (let i = 0; i < r; i++) {
+                        topPercent += (rowSizes[i] / totalHeight) * 100;
+                    }
+                    
+                    const widthPercent = (columnSizes[c] / totalWidth) * 100;
+                    const heightPercent = (rowSizes[r] / totalHeight) * 100;
+                    
                     const newPanel: CurtainPanel = {
                         id: panelId,
                         type,
                         widthMeters: columnSizes[c] || wallWidth / columns,
                         heightMeters: rowSizes[r] || wallHeight / rows,
-                        left: c * (100 / columns),
-                        top: r * (100 / rows),
+                        left: leftPercent,
+                        top: topPercent,
+                        width: widthPercent,
+                        height: heightPercent,
                         col: c,
                         row: r,
                         colSpan: 1,
@@ -910,6 +1076,8 @@ export function CurtainWallDesigner({
                         heightMeters: wallHeight / preset.rows,
                         left: col * (100 / preset.columns),
                         top: row * (100 / preset.rows),
+                        width: 100 / preset.columns,
+                        height: 100 / preset.rows,
                         col,
                         row,
                         colSpan: 1,
@@ -929,33 +1097,19 @@ export function CurtainWallDesigner({
     };
 
     const getPanelStyle = (panel: CurtainPanel) => {
-        // Calculate position and size based on custom sizes
-        const totalWidth = columnSizes.reduce((sum, size) => sum + size, 0);
-        const totalHeight = rowSizes.reduce((sum, size) => sum + size, 0);
+        // Translate panel positioning to ensure we have percentage values
+        const translatedPanel = translatePanelPositioning(panel);
+        
+        // Use the translated percentage values
+        const leftPercent = translatedPanel.left || 0;
+        const topPercent = translatedPanel.top || 0;
+        const widthPercent = translatedPanel.width || 0;
+        const heightPercent = translatedPanel.height || 0;
 
-        // Calculate left position based on column sizes
-        let leftPercent = 0;
-        for (let i = 0; i < panel.col; i++) {
-            leftPercent += (columnSizes[i] / totalWidth) * 100;
-        }
-
-        // Calculate top position based on row sizes
-        let topPercent = 0;
-        for (let i = 0; i < panel.row; i++) {
-            topPercent += (rowSizes[i] / totalHeight) * 100;
-        }
-
-        // Calculate width based on column spans
-        let widthPercent = 0;
-        for (let i = panel.col; i < panel.col + panel.colSpan; i++) {
-            widthPercent += (columnSizes[i] / totalWidth) * 100;
-        }
-
-        // Calculate height based on row spans
-        let heightPercent = 0;
-        for (let i = panel.row; i < panel.row + panel.rowSpan; i++) {
-            heightPercent += (rowSizes[i] / totalHeight) * 100;
-        }
+        // Adjust font size and padding based on panel size to ensure readability
+        const panelArea = widthPercent * heightPercent;
+        const fontSize = panelArea > 4 ? "0.75rem" : panelArea > 2 ? "0.65rem" : "0.55rem";
+        const padding = panelArea > 4 ? "12px" : panelArea > 2 ? "8px" : "4px";
 
         const baseStyle = {
             position: "absolute" as const,
@@ -971,8 +1125,8 @@ export function CurtainWallDesigner({
             alignItems: "center",
             justifyContent: "center",
             flexDirection: "column" as const,
-            padding: "12px",
-            fontSize: "0.75rem",
+            padding: padding,
+            fontSize: fontSize,
             fontWeight: 600,
             boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
             background:
@@ -1028,16 +1182,19 @@ export function CurtainWallDesigner({
         };
     };
 
-    const getPanelIcon = (type: string) => {
+    const getPanelIcon = (type: string, panelArea?: number) => {
+        // Adjust icon size based on panel area
+        const iconSize = panelArea && panelArea < 2 ? "h-3 w-3" : panelArea && panelArea < 4 ? "h-4 w-4" : "h-5 w-5";
+        
         switch (type) {
             case "structure":
-                return <Square className="h-5 w-5" />;
+                return <Square className={iconSize} />;
             case "window":
-                return <Layout className="h-5 w-5" />;
+                return <Layout className={iconSize} />;
             case "door":
-                return <DoorOpen className="h-5 w-5" />;
+                return <DoorOpen className={iconSize} />;
             default:
-                return <Square className="h-5 w-5" />;
+                return <Square className={iconSize} />;
         }
     };
 
@@ -1530,11 +1687,20 @@ export function CurtainWallDesigner({
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="relative border-2 border-dashed border-gray-300 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 min-h-[500px] p-4">
+                                    <div 
+                                        className="relative border-2 border-dashed border-gray-300 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 p-4"
+                                        style={{
+                                            minHeight: "600px", // Fixed minimum height
+                                        }}
+                                    >
                                         <div
                                             ref={canvasRef}
-                                            className="relative w-full h-[500px] bg-white rounded-lg shadow-inner"
+                                            className="relative bg-white rounded-lg shadow-inner mx-auto"
                                             style={{
+                                                width: "100%",
+                                                height: `${Math.min(600, (wallHeight / wallWidth) * 800)}px`, // Maintain aspect ratio with constraints
+                                                maxWidth: "800px", // Maximum width to prevent overflow
+                                                maxHeight: "600px", // Maximum height to prevent overflow
                                                 transform: `scale(${zoom})`,
                                                 transformOrigin: "top left",
                                             }}
@@ -1609,54 +1775,63 @@ export function CurtainWallDesigner({
                                             )}
 
                                             {/* Panels */}
-                                            {panels.map((panel) => (
-                                                <div
-                                                    key={panel.id}
-                                                    style={getPanelStyle(panel)}
-                                                    onClick={(e) =>
-                                                        handlePanelClick(
-                                                            panel.id,
-                                                            e
-                                                        )
-                                                    }
-                                                    className="hover:scale-105 hover:shadow-lg hover:z-10 relative"
-                                                >
-                                                    <div className="flex flex-col items-center gap-1">
-                                                        {getPanelIcon(
-                                                            panel.type
-                                                        )}
-                                                        <span className="text-xs font-medium text-center leading-tight">
-                                                            {panel.type ===
-                                                            "structure"
-                                                                ? "Fixed"
-                                                                : panel.type
-                                                                      .charAt(0)
-                                                                      .toUpperCase() +
-                                                                  panel.type.slice(
-                                                                      1
-                                                                  )}
-                                                        </span>
-                                                        <div className="text-[10px] text-muted-foreground text-center">
-                                                            {panel.widthMeters.toFixed(
-                                                                1
+                                            {panels.map((panel) => {
+                                                // Calculate panel area for responsive sizing
+                                                const totalWidth = columnSizes.reduce((sum, size) => sum + size, 0);
+                                                const totalHeight = rowSizes.reduce((sum, size) => sum + size, 0);
+                                                let widthPercent = 0;
+                                                for (let i = panel.col; i < panel.col + panel.colSpan; i++) {
+                                                    widthPercent += (columnSizes[i] / totalWidth) * 100;
+                                                }
+                                                let heightPercent = 0;
+                                                for (let i = panel.row; i < panel.row + panel.rowSpan; i++) {
+                                                    heightPercent += (rowSizes[i] / totalHeight) * 100;
+                                                }
+                                                const panelArea = widthPercent * heightPercent;
+                                                
+                                                return (
+                                                    <div
+                                                        key={panel.id}
+                                                        style={getPanelStyle(panel)}
+                                                        onClick={(e) =>
+                                                            handlePanelClick(
+                                                                panel.id,
+                                                                e
+                                                            )
+                                                        }
+                                                        className="hover:scale-105 hover:shadow-lg hover:z-10 relative"
+                                                    >
+                                                        <div className="flex flex-col items-center gap-1">
+                                                            {getPanelIcon(panel.type, panelArea)}
+                                                            <span className={`font-medium text-center leading-tight ${
+                                                                panelArea < 2 ? "text-[8px]" : 
+                                                                panelArea < 4 ? "text-[10px]" : "text-xs"
+                                                            }`}>
+                                                                {panel.type === "structure"
+                                                                    ? "Fixed"
+                                                                    : panel.type.charAt(0).toUpperCase() + panel.type.slice(1)}
+                                                            </span>
+                                                            {panelArea > 2 && (
+                                                                <div className={`text-muted-foreground text-center ${
+                                                                    panelArea < 4 ? "text-[8px]" : "text-[10px]"
+                                                                }`}>
+                                                                    {panel.widthMeters.toFixed(1)}×{panel.heightMeters.toFixed(1)}m
+                                                                </div>
                                                             )}
-                                                            ×
-                                                            {panel.heightMeters.toFixed(
-                                                                1
+                                                            {panel.mergedId && panelArea > 2 && (
+                                                                <Badge
+                                                                    variant="secondary"
+                                                                    className={`px-1 py-0 ${
+                                                                        panelArea < 4 ? "text-[8px]" : "text-[10px]"
+                                                                    }`}
+                                                                >
+                                                                    Merged
+                                                                </Badge>
                                                             )}
-                                                            m
                                                         </div>
-                                                        {panel.mergedId && (
-                                                            <Badge
-                                                                variant="secondary"
-                                                                className="text-[10px] px-1 py-0"
-                                                            >
-                                                                Merged
-                                                            </Badge>
-                                                        )}
                                                     </div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                         <div className="text-center text-sm text-muted-foreground mt-3">
                                             Hold Ctrl/Cmd and click to select

@@ -5,6 +5,8 @@ export interface CurtainPanel {
     heightMeters: number;
     left: number;
     top: number;
+    width?: number; // Width percentage (0-100)
+    height?: number; // Height percentage (0-100)
     col: number;
     row: number;
     colSpan: number;

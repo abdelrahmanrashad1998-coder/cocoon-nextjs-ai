@@ -85,14 +85,69 @@ export function QuotePreview({
                 svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWallWidth}" height="${scaledWallHeight}" fill="none" stroke="#374151" stroke-width="1"/>`;
 
                 panels.forEach((panel) => {
-                    const panelX =
-                        offsetX + (panel.left / 100) * scaledWallWidth;
-                    const panelY =
-                        offsetY + (panel.top / 100) * scaledWallHeight;
-                    const panelWidth =
-                        (panel.widthMeters / wallWidth) * scaledWallWidth;
-                    const panelHeight =
-                        (panel.heightMeters / wallHeight) * scaledWallHeight;
+                    // Use cumulative positioning for non-uniform sizes (primary method)
+                    let panelX, panelY, panelWidth, panelHeight;
+                    
+                    if (panel.col !== undefined && panel.row !== undefined) {
+                        // Calculate cumulative positions for columns
+                        const totalWidth = wallWidth;
+                        const totalHeight = wallHeight;
+                        const cumulativeColumnPositions = [0];
+                        const cumulativeRowPositions = [0];
+                        
+                        // Build cumulative positions based on column/row sizes if available
+                        if (item.designData?.columnSizes && item.designData.columnSizes.length > 0) {
+                            for (let i = 0; i < item.designData.columnSizes.length; i++) {
+                                cumulativeColumnPositions.push(cumulativeColumnPositions[i] + item.designData.columnSizes[i]);
+                            }
+                        } else {
+                            const uniformColumnWidth = wallWidth / (item.designData?.columns || 4);
+                            for (let i = 0; i <= (item.designData?.columns || 4); i++) {
+                                cumulativeColumnPositions.push(i * uniformColumnWidth);
+                            }
+                        }
+                        
+                        if (item.designData?.rowSizes && item.designData.rowSizes.length > 0) {
+                            for (let i = 0; i < item.designData.rowSizes.length; i++) {
+                                cumulativeRowPositions.push(cumulativeRowPositions[i] + item.designData.rowSizes[i]);
+                            }
+                        } else {
+                            const uniformRowHeight = wallHeight / (item.designData?.rows || 3);
+                            for (let i = 0; i <= (item.designData?.rows || 3); i++) {
+                                cumulativeRowPositions.push(i * uniformRowHeight);
+                            }
+                        }
+                        
+                        const col = Math.min(panel.col, cumulativeColumnPositions.length - 1);
+                        const row = Math.min(panel.row, cumulativeRowPositions.length - 1);
+                        const colSpan = panel.colSpan || 1;
+                        const rowSpan = panel.rowSpan || 1;
+                        
+                        // Calculate position based on cumulative positions
+                        const leftMeters = cumulativeColumnPositions[col];
+                        const topMeters = cumulativeRowPositions[row];
+                        const rightMeters = cumulativeColumnPositions[Math.min(col + colSpan, cumulativeColumnPositions.length - 1)];
+                        const bottomMeters = cumulativeRowPositions[Math.min(row + rowSpan, cumulativeRowPositions.length - 1)];
+                        
+                        // Convert to SVG coordinates
+                        panelX = offsetX + (leftMeters / totalWidth) * scaledWallWidth;
+                        panelY = offsetY + (topMeters / totalHeight) * scaledWallHeight;
+                        panelWidth = ((rightMeters - leftMeters) / totalWidth) * scaledWallWidth;
+                        panelHeight = ((bottomMeters - topMeters) / totalHeight) * scaledWallHeight;
+                    } else if (panel.left !== undefined && panel.top !== undefined && 
+                        panel.width !== undefined && panel.height !== undefined) {
+                        // Fallback to percentage-based positioning
+                        panelX = offsetX + (panel.left / 100) * scaledWallWidth;
+                        panelY = offsetY + (panel.top / 100) * scaledWallHeight;
+                        panelWidth = (panel.width / 100) * scaledWallWidth;
+                        panelHeight = (panel.height / 100) * scaledWallHeight;
+                    } else {
+                        // Final fallback to meter-based positioning
+                        panelWidth = (panel.widthMeters / wallWidth) * scaledWallWidth;
+                        panelHeight = (panel.heightMeters / wallHeight) * scaledWallHeight;
+                        panelX = offsetX + (panel.left / 100) * scaledWallWidth;
+                        panelY = offsetY + (panel.top / 100) * scaledWallHeight;
+                    }
 
                     let fillColor = "#87CEEB";
                     let strokeColor = "#666";
