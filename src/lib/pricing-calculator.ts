@@ -16,7 +16,7 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
               profile_name: raw.profile.name,
               frame_price: Number(raw.profile.frame_price || 0),
               frame_price_3: Number(raw.profile.frame_price_3 || 0),
-              leaf_price: Number(raw.profile.leaf_price || 0),
+              leaf_price: Number(raw.profile.sach_price || 0),
               accessories_2_leaves: Number(
                   raw.profile.accessories_2_leaves || 0
               ),
@@ -29,7 +29,7 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
               glass_price_single: Number(raw.profile.glass_price_single || 0),
               glass_price_double: Number(raw.profile.glass_price_double || 0),
               arc_price: Number(raw.profile.arc_price || 0),
-              net_price: Number(raw.profile.net_price || 0),
+              net_price: Number(raw.profile.net_price_panda || 0),
               net_price_plisse: Number(raw.profile.net_price_plisse || 0),
               net_price_panda: Number(raw.profile.net_price_panda || 0),
               base_profit_rate: Number(raw.profile.base_profit_rate || 0),

@@ -17,8 +17,8 @@ import { AluminiumProfile } from "./profile/profile-manager";
 //    system_type: string;
 //    frame_price: number;
 //    frame_price_3: number;
-//    net_price: number;
-//    leaf_price: number;
+//    net_price_panda: number;
+//    sach_price: number;
 //    kg_price: number;
 //    base_profit_rate: number;
 //}
@@ -42,6 +42,13 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
     onEdit,
     onDelete,
 }) => {
+    // Debug: Log the profile data to see what's available
+    console.log("ProfileCard received profile:", profile);
+    console.log("Net price fields:", {
+        net_price_panda: profile.net_price_panda,
+        mosquito_price_fixed: profile.mosquito_price_fixed,
+        net_price: profile.net_price
+    });
     const isSelected = selectedProfile?.id === profile.id;
 
     return (
@@ -141,7 +148,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                         </div>
                         <div className="flex items-baseline gap-1">
                             <span className="text-2xl font-bold text-emerald-700">
-                                {profile.net_price?.toFixed(2) || "0.00"}
+                                {(profile.net_price_panda || profile.mosquito_price_fixed || profile.net_price || 0)?.toFixed(2) || "0.00"}
                             </span>
                             <span className="text-sm text-emerald-600 font-medium">
                                 EGP
@@ -151,11 +158,11 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
 
                     <div className="group/price bg-gradient-to-br flex flex-col items-center justify-center from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100 hover:border-amber-200 transition-colors">
                         <div className="text-xs font-medium text-amber-600 mb-1 uppercase tracking-wide">
-                            Leaf Price
+                            Sach Price
                         </div>
                         <div className="flex items-baseline gap-1">
                             <span className="text-2xl font-bold text-amber-700">
-                                {profile.leaf_price?.toFixed(2) || "0.00"}
+                                {profile.sach_price?.toFixed(2) || "0.00"}
                             </span>
                             <span className="text-sm text-amber-600 font-medium">
                                 EGP

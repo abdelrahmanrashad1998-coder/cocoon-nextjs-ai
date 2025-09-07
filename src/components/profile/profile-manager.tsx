@@ -81,9 +81,11 @@ export interface AluminiumProfile {
     max_w: number;
     base_profit_rate: number;
     
+    // Glass prices
+    glass_price_single: number;
+    glass_price_double: number;
+    
     // Legacy fields for backward compatibility
-    glass_price_single?: number;
-    glass_price_double?: number;
     weight_6m?: number;
     frame_meters_input?: number;
     windows_meters_input?: number;
@@ -237,7 +239,7 @@ export default function ProfileManager({
                     mosquito_weight: data.mosquito_weight || 0,
                     mosquito_price_fixed: data.mosquito_price_fixed || 0,
                     mosquito_price_plisse: data.mosquito_price_plisse || 0,
-                    net_price_panda: data.net_price_panda || 0,
+                    net_price_panda: data.net_price_panda || data.mosquito_price_fixed || data.net_price || 0,
                     
                     // Arc weights and prices
                     arc_trave_weight: data.arc_trave_weight || 0,
@@ -254,9 +256,11 @@ export default function ProfileManager({
                     max_w: data.max_w || 0,
                     base_profit_rate: data.base_profit_rate || 0,
                     
-                    // Legacy fields for backward compatibility
+                    // Glass prices
                     glass_price_single: data.glass_price_single || 0,
                     glass_price_double: data.glass_price_double || 0,
+                    
+                    // Legacy fields for backward compatibility
                     weight_6m: data.weight_6m || 0,
                     frame_meters_input: data.frame_meters_input || 0,
                     windows_meters_input: data.windows_meters_input || 0,
@@ -339,9 +343,11 @@ export default function ProfileManager({
                 max_w: createForm.max_w || 0,
                 base_profit_rate: createForm.base_profit_rate || 0,
                 
-                // Legacy fields for backward compatibility
+                // Glass prices
                 glass_price_single: createForm.glass_price_single || 0,
                 glass_price_double: createForm.glass_price_double || 0,
+                
+                // Legacy fields for backward compatibility
                 weight_6m: createForm.weight_6m || 0,
                 frame_meters_input: createForm.frame_meters_input || 0,
                 windows_meters_input: createForm.windows_meters_input || 0,
@@ -411,9 +417,11 @@ export default function ProfileManager({
                 max_w: editingProfile.max_w || 0,
                 base_profit_rate: editingProfile.base_profit_rate || 0,
                 
-                // Legacy fields for backward compatibility
+                // Glass prices
                 glass_price_single: editingProfile.glass_price_single || 0,
                 glass_price_double: editingProfile.glass_price_double || 0,
+                
+                // Legacy fields for backward compatibility
                 weight_6m: editingProfile.weight_6m || 0,
                 frame_meters_input: editingProfile.frame_meters_input || 0,
                 windows_meters_input: editingProfile.windows_meters_input || 0,
@@ -508,7 +516,9 @@ export default function ProfileManager({
                 "system",
                 "max_h",
                 "max_w",
-                "base_profit_rate"
+                "base_profit_rate",
+                "glass_price_single",
+                "glass_price_double"
             ],
             ...profiles.map((profile) => [
                 profile.code,
@@ -533,7 +543,9 @@ export default function ProfileManager({
                 profile.system,
                 profile.max_h,
                 profile.max_w,
-                profile.base_profit_rate
+                profile.base_profit_rate,
+                profile.glass_price_single,
+                profile.glass_price_double
             ]),
         ]
             .map((row) => row.join(","))
@@ -550,11 +562,11 @@ export default function ProfileManager({
 
     // Download sample CSV template
     const downloadSampleCSV = () => {
-        const sampleData = `profile_code,brand,profile_name,kg_price,frame_weight_2_4_sach,frame_price,frame_weight_3_sach,frame_price_3,sach_weight,sach_price,mosquito_weight,mosquito_price_fixed,mosquito_price_plisse,net_price_panda,arc_trave_weight,arc_price,accessories_2_sach,accessories_3_sach,accessories_4_sach,system,max_h,max_w,base_profit_rate
-AL001,Cocoon,Standard Sliding Window,15.50,25.00,64.58,30.00,193.75,20.00,50.00,15.00,200.00,250.00,300.00,10.00,150.00,50.00,75.00,100.00,sliding,2.5,1.5,30
-AL002,Cocoon,Premium Hinged Door,18.00,30.00,90.00,35.00,270.00,25.00,60.00,18.00,250.00,300.00,350.00,12.00,200.00,60.00,90.00,120.00,hinged,3.0,2.0,35
-AL003,Cocoon,Curtain Wall System,20.00,35.00,116.67,40.00,350.00,30.00,70.00,20.00,300.00,350.00,400.00,15.00,250.00,80.00,120.00,160.00,curtain_wall,4.0,3.0,40
-AL004,Alumil,Classic Window Series,16.00,22.00,58.67,28.00,176.00,18.00,45.00,16.00,180.00,220.00,280.00,8.00,120.00,55.00,85.00,110.00,sliding,2.0,1.2,32
+        const sampleData = `profile_code,brand,profile_name,kg_price,frame_weight_2_4_sach,frame_price,frame_weight_3_sach,frame_price_3,sach_weight,sach_price,mosquito_weight,mosquito_price_fixed,mosquito_price_plisse,net_price_panda,arc_trave_weight,arc_price,accessories_2_sach,accessories_3_sach,accessories_4_sach,system,max_h,max_w,base_profit_rate,glass_price_single,glass_price_double
+AL001,Cocoon,Standard Sliding Window,15.50,25.00,64.58,30.00,193.75,20.00,50.00,15.00,200.00,250.00,300.00,10.00,150.00,50.00,75.00,100.00,sliding,2.5,1.5,30,120.00,180.00
+AL002,Cocoon,Premium Hinged Door,18.00,30.00,90.00,35.00,270.00,25.00,60.00,18.00,250.00,300.00,350.00,12.00,200.00,60.00,90.00,120.00,hinged,3.0,2.0,35,150.00,220.00
+AL003,Cocoon,Curtain Wall System,20.00,35.00,116.67,40.00,350.00,30.00,70.00,20.00,300.00,350.00,400.00,15.00,250.00,80.00,120.00,160.00,curtain_wall,4.0,3.0,40,200.00,300.00
+AL004,Alumil,Classic Window Series,16.00,22.00,58.67,28.00,176.00,18.00,45.00,16.00,180.00,220.00,280.00,8.00,120.00,55.00,85.00,110.00,sliding,2.0,1.2,32,100.00,160.00
 AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00,220.00,280.00,320.00,11.00,180.00,65.00,100.00,130.00,hinged,2.8,1.8,38`;
 
         const blob = new Blob([sampleData], { type: "text/csv" });
@@ -665,6 +677,8 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                             "max_h",
                             "max_w",
                             "base_profit_rate",
+                            "glass_price_single",
+                            "glass_price_double",
                             // Legacy fields
                             "weight_6m",
                             "frame_meters_input",
@@ -711,13 +725,13 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                             
                             // Sach weights and prices
                             sach_weight: profile.sach_weight || 0,
-                            sach_price: profile.sach_price || 0,
+                            sach_price: profile.sach_price || profile.leaf_price || 0,
                             
                             // Mosquito weights and prices
                             mosquito_weight: profile.mosquito_weight || 0,
                             mosquito_price_fixed: profile.mosquito_price_fixed || 0,
                             mosquito_price_plisse: profile.mosquito_price_plisse || 0,
-                            net_price_panda: profile.net_price_panda || 0,
+                            net_price_panda: profile.net_price_panda || profile.mosquito_price_fixed || profile.net_price || 0,
                             
                             // Arc weights and prices
                             arc_trave_weight: profile.arc_trave_weight || 0,
@@ -734,9 +748,11 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                             max_w: profile.max_w || 0,
                             base_profit_rate: profile.base_profit_rate || 0,
                             
-                            // Legacy fields for backward compatibility
+                            // Glass prices
                             glass_price_single: profile.glass_price_single || 0,
                             glass_price_double: profile.glass_price_double || 0,
+                            
+                            // Legacy fields for backward compatibility
                             weight_6m: profile.weight_6m || 0,
                             frame_meters_input: profile.frame_meters_input || 0,
                             windows_meters_input: profile.windows_meters_input || 0,
@@ -956,7 +972,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
         return pricePerMeter * frameMetersInput;
     };
 
-    const calculateWindowsPrice = (kgPrice: number, weight6m: number, windowsMetersInput: number) => {
+    const calculateSachPrice = (kgPrice: number, weight6m: number, windowsMetersInput: number) => {
         const pricePerMeter = (kgPrice * weight6m) / 6;
         return pricePerMeter * windowsMetersInput;
     };
@@ -970,7 +986,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
         const pricePerMeter = (kgPrice * weight6m) / 6;
         return {
             framePrice: pricePerMeter * frameMetersInput,
-            windowsPrice: pricePerMeter * windowsMetersInput,
+            sachPrice: pricePerMeter * windowsMetersInput,
             framePrice3Leaves: pricePerMeter * frameMeters3LeavesInput,
             leafPrice: pricePerMeter, // Default leaf price calculation
         };
@@ -1006,18 +1022,18 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
         const weight6m = isEdit ? editingProfile?.weight_6m : createForm.weight_6m;
 
         if (form && kgPrice && weight6m) {
-            const windowsPrice = calculateWindowsPrice(kgPrice, weight6m, value);
+            const sachPrice = calculateSachPrice(kgPrice, weight6m, value);
             if (isEdit && editingProfile) {
                 setEditingProfile({
                     ...editingProfile,
                     windows_meters_input: value,
-                    leaf_price: windowsPrice, // Assuming windows price maps to leaf price
+                    leaf_price: sachPrice, // Sach price maps to leaf price
                 });
             } else {
                 setCreateForm({
                     ...createForm,
                     windows_meters_input: value,
-                    leaf_price: windowsPrice,
+                    leaf_price: sachPrice,
                 });
             }
         }
@@ -1062,7 +1078,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                     kg_price: value,
                     frame_price: prices.framePrice,
                     frame_price_3: prices.framePrice3Leaves,
-                    leaf_price: prices.leafPrice,
+                    leaf_price: prices.sachPrice,
                 });
             } else {
                 setCreateForm({
@@ -1070,7 +1086,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                     kg_price: value,
                     frame_price: prices.framePrice,
                     frame_price_3: prices.framePrice3Leaves,
-                    leaf_price: prices.leafPrice,
+                    leaf_price: prices.sachPrice,
                 });
             }
         }
@@ -1091,7 +1107,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                     weight_6m: value,
                     frame_price: prices.framePrice,
                     frame_price_3: prices.framePrice3Leaves,
-                    leaf_price: prices.leafPrice,
+                    leaf_price: prices.sachPrice,
                 });
             } else {
                 setCreateForm({
@@ -1099,7 +1115,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                     weight_6m: value,
                     frame_price: prices.framePrice,
                     frame_price_3: prices.framePrice3Leaves,
-                    leaf_price: prices.leafPrice,
+                    leaf_price: prices.sachPrice,
                 });
             }
         }
@@ -2278,22 +2294,53 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="flex gap-2 mt-6">
-                            <Button
-                                onClick={createProfile}
-                                className="flex items-center gap-2"
-                            >
-                                <Save className="h-4 w-4" />
-                                Create Profile
-                            </Button>
-                            <Button
-                                variant="outline"
-                                onClick={() => setShowCreateModal(false)}
-                            >
-                                Cancel
-                            </Button>
+                            {/* Glass Prices */}
+                            <div>
+                                <h4 className="font-medium mb-3">Glass Prices</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Glass Price Single</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.glass_price_single || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("glass_price_single", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Glass Price Double</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.glass_price_double || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("glass_price_double", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2 mt-6">
+                                <Button
+                                    onClick={createProfile}
+                                    className="flex items-center gap-2"
+                                >
+                                    <Save className="h-4 w-4" />
+                                    Create Profile
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setShowCreateModal(false)}
+                                >
+                                    Cancel
+                                </Button>
                         </div>
                     </div>
                 </div>
@@ -2659,22 +2706,53 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="flex gap-2 mt-6">
-                            <Button
-                                onClick={updateProfile}
-                                className="flex items-center gap-2"
-                            >
-                                <Save className="h-4 w-4" />
-                                Update Profile
-                            </Button>
-                            <Button
-                                variant="outline"
-                                onClick={() => setShowEditModal(false)}
-                            >
-                                Cancel
-                            </Button>
+                            {/* Glass Prices */}
+                            <div>
+                                <h4 className="font-medium mb-3">Glass Prices</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Glass Price Single</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.glass_price_single || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("glass_price_single", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Glass Price Double</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.glass_price_double || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("glass_price_double", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2 mt-6">
+                                <Button
+                                    onClick={updateProfile}
+                                    className="flex items-center gap-2"
+                                >
+                                    <Save className="h-4 w-4" />
+                                    Update Profile
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setShowEditModal(false)}
+                                >
+                                    Cancel
+                                </Button>
                         </div>
                     </div>
                 </div>
