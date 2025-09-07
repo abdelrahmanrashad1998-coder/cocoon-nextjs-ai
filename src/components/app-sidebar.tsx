@@ -13,6 +13,7 @@ import {
     IconCalculator,
     IconClipboardList,
     IconUserCheck,
+    IconUsersGroup,
 } from "@tabler/icons-react";
 import Link from "next/link";
 
@@ -47,6 +48,11 @@ const data = {
             title: "Quotes",
             url: "/quotes",
             icon: IconFileDescription,
+        },
+        {
+            title: "Client Management",
+            url: "/clients",
+            icon: IconUsersGroup,
         },
         {
             title: "Profile Manager",
