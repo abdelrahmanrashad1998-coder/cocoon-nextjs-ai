@@ -232,6 +232,9 @@ export const useQuoteGenerator = () => {
             // Handle production start date tracking
             const quoteDataToSave = { ...quoteData };
             
+            // Ensure the ID matches the document ID
+            quoteDataToSave.id = sanitizedQuoteName;
+            
             // If status is changing to in_production and we don't have a production start date, set it
             if (quoteDataToSave.status === "in_production" && !quoteDataToSave.productionStartDate) {
                 quoteDataToSave.productionStartDate = new Date().toISOString();
@@ -1462,12 +1465,27 @@ export const useQuoteGenerator = () => {
             console.log("Updating quote status:", quoteId, "to", newStatus);
             
             // Get current quote data
-            const { getDoc, doc, setDoc } = await import("firebase/firestore");
-            const docRef = doc(db, "quotes", quoteId);
-            const docSnap = await getDoc(docRef);
+            const { getDoc, doc, setDoc, query, where, getDocs, collection } = await import("firebase/firestore");
             
+            // First try direct document lookup
+            let docRef = doc(db, "quotes", quoteId);
+            let docSnap = await getDoc(docRef);
+            
+            // If document doesn't exist, try to find it by searching for the quote ID in the data
             if (!docSnap.exists()) {
-                throw new Error("Quote not found");
+                console.log("Document not found with ID:", quoteId, "Searching by quote ID field...");
+                const quotesQuery = query(collection(db, "quotes"), where("id", "==", quoteId));
+                const querySnapshot = await getDocs(quotesQuery);
+                
+                if (querySnapshot.empty) {
+                    throw new Error(`Quote not found with ID: ${quoteId}`);
+                }
+                
+                // Use the first matching document
+                const foundDoc = querySnapshot.docs[0];
+                docRef = doc(db, "quotes", foundDoc.id);
+                docSnap = foundDoc;
+                console.log("Found quote with document ID:", foundDoc.id);
             }
             
             const currentData = docSnap.data() as QuoteData;
