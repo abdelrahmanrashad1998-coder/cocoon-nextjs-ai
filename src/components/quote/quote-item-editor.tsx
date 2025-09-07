@@ -2133,7 +2133,6 @@ export function QuoteItemEditor({
                         </div>
                         <ColorManager
                             onColorSelect={handleColorSelect}
-                            selectedColor={item.color}
                             showSelection={true}
                         />
                     </div>

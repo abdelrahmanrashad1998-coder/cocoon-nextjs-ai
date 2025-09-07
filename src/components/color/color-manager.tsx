@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { db } from "@/lib/firebase";
 import {
@@ -8,7 +8,6 @@ import {
     getDocs,
     addDoc,
     updateDoc,
-    deleteDoc,
     doc,
     getDoc,
 } from "firebase/firestore";
@@ -37,13 +36,11 @@ import { ColorOption } from "@/types/quote";
 
 interface ColorManagerProps {
     onColorSelect?: (color: ColorOption) => void;
-    selectedColor?: ColorOption | null;
     showSelection?: boolean;
 }
 
 export default function ColorManager({
     onColorSelect,
-    selectedColor,
     showSelection = false,
 }: ColorManagerProps) {
     const { user, loading: authLoading } = useAuth();
@@ -64,7 +61,7 @@ export default function ColorManager({
     const [createForm, setCreateForm] = useState<Partial<ColorOption>>({});
 
     // Load user role and check permissions
-    const loadUserRole = async () => {
+    const loadUserRole = useCallback(async () => {
         if (!user) return;
 
         try {
@@ -83,15 +80,7 @@ export default function ColorManager({
             setUserRole("user");
             setCanManageColors(false);
         }
-    };
-
-    // Load colors from Firebase when user is authenticated
-    useEffect(() => {
-        if (user && !authLoading) {
-            loadUserRole();
-            loadColors();
-        }
-    }, [user, authLoading]);
+    }, [user]);
 
     // Filter colors based on search and brand
     const filteredColors = colors.filter((color) => {
@@ -107,7 +96,7 @@ export default function ColorManager({
         return matchesSearch && matchesBrand;
     });
 
-    const loadColors = async () => {
+    const loadColors = useCallback(async () => {
         if (!user) {
             setError("Please log in to access colors");
             return;
@@ -149,7 +138,15 @@ export default function ColorManager({
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
+
+    // Load colors from Firebase when user is authenticated
+    useEffect(() => {
+        if (user && !authLoading) {
+            loadUserRole();
+            loadColors();
+        }
+    }, [user, authLoading, loadColors, loadUserRole]);
 
     const createColor = async () => {
         if (!user) {
@@ -229,25 +226,6 @@ export default function ColorManager({
         onColorSelect!(color);
     };
 
-    const deleteColor = async (colorId: string) => {
-        if (!user) {
-            setError("Please log in to delete colors");
-            return;
-        }
-
-        if (!confirm("Are you sure you want to delete this color?")) return;
-
-        try {
-            const colorRef = doc(db, "colorOptions", colorId);
-            await deleteDoc(colorRef);
-
-            setSuccess("Color deleted successfully");
-            loadColors();
-        } catch (error: unknown) {
-            const err = error as { code?: string; message?: string };
-            setError(`Error deleting color: ${err.message || "Unknown error"}`);
-        }
-    };
 
     const handleCreateChange = (field: keyof ColorOption, value: string) => {
         setCreateForm((prev) => ({ ...prev, [field]: value }));

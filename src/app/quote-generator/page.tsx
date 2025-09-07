@@ -26,7 +26,7 @@ import ColorManager from "@/components/color/color-manager";
 import { ColorOption, QuoteData } from "@/types/quote";
 import { Palette } from "lucide-react";
 
-export default function QuoteGeneratorPage() {
+function QuoteGeneratorContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const quoteId = searchParams.get("id");
@@ -602,12 +602,31 @@ export default function QuoteGeneratorPage() {
                         </div>
                         <ColorManager
                             onColorSelect={handleGlobalColorSelect}
-                            selectedColor={quoteData.globalColor}
                             showSelection={true}
                         />
                     </div>
                 </div>
             )}
         </DashboardLayout>
+    );
+}
+
+export default function QuoteGeneratorPage() {
+    return (
+        <Suspense fallback={
+            <DashboardLayout>
+                <div className="container mx-auto max-w-7xl">
+                    <div className="flex items-center justify-center min-h-[400px]">
+                        <div className="text-center">
+                            <Calculator className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-pulse" />
+                            <h2 className="text-xl font-semibold mb-2">Loading Quote Generator...</h2>
+                            <p className="text-muted-foreground">Please wait while we prepare your workspace.</p>
+                        </div>
+                    </div>
+                </div>
+            </DashboardLayout>
+        }>
+            <QuoteGeneratorContent />
+        </Suspense>
     );
 }

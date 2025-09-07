@@ -27,9 +27,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Users, Search, Mail, Phone, MapPin, FileText, Calendar, X, Eye } from "lucide-react";
+import { Users, Search, Mail, Phone, MapPin, FileText, Calendar, Eye } from "lucide-react";
 import DashboardLayout from "@/components/dashboard-layout";
-import { QuoteData, ContactInfo } from "@/types/quote";
+import { QuoteData } from "@/types/quote";
 import { useQuoteGenerator } from "@/hooks/use-quote-generator";
 
 interface ClientData {
@@ -48,7 +48,6 @@ export default function ClientsPage() {
     const [clients, setClients] = useState<ClientData[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
-    const [selectedClient, setSelectedClient] = useState<ClientData | null>(null);
     const { fetchQuotes } = useQuoteGenerator();
 
     useEffect(() => {
@@ -287,7 +286,6 @@ export default function ClientsPage() {
                                                                     <Button
                                                                         variant="outline"
                                                                         size="sm"
-                                                                        onClick={() => setSelectedClient(client)}
                                                                     >
                                                                         <Eye className="mr-2 h-4 w-4" />
                                                                         View Details

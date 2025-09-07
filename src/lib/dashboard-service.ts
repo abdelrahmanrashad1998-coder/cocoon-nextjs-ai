@@ -1,11 +1,6 @@
 import { 
   collection, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp 
+  getDocs
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { QuoteData, QuoteStatus } from "@/types/quote";

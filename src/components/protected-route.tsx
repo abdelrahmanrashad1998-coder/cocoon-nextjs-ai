@@ -3,6 +3,7 @@
 import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 import { useEffect, type ReactNode } from "react"
+import Image from "next/image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { LogOut } from "lucide-react"
@@ -55,9 +56,11 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
             <div className="flex justify-center mb-4">
-              <img
+              <Image
                 src="https://img1.wsimg.com/isteam/ip/b11b2784-66bc-4ac4-9b05-6ba6d416d22d/Untitled%20design%20(1).jpg"
                 alt="Cocoon Logo"
+                width={64}
+                height={64}
                 className="h-16 w-auto"
               />
             </div>
