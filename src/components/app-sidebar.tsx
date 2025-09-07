@@ -14,6 +14,7 @@ import {
     IconClipboardList,
     IconUserCheck,
     IconUsersGroup,
+    IconPalette,
 } from "@tabler/icons-react";
 import Link from "next/link";
 
@@ -58,6 +59,11 @@ const data = {
             title: "Profile Manager",
             url: "/profile-manager",
             icon: IconUsers,
+        },
+        {
+            title: "Color Manager",
+            url: "/color-manager",
+            icon: IconPalette,
         },
         {
             title: "Admin Panel",

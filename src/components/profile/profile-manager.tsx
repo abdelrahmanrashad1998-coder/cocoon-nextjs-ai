@@ -39,7 +39,6 @@ import {
     Save,
     Palette,
 } from "lucide-react";
-import { ColorOption } from "@/types/quote";
 import ProfileCard from "../profile-card";
 
 export interface AluminiumProfile {
@@ -111,7 +110,6 @@ export default function ProfileManager({
 }: ProfileManagerProps) {
     const { user, loading: authLoading } = useAuth();
     const [profiles, setProfiles] = useState<AluminiumProfile[]>([]);
-    const [colors, setColors] = useState<ColorOption[]>([]); // Add colors state
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -163,7 +161,6 @@ export default function ProfileManager({
         if (user && !authLoading) {
             loadUserRole();
             loadProfiles();
-            loadColors(); // Add this line
         }
     }, [user, authLoading]);
 
@@ -586,32 +583,6 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
         setTimeout(() => setCsvImportStatus(null), 3000);
     };
 
-    // Download sample CSV template for colors
-    const downloadColorSampleCSV = () => {
-        const sampleData = `code,brand,color,finish
-RAL-9005,Cocoon,Black,Matte
-RAL-9010,Cocoon,Pure White,Glossy
-RAL-7016,Cocoon,Anthracite Grey,Satin
-RAL-8017,Cocoon,Chocolate Brown,Matte
-RAL-6005,Cocoon,Moss Green,Satin
-RAL-5010,Cocoon,Gentian Blue,Glossy
-RAL-3000,Cocoon,Flame Red,Matte
-RAL-1020,Cocoon,Olive Yellow,Satin`;
-
-        const blob = new Blob([sampleData], { type: "text/csv" });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "sample-colors.csv";
-        a.click();
-        window.URL.revokeObjectURL(url);
-
-        setCsvImportStatus({
-            type: "success",
-            message: "Sample color CSV file downloaded successfully!",
-        });
-        setTimeout(() => setCsvImportStatus(null), 3000);
-    };
 
     // Handle CSV import
     const handleCSVImport = async (
@@ -862,109 +833,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
         event.target.value = "";
     };
 
-    // Handle CSV import for colors
-    const handleColorCSVImport = async (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
 
-        setCsvImportStatus({
-            type: "error",
-            message: "Processing color CSV file...",
-        });
-
-        try {
-            const text = await file.text();
-            const lines = text.split("\n");
-            const headers = lines[0]
-                .split(",")
-                .map((h) => h.trim().replace(/"/g, ""));
-
-            let importedCount = 0;
-            let skippedCount = 0;
-            let invalidCount = 0;
-
-            for (let i = 1; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
-
-                const values = line
-                    .split(",")
-                    .map((v) => v.trim().replace(/"/g, ""));
-                const color: Record<string, string> = {};
-
-                headers.forEach((header, index) => {
-                    color[header] = values[index] || "";
-                });
-
-                // Validate required fields
-                if (color.code && color.brand && color.color && color.finish) {
-                    // Check if color already exists
-                    const existingColor = await checkColorExists(color.code);
-                    if (!existingColor) {
-                        // Save to Firebase
-                        const colorsCollection = collection(db, "colorOptions");
-                        const colorData = {
-                            code: color.code,
-                            brand: color.brand,
-                            color: color.color,
-                            finish: color.finish,
-                        };
-
-                        await addDoc(colorsCollection, colorData);
-                        importedCount++;
-                    } else {
-                        skippedCount++;
-                    }
-                } else {
-                    invalidCount++;
-                }
-            }
-
-            setCsvImportStatus({
-                type: "success",
-                message: `Color import complete! ${importedCount} imported, ${skippedCount} skipped, ${invalidCount} invalid`,
-            });
-
-            // Clear status after 5 seconds
-            setTimeout(() => setCsvImportStatus(null), 5000);
-        } catch (error: unknown) {
-            const err = error as { code?: string; message?: string };
-            console.error("Error importing color CSV:", error);
-            if (err.code === "permission-denied") {
-                setCsvImportStatus({
-                    type: "error",
-                    message:
-                        "Permission denied: Please check your Firebase security rules. You may need to update them to allow access to the colorOptions collection.",
-                });
-            } else {
-                setCsvImportStatus({
-                    type: "error",
-                    message: `Error importing color CSV: ${
-                        err.message || "Unknown error"
-                    }`,
-                });
-            }
-            setTimeout(() => setCsvImportStatus(null), 5000);
-        }
-
-        // Reset file input
-        event.target.value = "";
-    };
-
-    // Check if color exists in Firebase
-    const checkColorExists = async (code: string): Promise<boolean> => {
-        try {
-            const colorsCollection = collection(db, "colorOptions");
-            const q = query(colorsCollection, where("code", "==", code));
-            const querySnapshot = await getDocs(q);
-            return !querySnapshot.empty;
-        } catch (error) {
-            console.error("Error checking color existence:", error);
-            return false;
-        }
-    };
 
     // Enhanced calculation functions for different meter types
     const calculateFramePrice = (kgPrice: number, weight6m: number, frameMetersInput: number) => {
@@ -1121,76 +990,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
         }
     };
 
-    // Load colors from Firebase
-    const loadColors = async () => {
-        if (!user) {
-            setError("Please log in to access colors");
-            return;
-        }
 
-        setLoading(true);
-        setError("");
-
-        try {
-            const colorsCollection = collection(db, "colorOptions");
-            const colorsSnapshot = await getDocs(colorsCollection);
-            const colorsList = colorsSnapshot.docs.map((doc) => {
-                const data = doc.data();
-                return {
-                    id: doc.id,
-                    code: data.code || "",
-                    brand: data.brand || "",
-                    color: data.color || "",
-                    finish: data.finish || "",
-                } as ColorOption;
-            });
-
-            setColors(colorsList);
-            setSuccess(`Loaded ${colorsList.length} colors`);
-        } catch (error: unknown) {
-            console.error("Error loading colors:", error);
-            const err = error as { code?: string; message?: string };
-            if (err.code === "permission-denied") {
-                setError(
-                    "Permission denied. Please check your Firebase security rules."
-                );
-            } else if (err.code === "unauthenticated") {
-                setError("Please log in to access colors");
-            } else {
-                setError(
-                    `Error loading colors: ${err.message || "Unknown error"}`
-                );
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Filter colors based on search and brand
-    const filteredColors = colors.filter((color) => {
-        const matchesSearch =
-            color.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            color.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            color.color.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            color.finish.toLowerCase().includes(searchTerm.toLowerCase());
-
-        const matchesBrand =
-            brandFilter === "all" || color.brand === brandFilter;
-
-        return matchesSearch && matchesBrand;
-    });
-
-    // Get unique brands from colors
-    const getColorBrands = () => {
-        const brands = colors.map((color) => color.brand).filter(Boolean);
-        return [...new Set(brands)];
-    };
-
-    // Get unique finish types from colors
-    const getFinishTypes = () => {
-        const finishTypes = colors.map((color) => color.finish).filter(Boolean);
-        return [...new Set(finishTypes)];
-    };
 
     return (
         <div className="space-y-6">
@@ -1283,23 +1083,14 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                         value={activeTab}
                         onValueChange={setActiveTab}
                     >
-                        <TabsList className="grid w-full grid-cols-4">
+                        <TabsList className="grid w-full grid-cols-2">
                             <TabsTrigger value="browse">
                                 Browse Profiles
-                            </TabsTrigger>
-                            
-                            <TabsTrigger value="browseColors">
-                                Browse Colors
                             </TabsTrigger>
                             
                             {canManageProfiles && (
                                 <TabsTrigger value="import">
                                     Import Profiles
-                                </TabsTrigger>
-                            )}
-                            {canManageProfiles && (
-                                <TabsTrigger value="colors">
-                                    Import Colors
                                 </TabsTrigger>
                             )}
                             
@@ -1673,260 +1464,6 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                             </TabsContent>
                         )}
 
-                        {canManageProfiles && (
-                            <TabsContent
-                                value="colors"
-                                className="space-y-6"
-                            >
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <Palette className="h-5 w-5" />
-                                            Import Colors from CSV
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-6">
-                                        <div className="border border-blue-200 rounded-lg p-6 bg-blue-50">
-                                            <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                                                <Download className="h-5 w-5" />
-                                                Import Color Options
-                                            </h3>
-                                            <p className="text-blue-700 mb-4">
-                                                Upload a CSV file with your
-                                                color data. The file should
-                                                include columns like: code,
-                                                brand, color, finish
-                                            </p>
-
-                                            <div className="flex gap-3 mb-4">
-                                                <Button
-                                                    onClick={() =>
-                                                        document
-                                                            .getElementById(
-                                                                "colorCsvFileInput"
-                                                            )
-                                                            ?.click()
-                                                    }
-                                                    className="bg-blue-600 hover:bg-blue-700"
-                                                >
-                                                    <Download className="h-4 w-4 mr-2" />
-                                                    Choose CSV File
-                                                </Button>
-
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={
-                                                        downloadColorSampleCSV
-                                                    }
-                                                >
-                                                    <Download className="h-4 w-4 mr-2" />
-                                                    Download Sample CSV
-                                                </Button>
-                                            </div>
-
-                                            <input
-                                                id="colorCsvFileInput"
-                                                type="file"
-                                                accept=".csv"
-                                                title="Choose CSV file for color import"
-                                                onChange={handleColorCSVImport}
-                                                className="hidden"
-                                            />
-
-                                            {/* CSV Format Instructions */}
-                                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                                <h4 className="text-sm font-semibold text-gray-900 mb-2">
-                                                    CSV Format Requirements
-                                                </h4>
-                                                <div className="text-sm text-gray-700 mb-3">
-                                                    Your CSV file should include
-                                                    these columns in order:
-                                                </div>
-                                                <div className="bg-white p-3 rounded border font-mono text-sm">
-                                                    <div className="text-gray-800 font-semibold mb-1">
-                                                        Required columns:
-                                                    </div>
-                                                    <div className="text-gray-700">
-                                                        code,brand,color,finish
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {csvImportStatus && (
-                                                <div
-                                                    className={`p-4 rounded-lg ${
-                                                        csvImportStatus.type ===
-                                                        "success"
-                                                            ? "bg-blue-100 border border-blue-300 text-blue-800"
-                                                            : "bg-red-100 border border-red-300 text-red-800"
-                                                    }`}
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        {csvImportStatus.type ===
-                                                        "success" ? (
-                                                            <CheckCircle className="h-5 w-5" />
-                                                        ) : (
-                                                            <AlertCircle className="h-5 w-5" />
-                                                        )}
-                                                        <span className="font-medium">
-                                                            {
-                                                                csvImportStatus.message
-                                                            }
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
-                        )}
-                        {/* Colors browse */}
-                        <TabsContent
-                            value="browseColors"
-                            className="space-y-6"
-                        >
-                            {/* Search and Filter */}
-                            <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-purple-50">
-                                <CardHeader className="pb-4">
-                                    <CardTitle className="flex items-center gap-2 text-gray-800">
-                                        <Search className="h-5 w-5 text-blue-600" />
-                                        Search & Filter Colors
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-gray-700">
-                                                Search Colors
-                                            </Label>
-                                            <Input
-                                                placeholder="Search by code, brand, color, or finish..."
-                                                value={searchTerm}
-                                                onChange={(e) =>
-                                                    setSearchTerm(
-                                                        e.target.value
-                                                    )
-                                                }
-                                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-gray-700">
-                                                Filter by Brand
-                                            </Label>
-                                            <Select
-                                                value={brandFilter}
-                                                onValueChange={setBrandFilter}
-                                            >
-                                                <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
-                                                    <SelectValue placeholder="All brands" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="all">
-                                                        All brands
-                                                    </SelectItem>
-                                                    {getColorBrands()
-                                                        .filter(
-                                                            (brand) => brand
-                                                        )
-                                                        .map((brand) => (
-                                                            <SelectItem
-                                                                key={brand}
-                                                                value={brand}
-                                                            >
-                                                                {brand}
-                                                            </SelectItem>
-                                                        ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Colors List */}
-                            <Card className="border-0 shadow-sm">
-                                <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b">
-                                    <CardTitle className="flex items-center justify-between">
-                                        <span className="text-gray-800">
-                                            Available Colors
-                                        </span>
-                                        <Badge
-                                            variant="secondary"
-                                            className="text-sm"
-                                        >
-                                            {filteredColors.length}{" "}
-                                            {filteredColors.length === 1
-                                                ? "color"
-                                                : "colors"}
-                                        </Badge>
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    {loading ? (
-                                        <div className="text-center py-8">
-                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                                            <p className="mt-2 text-gray-600">
-                                                Loading colors...
-                                            </p>
-                                        </div>
-                                    ) : filteredColors.length === 0 ? (
-                                        <div className="text-center py-8">
-                                            <p className="text-gray-600">
-                                                No colors found
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                            {filteredColors.map(
-                                                (color, index) => (                                        
-
-                                                    <Card
-                                                        key={index}
-                                                        className="cursor-pointer transition-all hover:shadow-md"
-                                                    >
-                                                        <CardContent className="p-4">
-                                                            <div className="flex items-center justify-between mb-2">
-                                                                <h4 className="font-semibold text-gray-800">
-                                                                    {color.code}
-                                                                </h4>
-                                                            </div>
-                                                            <div className="space-y-1 text-sm">
-                                                                <div className="flex items-center gap-2">
-                                                                    <Badge
-                                                                        variant="outline"
-                                                                        className="text-blue-700"
-                                                                    >
-                                                                        {color.brand}
-                                                                    </Badge>
-                                                                </div>
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Color:
-                                                                    </span>{" "}
-                                                                    <span className="text-gray-600">
-                                                                        {color.color}
-                                                                    </span>
-                                                                </div>
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Finish:
-                                                                    </span>{" "}
-                                                                    <span className="text-gray-600">
-                                                                        {color.finish}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </CardContent>
-                                                    </Card>
-                                                )
-                                            )}
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
                         
                     </Tabs>
                 </>

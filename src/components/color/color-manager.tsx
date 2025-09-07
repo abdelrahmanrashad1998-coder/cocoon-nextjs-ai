@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { db } from "@/lib/firebase";
 import {
@@ -10,6 +10,8 @@ import {
     updateDoc,
     doc,
     getDoc,
+    query,
+    where,
 } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +33,10 @@ import {
     Download,
     Search,
     Save,
+    Edit,
+    Trash2,
+    Upload,
+    Database,
 } from "lucide-react";
 import { ColorOption } from "@/types/quote";
 
@@ -59,6 +65,11 @@ export default function ColorManager({
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingColor, setEditingColor] = useState<ColorOption | null>(null);
     const [createForm, setCreateForm] = useState<Partial<ColorOption>>({});
+    const [csvImportStatus, setCsvImportStatus] = useState<{
+        type: "success" | "error";
+        message: string;
+    } | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Load user role and check permissions
     const loadUserRole = useCallback(async () => {
@@ -108,16 +119,18 @@ export default function ColorManager({
         try {
             const colorsCollection = collection(db, "colorOptions");
             const colorsSnapshot = await getDocs(colorsCollection);
-            const colorsList = colorsSnapshot.docs.map((doc) => {
-                const data = doc.data();
-                return {
-                    id: doc.id,
-                    code: data.code || "",
-                    brand: data.brand || "",
-                    color: data.color || "",
-                    finish: data.finish || "",
-                } as ColorOption;
-            });
+            const colorsList = colorsSnapshot.docs
+                .filter((doc) => !doc.data().deleted) // Filter out deleted colors
+                .map((doc) => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        code: data.code || "",
+                        brand: data.brand || "",
+                        color: data.color || "",
+                        finish: data.finish || "",
+                    } as ColorOption;
+                });
 
             setColors(colorsList);
             setSuccess(`Loaded ${colorsList.length} colors`);
@@ -224,6 +237,224 @@ export default function ColorManager({
     const handleSelectedAvailableColor = (color: ColorOption) => {
         setSelectedAvailableColor(color);
         onColorSelect!(color);
+    };
+
+    const handleEditColor = (color: ColorOption) => {
+        setEditingColor(color);
+        setShowEditModal(true);
+    };
+
+    const deleteColor = async (id: string) => {
+        if (!user) {
+            setError("Please log in to delete colors");
+            return;
+        }
+
+        try {
+            const colorRef = doc(db, "colorOptions", id);
+            await updateDoc(colorRef, { deleted: true }); // Soft delete
+            setSuccess("Color deleted successfully");
+            loadColors();
+        } catch (error: unknown) {
+            const err = error as { code?: string; message?: string };
+            setError(`Error deleting color: ${err.message || "Unknown error"}`);
+        }
+    };
+
+    // Download sample CSV template for colors
+    const downloadColorSampleCSV = () => {
+        const sampleData = `code,brand,color,finish
+RAL-9005,Cocoon,Black,Matte
+RAL-9010,Cocoon,Pure White,Glossy
+RAL-7016,Cocoon,Anthracite Grey,Satin
+RAL-8017,Cocoon,Chocolate Brown,Matte
+RAL-6005,Cocoon,Moss Green,Satin
+RAL-5010,Cocoon,Gentian Blue,Glossy
+RAL-3000,Cocoon,Flame Red,Matte
+RAL-1020,Cocoon,Olive Yellow,Satin`;
+
+        const blob = new Blob([sampleData], { type: "text/csv" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "sample-colors.csv";
+        a.click();
+        window.URL.revokeObjectURL(url);
+
+        setCsvImportStatus({
+            type: "success",
+            message: "Sample color CSV file downloaded successfully!",
+        });
+        setTimeout(() => setCsvImportStatus(null), 3000);
+    };
+
+    // Check if color exists in Firebase
+    const checkColorExists = async (code: string): Promise<boolean> => {
+        try {
+            console.log(`Checking if color exists: ${code}`);
+            const colorsCollection = collection(db, "colorOptions");
+            const q = query(colorsCollection, where("code", "==", code));
+            const querySnapshot = await getDocs(q);
+            const exists = !querySnapshot.empty;
+            console.log(`Color ${code} exists:`, exists);
+            return exists;
+        } catch (error) {
+            console.error("Error checking color existence:", error);
+            return false;
+        }
+    };
+
+    // Handle CSV import for colors
+    const handleColorCSVImport = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+            console.log("No file selected");
+            return;
+        }
+
+        console.log("Starting CSV import for file:", file.name);
+        console.log("User:", user?.email, "Role:", userRole, "Can manage colors:", canManageColors);
+
+        if (!canManageColors) {
+            setCsvImportStatus({
+                type: "error",
+                message: "You don't have permission to import colors. Only admin and manager users can import colors.",
+            });
+            setTimeout(() => setCsvImportStatus(null), 5000);
+            return;
+        }
+
+        setCsvImportStatus({
+            type: "error",
+            message: "Processing color CSV file...",
+        });
+
+        try {
+            const text = await file.text();
+            console.log("File content:", text.substring(0, 200) + "...");
+            
+            const lines = text.split("\n").filter(line => line.trim() !== "");
+            console.log("Number of lines:", lines.length);
+            
+            if (lines.length < 2) {
+                throw new Error("CSV file must have at least a header row and one data row");
+            }
+
+            const headers = lines[0]
+                .split(",")
+                .map((h) => h.trim().replace(/"/g, "").toLowerCase());
+            
+            console.log("Headers found:", headers);
+
+            // Validate headers
+            const requiredHeaders = ['code', 'brand', 'color', 'finish'];
+            const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
+            if (missingHeaders.length > 0) {
+                throw new Error(`Missing required headers: ${missingHeaders.join(', ')}`);
+            }
+
+            let importedCount = 0;
+            let skippedCount = 0;
+            let invalidCount = 0;
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                console.log(`Processing line ${i}:`, line);
+
+                // Better CSV parsing that handles quoted values
+                const values = parseCSVLine(line);
+                const color: Record<string, string> = {};
+
+                headers.forEach((header, index) => {
+                    color[header] = (values[index] || "").trim();
+                });
+
+                console.log("Parsed color data:", color);
+
+                // Validate required fields
+                if (color.code && color.brand && color.color && color.finish) {
+                    // Check if color already exists
+                    const existingColor = await checkColorExists(color.code);
+                    if (!existingColor) {
+                        // Save to Firebase
+                        const colorsCollection = collection(db, "colorOptions");
+                        const colorData = {
+                            code: color.code,
+                            brand: color.brand,
+                            color: color.color,
+                            finish: color.finish,
+                        };
+
+                        await addDoc(colorsCollection, colorData);
+                        importedCount++;
+                        console.log(`Imported color: ${color.code}`);
+                    } else {
+                        skippedCount++;
+                        console.log(`Skipped existing color: ${color.code}`);
+                    }
+                } else {
+                    invalidCount++;
+                    console.log(`Invalid color data:`, color);
+                }
+            }
+
+            setCsvImportStatus({
+                type: "success",
+                message: `Color import complete! ${importedCount} imported, ${skippedCount} skipped, ${invalidCount} invalid`,
+            });
+
+            // Clear status after 5 seconds
+            setTimeout(() => setCsvImportStatus(null), 5000);
+            
+            // Reload colors to show the imported ones
+            loadColors();
+        } catch (error: unknown) {
+            const err = error as { code?: string; message?: string };
+            console.error("Error importing color CSV:", error);
+            
+            let errorMessage = "Unknown error occurred";
+            if (err.code === "permission-denied") {
+                errorMessage = "Permission denied: Please check your Firebase security rules. You may need to update them to allow access to the colorOptions collection.";
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+            
+            setCsvImportStatus({
+                type: "error",
+                message: `Error importing color CSV: ${errorMessage}`,
+            });
+            setTimeout(() => setCsvImportStatus(null), 5000);
+        }
+
+        // Reset file input
+        event.target.value = "";
+    };
+
+    // Helper function to parse CSV line properly handling quoted values
+    const parseCSVLine = (line: string): string[] => {
+        const result: string[] = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                result.push(current);
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        
+        result.push(current);
+        return result;
     };
 
 
@@ -357,10 +588,15 @@ export default function ColorManager({
                         value={activeTab}
                         onValueChange={setActiveTab}
                     >
-                        <TabsList className="grid w-full grid-cols-1">
+                        <TabsList className="grid w-full grid-cols-2">
                             <TabsTrigger value="browse">
                                 Browse Colors
                             </TabsTrigger>
+                            {canManageColors && (
+                                <TabsTrigger value="import">
+                                    Import Colors
+                                </TabsTrigger>
+                            )}
                         </TabsList>
 
                         <TabsContent
@@ -483,14 +719,40 @@ export default function ColorManager({
                                                                 <h4 className="font-semibold text-gray-800">
                                                                     {color.code}
                                                                 </h4>
-                                                                {showSelection && (
-                                                                    <div className="w-4 h-4 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                                                                        {selectedAvailableColor?.code ===
-                                                                            color.code && (
-                                                                            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                                                                        )}
-                                                                    </div>
-                                                                )}
+                                                                <div className="flex items-center gap-2">
+                                                                    {showSelection && (
+                                                                        <div className="w-4 h-4 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                                                                            {selectedAvailableColor?.code ===
+                                                                                color.code && (
+                                                                                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                    {canManageColors && (
+                                                                        <div className="flex gap-1">
+                                                                            <button
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleEditColor(color);
+                                                                                }}
+                                                                                className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                                                                title="Edit color"
+                                                                            >
+                                                                                <Edit className="h-3 w-3 text-gray-600" />
+                                                                            </button>
+                                                                            <button
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    if (color.id) deleteColor(color.id);
+                                                                                }}
+                                                                                className="p-1 hover:bg-red-100 rounded transition-colors"
+                                                                                title="Delete color"
+                                                                            >
+                                                                                <Trash2 className="h-3 w-3 text-red-600" />
+                                                                            </button>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                             <div className="space-y-1 text-sm">
                                                                 <div className="flex items-center gap-2">
@@ -533,6 +795,144 @@ export default function ColorManager({
                                 </CardContent>
                             </Card>
                         </TabsContent>
+
+                        {canManageColors && (
+                            <TabsContent
+                                value="import"
+                                className="space-y-6"
+                            >
+                                {console.log("Import tab is being rendered, canManageColors:", canManageColors)}
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2">
+                                            <Database className="h-5 w-5" />
+                                            Import Colors from CSV
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        {/* CSV Import Section */}
+                                        <div className="border border-blue-200 rounded-lg p-6 bg-blue-50">
+                                            <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                                                <Upload className="h-5 w-5" />
+                                                Import Color Options
+                                            </h3>
+                                            <p className="text-blue-700 mb-4">
+                                                Upload a CSV file with your color data. The file should include columns: code, brand, color, finish.
+                                            </p>
+                                            
+                                            <div className="flex gap-4 mb-4">
+                                                <Button
+                                                    onClick={downloadColorSampleCSV}
+                                                    variant="outline"
+                                                    className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                                                >
+                                                    <Download className="mr-2 h-4 w-4" />
+                                                    Download Sample CSV
+                                                </Button>
+                                                
+                                                <Button
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        console.log("Choose CSV button clicked");
+                                                        console.log("File input ref:", fileInputRef.current);
+                                                        if (fileInputRef.current) {
+                                                            console.log("Triggering file input click");
+                                                            fileInputRef.current.click();
+                                                        } else {
+                                                            console.error("File input ref not found");
+                                                        }
+                                                    }}
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                                >
+                                                    <Upload className="mr-2 h-4 w-4" />
+                                                    Choose CSV File
+                                                </Button>
+                                                
+                                                <input
+                                                    ref={fileInputRef}
+                                                    id="colorCsvFileInput"
+                                                    type="file"
+                                                    accept=".csv"
+                                                    title="Choose CSV file for color import"
+                                                    onChange={(e) => {
+                                                        console.log("File input changed:", e.target.files);
+                                                        handleColorCSVImport(e);
+                                                    }}
+                                                    className="hidden"
+                                                />
+                                            </div>
+                                            
+                                            {/* Alternative file input for testing */}
+                                            <div className="mt-4 p-4 border border-gray-300 rounded-lg bg-gray-50">
+                                                <p className="text-sm text-gray-600 mb-2">Alternative file input (for testing):</p>
+                                                <input
+                                                    type="file"
+                                                    accept=".csv"
+                                                    onChange={(e) => {
+                                                        console.log("Alternative file input changed:", e.target.files);
+                                                        handleColorCSVImport(e);
+                                                    }}
+                                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                                />
+                                            </div>
+
+                                            {/* CSV Format Instructions */}
+                                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                                <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                                                    CSV Format Requirements
+                                                </h4>
+                                                <div className="text-sm text-gray-700 mb-3">
+                                                    Your CSV file must have the following columns (in any order):
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant="outline" className="text-xs">code</Badge>
+                                                        <span className="text-gray-600">Color code (e.g., RAL-9005)</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant="outline" className="text-xs">brand</Badge>
+                                                        <span className="text-gray-600">Brand name (e.g., Cocoon)</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant="outline" className="text-xs">color</Badge>
+                                                        <span className="text-gray-600">Color name (e.g., Black)</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant="outline" className="text-xs">finish</Badge>
+                                                        <span className="text-gray-600">Finish type (e.g., Matte)</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* CSV Import Status */}
+                                        {csvImportStatus && (
+                                            <Card className={`border-2 ${
+                                                csvImportStatus.type === "success" 
+                                                    ? "border-green-200 bg-green-50" 
+                                                    : "border-red-200 bg-red-50"
+                                            }`}>
+                                                <CardContent className="pt-6">
+                                                    <div className={`flex items-center gap-2 ${
+                                                        csvImportStatus.type === "success" 
+                                                            ? "text-green-600" 
+                                                            : "text-red-600"
+                                                    }`}>
+                                                        {csvImportStatus.type === "success" ? (
+                                                            <CheckCircle className="h-4 w-4" />
+                                                        ) : (
+                                                            <AlertCircle className="h-4 w-4" />
+                                                        )}
+                                                        {csvImportStatus.message}
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                        )}
                     </Tabs>
                 </>
             )}
