@@ -48,21 +48,52 @@ export interface AluminiumProfile {
     code: string;
     brand: string;
     system_type: string;
-    glass_price_single: number;
-    glass_price_double: number;
     kg_price: number;
-    weight_6m: number;
+    
+    // Frame weights and prices
+    frame_weight_2_4_sach: number;
     frame_price: number;
+    frame_weight_3_sach: number;
     frame_price_3: number;
-    leaf_price: number;
-    arc_price: number;
-    accessories_2_leaves: number;
-    accessories_3_leaves: number;
-    accessories_4_leaves: number;
-    net_price: number;
-    net_price_plisse: number;
+    
+    // Sach weights and prices
+    sach_weight: number;
+    sach_price: number;
+    
+    // Mosquito weights and prices
+    mosquito_weight: number;
+    mosquito_price_fixed: number;
+    mosquito_price_plisse: number;
     net_price_panda: number;
+    
+    // Arc weights and prices
+    arc_trave_weight: number;
+    arc_price: number;
+    
+    // Accessories
+    accessories_2_sach: number;
+    accessories_3_sach: number;
+    accessories_4_sach: number;
+    
+    // System specifications
+    system: string;
+    max_h: number;
+    max_w: number;
     base_profit_rate: number;
+    
+    // Legacy fields for backward compatibility
+    glass_price_single?: number;
+    glass_price_double?: number;
+    weight_6m?: number;
+    frame_meters_input?: number;
+    windows_meters_input?: number;
+    frame_meters_3_leaves_input?: number;
+    leaf_price?: number;
+    accessories_2_leaves?: number;
+    accessories_3_leaves?: number;
+    accessories_4_leaves?: number;
+    net_price?: number;
+    net_price_plisse?: number;
 }
 
 interface ProfileManagerProps {
@@ -188,26 +219,54 @@ export default function ProfileManager({
                     id: doc.id,
                     name: data.profile_name || data.name || "Unnamed Profile",
                     code: data.profile_code || data.code || "NO_CODE",
-                    brand: data.profile_brand || data.brand || "Unknown Brand",
-                    system_type:
-                        data.profile_system_type ||
-                        data.system_type ||
-                        "unknown",
-                    kg_price: data.glass_price_double || data.kg_price || 0,
-                    weight_6m: data.weight_6m || 0,
+                    brand: data.brand || "Unknown Brand",
+                    system_type: data.system_type || "unknown",
+                    kg_price: data.kg_price || 0,
+                    
+                    // Frame weights and prices
+                    frame_weight_2_4_sach: data.frame_weight_2_4_sach || 0,
                     frame_price: data.frame_price || 0,
+                    frame_weight_3_sach: data.frame_weight_3_sach || 0,
                     frame_price_3: data.frame_price_3 || 0,
-                    leaf_price: data.leaf_price || 0,
+                    
+                    // Sach weights and prices
+                    sach_weight: data.sach_weight || 0,
+                    sach_price: data.sach_price || 0,
+                    
+                    // Mosquito weights and prices
+                    mosquito_weight: data.mosquito_weight || 0,
+                    mosquito_price_fixed: data.mosquito_price_fixed || 0,
+                    mosquito_price_plisse: data.mosquito_price_plisse || 0,
+                    net_price_panda: data.net_price_panda || 0,
+                    
+                    // Arc weights and prices
+                    arc_trave_weight: data.arc_trave_weight || 0,
                     arc_price: data.arc_price || 0,
+                    
+                    // Accessories
+                    accessories_2_sach: data.accessories_2_sach || 0,
+                    accessories_3_sach: data.accessories_3_sach || 0,
+                    accessories_4_sach: data.accessories_4_sach || 0,
+                    
+                    // System specifications
+                    system: data.system || "",
+                    max_h: data.max_h || 0,
+                    max_w: data.max_w || 0,
+                    base_profit_rate: data.base_profit_rate || 0,
+                    
+                    // Legacy fields for backward compatibility
+                    glass_price_single: data.glass_price_single || 0,
+                    glass_price_double: data.glass_price_double || 0,
+                    weight_6m: data.weight_6m || 0,
+                    frame_meters_input: data.frame_meters_input || 0,
+                    windows_meters_input: data.windows_meters_input || 0,
+                    frame_meters_3_leaves_input: data.frame_meters_3_leaves_input || 0,
+                    leaf_price: data.leaf_price || 0,
                     accessories_2_leaves: data.accessories_2_leaves || 0,
                     accessories_3_leaves: data.accessories_3_leaves || 0,
                     accessories_4_leaves: data.accessories_4_leaves || 0,
                     net_price: data.net_price || 0,
                     net_price_plisse: data.net_price_plisse || 0,
-                    net_price_panda: data.net_price_panda || 0,
-                    base_profit_rate: data.base_profit_rate || 0,
-                    glass_price_single: data.glass_price_single || 0,
-                    glass_price_double: data.glass_price_double || 0,
                 };
 
                 // Debug: Log the mapped profile
@@ -247,20 +306,52 @@ export default function ProfileManager({
                 profile_code: createForm.code || "",
                 brand: createForm.brand || "",
                 system_type: createForm.system_type || "",
+                kg_price: createForm.kg_price || 0,
+                
+                // Frame weights and prices
+                frame_weight_2_4_sach: createForm.frame_weight_2_4_sach || 0,
+                frame_price: createForm.frame_price || 0,
+                frame_weight_3_sach: createForm.frame_weight_3_sach || 0,
+                frame_price_3: createForm.frame_price_3 || 0,
+                
+                // Sach weights and prices
+                sach_weight: createForm.sach_weight || 0,
+                sach_price: createForm.sach_price || 0,
+                
+                // Mosquito weights and prices
+                mosquito_weight: createForm.mosquito_weight || 0,
+                mosquito_price_fixed: createForm.mosquito_price_fixed || 0,
+                mosquito_price_plisse: createForm.mosquito_price_plisse || 0,
+                net_price_panda: createForm.net_price_panda || 0,
+                
+                // Arc weights and prices
+                arc_trave_weight: createForm.arc_trave_weight || 0,
+                arc_price: createForm.arc_price || 0,
+                
+                // Accessories
+                accessories_2_sach: createForm.accessories_2_sach || 0,
+                accessories_3_sach: createForm.accessories_3_sach || 0,
+                accessories_4_sach: createForm.accessories_4_sach || 0,
+                
+                // System specifications
+                system: createForm.system || "",
+                max_h: createForm.max_h || 0,
+                max_w: createForm.max_w || 0,
+                base_profit_rate: createForm.base_profit_rate || 0,
+                
+                // Legacy fields for backward compatibility
                 glass_price_single: createForm.glass_price_single || 0,
                 glass_price_double: createForm.glass_price_double || 0,
                 weight_6m: createForm.weight_6m || 0,
-                frame_price: createForm.frame_price || 0,
-                frame_price_3: createForm.frame_price_3 || 0,
+                frame_meters_input: createForm.frame_meters_input || 0,
+                windows_meters_input: createForm.windows_meters_input || 0,
+                frame_meters_3_leaves_input: createForm.frame_meters_3_leaves_input || 0,
                 leaf_price: createForm.leaf_price || 0,
-                arc_price: createForm.arc_price || 0,
                 accessories_2_leaves: createForm.accessories_2_leaves || 0,
                 accessories_3_leaves: createForm.accessories_3_leaves || 0,
                 accessories_4_leaves: createForm.accessories_4_leaves || 0,
                 net_price: createForm.net_price || 0,
                 net_price_plisse: createForm.net_price_plisse || 0,
-                net_price_panda: createForm.net_price_panda || 0,
-                base_profit_rate: createForm.base_profit_rate || 0,
             };
 
             await addDoc(profilesCollection, profileData);
@@ -287,20 +378,52 @@ export default function ProfileManager({
                 profile_code: editingProfile.code || "",
                 brand: editingProfile.brand || "",
                 system_type: editingProfile.system_type || "",
+                kg_price: editingProfile.kg_price || 0,
+                
+                // Frame weights and prices
+                frame_weight_2_4_sach: editingProfile.frame_weight_2_4_sach || 0,
+                frame_price: editingProfile.frame_price || 0,
+                frame_weight_3_sach: editingProfile.frame_weight_3_sach || 0,
+                frame_price_3: editingProfile.frame_price_3 || 0,
+                
+                // Sach weights and prices
+                sach_weight: editingProfile.sach_weight || 0,
+                sach_price: editingProfile.sach_price || 0,
+                
+                // Mosquito weights and prices
+                mosquito_weight: editingProfile.mosquito_weight || 0,
+                mosquito_price_fixed: editingProfile.mosquito_price_fixed || 0,
+                mosquito_price_plisse: editingProfile.mosquito_price_plisse || 0,
+                net_price_panda: editingProfile.net_price_panda || 0,
+                
+                // Arc weights and prices
+                arc_trave_weight: editingProfile.arc_trave_weight || 0,
+                arc_price: editingProfile.arc_price || 0,
+                
+                // Accessories
+                accessories_2_sach: editingProfile.accessories_2_sach || 0,
+                accessories_3_sach: editingProfile.accessories_3_sach || 0,
+                accessories_4_sach: editingProfile.accessories_4_sach || 0,
+                
+                // System specifications
+                system: editingProfile.system || "",
+                max_h: editingProfile.max_h || 0,
+                max_w: editingProfile.max_w || 0,
+                base_profit_rate: editingProfile.base_profit_rate || 0,
+                
+                // Legacy fields for backward compatibility
                 glass_price_single: editingProfile.glass_price_single || 0,
                 glass_price_double: editingProfile.glass_price_double || 0,
                 weight_6m: editingProfile.weight_6m || 0,
-                frame_price: editingProfile.frame_price || 0,
-                frame_price_3: editingProfile.frame_price_3 || 0,
+                frame_meters_input: editingProfile.frame_meters_input || 0,
+                windows_meters_input: editingProfile.windows_meters_input || 0,
+                frame_meters_3_leaves_input: editingProfile.frame_meters_3_leaves_input || 0,
                 leaf_price: editingProfile.leaf_price || 0,
-                arc_price: editingProfile.arc_price || 0,
                 accessories_2_leaves: editingProfile.accessories_2_leaves || 0,
                 accessories_3_leaves: editingProfile.accessories_3_leaves || 0,
                 accessories_4_leaves: editingProfile.accessories_4_leaves || 0,
                 net_price: editingProfile.net_price || 0,
                 net_price_plisse: editingProfile.net_price_plisse || 0,
-                net_price_panda: editingProfile.net_price_panda || 0,
-                base_profit_rate: editingProfile.base_profit_rate || 0,
             };
 
             await updateDoc(profileRef, profileData);
@@ -317,8 +440,13 @@ export default function ProfileManager({
         setSelectedAvailableProfile(profile);
         onProfileSelect!(profile);
     };
-    const handleEditAvailableProfile = (_profile: AluminiumProfile) => {};
-    const handleDeleteAvailableProfile = (_id: string) => {};
+    const handleEditAvailableProfile = (profile: AluminiumProfile) => {
+        setEditingProfile(profile);
+        setShowEditModal(true);
+    };
+    const handleDeleteAvailableProfile = (id: string) => {
+        deleteProfile(id);
+    };
     const deleteProfile = async (profileId: string) => {
         if (!user) {
             setError("Please log in to delete profiles");
@@ -358,26 +486,54 @@ export default function ProfileManager({
     const exportProfiles = () => {
         const csvContent = [
             [
-                "Name",
-                "Code",
-                "Brand",
-                "System Type",
-                "KG Price",
-                "Weight 6m",
-                "Frame Price",
-                "Frame Price 3",
-                "Leaf Price",
+                "profile_code",
+                "brand", 
+                "profile_name",
+                "kg_price",
+                "frame_weight_2_4_sach",
+                "frame_price",
+                "frame_weight_3_sach",
+                "frame_price_3",
+                "sach_weight",
+                "sach_price",
+                "mosquito_weight",
+                "mosquito_price_fixed",
+                "mosquito_price_plisse",
+                "net_price_panda",
+                "arc_trave_weight",
+                "arc_price",
+                "accessories_2_sach",
+                "accessories_3_sach",
+                "accessories_4_sach",
+                "system",
+                "max_h",
+                "max_w",
+                "base_profit_rate"
             ],
             ...profiles.map((profile) => [
-                profile.name,
                 profile.code,
                 profile.brand,
-                profile.system_type,
+                profile.name,
                 profile.kg_price,
-                profile.weight_6m,
+                profile.frame_weight_2_4_sach,
                 profile.frame_price,
+                profile.frame_weight_3_sach,
                 profile.frame_price_3,
-                profile.leaf_price,
+                profile.sach_weight,
+                profile.sach_price,
+                profile.mosquito_weight,
+                profile.mosquito_price_fixed,
+                profile.mosquito_price_plisse,
+                profile.net_price_panda,
+                profile.arc_trave_weight,
+                profile.arc_price,
+                profile.accessories_2_sach,
+                profile.accessories_3_sach,
+                profile.accessories_4_sach,
+                profile.system,
+                profile.max_h,
+                profile.max_w,
+                profile.base_profit_rate
             ]),
         ]
             .map((row) => row.join(","))
@@ -394,12 +550,12 @@ export default function ProfileManager({
 
     // Download sample CSV template
     const downloadSampleCSV = () => {
-        const sampleData = `profile_code,brand,profile_name,system_type,kg_price,weight_6m,frame_price,frame_price_3,leaf_price,arc_price,accessories_2_leaves,accessories_3_leaves,accessories_4_leaves,net_price,net_price_plisse,net_price_panda,base_profit_rate
-AL001,Cocoon,Standard Sliding Window,sliding,15.50,25.00,64.58,193.75,64.58,300,50,75,100,60,120,180,30
-AL002,Cocoon,Premium Hinged Door,hinged,18.00,30.00,90.00,270.00,90.00,400,60,90,120,80,160,240,35
-AL003,Cocoon,Curtain Wall System,curtain_wall,20.00,35.00,116.67,350.00,116.67,500,80,120,160,100,200,300,40
-AL004,Alumil,Classic Window Series,sliding,16.00,22.00,58.67,176.00,58.67,350,55,85,110,70,140,210,32
-AL005,Alumil,Modern Door System,hinged,19.00,28.00,88.67,266.00,88.67,450,65,100,130,85,170,255,38`;
+        const sampleData = `profile_code,brand,profile_name,kg_price,frame_weight_2_4_sach,frame_price,frame_weight_3_sach,frame_price_3,sach_weight,sach_price,mosquito_weight,mosquito_price_fixed,mosquito_price_plisse,net_price_panda,arc_trave_weight,arc_price,accessories_2_sach,accessories_3_sach,accessories_4_sach,system,max_h,max_w,base_profit_rate
+AL001,Cocoon,Standard Sliding Window,15.50,25.00,64.58,30.00,193.75,20.00,50.00,15.00,200.00,250.00,300.00,10.00,150.00,50.00,75.00,100.00,sliding,2.5,1.5,30
+AL002,Cocoon,Premium Hinged Door,18.00,30.00,90.00,35.00,270.00,25.00,60.00,18.00,250.00,300.00,350.00,12.00,200.00,60.00,90.00,120.00,hinged,3.0,2.0,35
+AL003,Cocoon,Curtain Wall System,20.00,35.00,116.67,40.00,350.00,30.00,70.00,20.00,300.00,350.00,400.00,15.00,250.00,80.00,120.00,160.00,curtain_wall,4.0,3.0,40
+AL004,Alumil,Classic Window Series,16.00,22.00,58.67,28.00,176.00,18.00,45.00,16.00,180.00,220.00,280.00,8.00,120.00,55.00,85.00,110.00,sliding,2.0,1.2,32
+AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00,220.00,280.00,320.00,11.00,180.00,65.00,100.00,130.00,hinged,2.8,1.8,38`;
 
         const blob = new Blob([sampleData], { type: "text/csv" });
         const url = window.URL.createObjectURL(blob);
@@ -491,18 +647,35 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                         // Convert numeric fields
                         const numericFields = [
                             "kg_price",
-                            "weight_6m",
+                            "frame_weight_2_4_sach",
                             "frame_price",
+                            "frame_weight_3_sach",
                             "frame_price_3",
-                            "leaf_price",
+                            "sach_weight",
+                            "sach_price",
+                            "mosquito_weight",
+                            "mosquito_price_fixed",
+                            "mosquito_price_plisse",
+                            "net_price_panda",
+                            "arc_trave_weight",
                             "arc_price",
+                            "accessories_2_sach",
+                            "accessories_3_sach",
+                            "accessories_4_sach",
+                            "max_h",
+                            "max_w",
+                            "base_profit_rate",
+                            // Legacy fields
+                            "weight_6m",
+                            "frame_meters_input",
+                            "windows_meters_input",
+                            "frame_meters_3_leaves_input",
+                            "leaf_price",
                             "accessories_2_leaves",
                             "accessories_3_leaves",
                             "accessories_4_leaves",
                             "net_price",
                             "net_price_plisse",
-                            "net_price_panda",
-                            "base_profit_rate",
                         ];
 
                         numericFields.forEach((field) => {
@@ -527,27 +700,53 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                             name: profile.profile_name,
                             code: profile.profile_code,
                             brand: profile.brand || "Unknown",
-                            system_type: (
-                                profile.system_type || "unknown"
-                            ).toLowerCase(),
+                            system_type: profile.system || "unknown",
                             kg_price: profile.kg_price || 0,
-                            weight_6m: profile.weight_6m || 0,
+                            
+                            // Frame weights and prices
+                            frame_weight_2_4_sach: profile.frame_weight_2_4_sach || 0,
                             frame_price: profile.frame_price || 0,
+                            frame_weight_3_sach: profile.frame_weight_3_sach || 0,
                             frame_price_3: profile.frame_price_3 || 0,
-                            leaf_price: profile.leaf_price || 0,
-                            arc_price: profile.arc_price || 0,
-                            accessories_2_leaves:
-                                profile.accessories_2_leaves || 0,
-                            accessories_3_leaves:
-                                profile.accessories_3_leaves || 0,
-                            accessories_4_leaves:
-                                profile.accessories_4_leaves || 0,
-                            net_price: profile.net_price || 0,
-                            net_price_plisse: profile.net_price_plisse || 0,
+                            
+                            // Sach weights and prices
+                            sach_weight: profile.sach_weight || 0,
+                            sach_price: profile.sach_price || 0,
+                            
+                            // Mosquito weights and prices
+                            mosquito_weight: profile.mosquito_weight || 0,
+                            mosquito_price_fixed: profile.mosquito_price_fixed || 0,
+                            mosquito_price_plisse: profile.mosquito_price_plisse || 0,
                             net_price_panda: profile.net_price_panda || 0,
+                            
+                            // Arc weights and prices
+                            arc_trave_weight: profile.arc_trave_weight || 0,
+                            arc_price: profile.arc_price || 0,
+                            
+                            // Accessories
+                            accessories_2_sach: profile.accessories_2_sach || 0,
+                            accessories_3_sach: profile.accessories_3_sach || 0,
+                            accessories_4_sach: profile.accessories_4_sach || 0,
+                            
+                            // System specifications
+                            system: profile.system || "",
+                            max_h: profile.max_h || 0,
+                            max_w: profile.max_w || 0,
                             base_profit_rate: profile.base_profit_rate || 0,
+                            
+                            // Legacy fields for backward compatibility
                             glass_price_single: profile.glass_price_single || 0,
                             glass_price_double: profile.glass_price_double || 0,
+                            weight_6m: profile.weight_6m || 0,
+                            frame_meters_input: profile.frame_meters_input || 0,
+                            windows_meters_input: profile.windows_meters_input || 0,
+                            frame_meters_3_leaves_input: profile.frame_meters_3_leaves_input || 0,
+                            leaf_price: profile.leaf_price || 0,
+                            accessories_2_leaves: profile.accessories_2_leaves || 0,
+                            accessories_3_leaves: profile.accessories_3_leaves || 0,
+                            accessories_4_leaves: profile.accessories_4_leaves || 0,
+                            net_price: profile.net_price || 0,
+                            net_price_plisse: profile.net_price_plisse || 0,
                         };
 
                         // Debug: Log the mapped profile
@@ -563,23 +762,52 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                             profile_code: newProfile.code,
                             brand: newProfile.brand,
                             system_type: newProfile.system_type,
-                            glass_price_single: profile.glass_price_single || 0,
-                            glass_price_double: profile.glass_price_double || 0,
-                            weight_6m: newProfile.weight_6m,
+                            kg_price: newProfile.kg_price,
+                            
+                            // Frame weights and prices
+                            frame_weight_2_4_sach: newProfile.frame_weight_2_4_sach,
                             frame_price: newProfile.frame_price,
+                            frame_weight_3_sach: newProfile.frame_weight_3_sach,
                             frame_price_3: newProfile.frame_price_3,
-                            leaf_price: newProfile.leaf_price,
+                            
+                            // Sach weights and prices
+                            sach_weight: newProfile.sach_weight,
+                            sach_price: newProfile.sach_price,
+                            
+                            // Mosquito weights and prices
+                            mosquito_weight: newProfile.mosquito_weight,
+                            mosquito_price_fixed: newProfile.mosquito_price_fixed,
+                            mosquito_price_plisse: newProfile.mosquito_price_plisse,
+                            net_price_panda: newProfile.net_price_panda,
+                            
+                            // Arc weights and prices
+                            arc_trave_weight: newProfile.arc_trave_weight,
                             arc_price: newProfile.arc_price,
-                            accessories_2_leaves:
-                                newProfile.accessories_2_leaves,
-                            accessories_3_leaves:
-                                newProfile.accessories_3_leaves,
-                            accessories_4_leaves:
-                                newProfile.accessories_4_leaves,
+                            
+                            // Accessories
+                            accessories_2_sach: newProfile.accessories_2_sach,
+                            accessories_3_sach: newProfile.accessories_3_sach,
+                            accessories_4_sach: newProfile.accessories_4_sach,
+                            
+                            // System specifications
+                            system: newProfile.system,
+                            max_h: newProfile.max_h,
+                            max_w: newProfile.max_w,
+                            base_profit_rate: newProfile.base_profit_rate,
+                            
+                            // Legacy fields for backward compatibility
+                            glass_price_single: newProfile.glass_price_single,
+                            glass_price_double: newProfile.glass_price_double,
+                            weight_6m: newProfile.weight_6m,
+                            frame_meters_input: newProfile.frame_meters_input,
+                            windows_meters_input: newProfile.windows_meters_input,
+                            frame_meters_3_leaves_input: newProfile.frame_meters_3_leaves_input,
+                            leaf_price: newProfile.leaf_price,
+                            accessories_2_leaves: newProfile.accessories_2_leaves,
+                            accessories_3_leaves: newProfile.accessories_3_leaves,
+                            accessories_4_leaves: newProfile.accessories_4_leaves,
                             net_price: newProfile.net_price,
                             net_price_plisse: newProfile.net_price_plisse,
-                            net_price_panda: newProfile.net_price_panda,
-                            base_profit_rate: newProfile.base_profit_rate,
                         };
 
                         // Debug: Log the Firebase data
@@ -722,29 +950,118 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
         }
     };
 
-    const calculatePrices = (kgPrice: number, weight6m: number) => {
+    // Enhanced calculation functions for different meter types
+    const calculateFramePrice = (kgPrice: number, weight6m: number, frameMetersInput: number) => {
+        const pricePerMeter = (kgPrice * weight6m) / 6;
+        return pricePerMeter * frameMetersInput;
+    };
+
+    const calculateWindowsPrice = (kgPrice: number, weight6m: number, windowsMetersInput: number) => {
+        const pricePerMeter = (kgPrice * weight6m) / 6;
+        return pricePerMeter * windowsMetersInput;
+    };
+
+    const calculateFramePrice3Leaves = (kgPrice: number, weight6m: number, frameMeters3LeavesInput: number) => {
+        const pricePerMeter = (kgPrice * weight6m) / 6;
+        return pricePerMeter * frameMeters3LeavesInput;
+    };
+
+    const calculateAllPrices = (kgPrice: number, weight6m: number, frameMetersInput: number, windowsMetersInput: number, frameMeters3LeavesInput: number) => {
         const pricePerMeter = (kgPrice * weight6m) / 6;
         return {
-            framePrice: pricePerMeter,
-            framePrice3: pricePerMeter * 3,
-            leafPrice: pricePerMeter,
+            framePrice: pricePerMeter * frameMetersInput,
+            windowsPrice: pricePerMeter * windowsMetersInput,
+            framePrice3Leaves: pricePerMeter * frameMeters3LeavesInput,
+            leafPrice: pricePerMeter, // Default leaf price calculation
         };
     };
 
+    // Enhanced handlers for individual meter inputs
+    const handleFrameMetersInputChange = (value: number, isEdit: boolean = false) => {
+        const form = isEdit ? editingProfile : createForm;
+        const kgPrice = isEdit ? editingProfile?.kg_price : createForm.kg_price;
+        const weight6m = isEdit ? editingProfile?.weight_6m : createForm.weight_6m;
+
+        if (form && kgPrice && weight6m) {
+            const framePrice = calculateFramePrice(kgPrice, weight6m, value);
+            if (isEdit && editingProfile) {
+                setEditingProfile({
+                    ...editingProfile,
+                    frame_meters_input: value,
+                    frame_price: framePrice,
+                });
+            } else {
+                setCreateForm({
+                    ...createForm,
+                    frame_meters_input: value,
+                    frame_price: framePrice,
+                });
+            }
+        }
+    };
+
+    const handleWindowsMetersInputChange = (value: number, isEdit: boolean = false) => {
+        const form = isEdit ? editingProfile : createForm;
+        const kgPrice = isEdit ? editingProfile?.kg_price : createForm.kg_price;
+        const weight6m = isEdit ? editingProfile?.weight_6m : createForm.weight_6m;
+
+        if (form && kgPrice && weight6m) {
+            const windowsPrice = calculateWindowsPrice(kgPrice, weight6m, value);
+            if (isEdit && editingProfile) {
+                setEditingProfile({
+                    ...editingProfile,
+                    windows_meters_input: value,
+                    leaf_price: windowsPrice, // Assuming windows price maps to leaf price
+                });
+            } else {
+                setCreateForm({
+                    ...createForm,
+                    windows_meters_input: value,
+                    leaf_price: windowsPrice,
+                });
+            }
+        }
+    };
+
+    const handleFrameMeters3LeavesInputChange = (value: number, isEdit: boolean = false) => {
+        const form = isEdit ? editingProfile : createForm;
+        const kgPrice = isEdit ? editingProfile?.kg_price : createForm.kg_price;
+        const weight6m = isEdit ? editingProfile?.weight_6m : createForm.weight_6m;
+
+        if (form && kgPrice && weight6m) {
+            const framePrice3Leaves = calculateFramePrice3Leaves(kgPrice, weight6m, value);
+            if (isEdit && editingProfile) {
+                setEditingProfile({
+                    ...editingProfile,
+                    frame_meters_3_leaves_input: value,
+                    frame_price_3: framePrice3Leaves,
+                });
+            } else {
+                setCreateForm({
+                    ...createForm,
+                    frame_meters_3_leaves_input: value,
+                    frame_price_3: framePrice3Leaves,
+                });
+            }
+        }
+    };
+
+    // Enhanced handlers for kg_price and weight changes that recalculate all prices
     const handleKgPriceChange = (value: number, isEdit: boolean = false) => {
         const form = isEdit ? editingProfile : createForm;
-        const weight = isEdit
-            ? editingProfile?.weight_6m
-            : createForm.weight_6m;
+        const weight = isEdit ? editingProfile?.weight_6m : createForm.weight_6m;
+        const frameMetersInput = isEdit ? editingProfile?.frame_meters_input : createForm.frame_meters_input;
+        const windowsMetersInput = isEdit ? editingProfile?.windows_meters_input : createForm.windows_meters_input;
+        const frameMeters3LeavesInput = isEdit ? editingProfile?.frame_meters_3_leaves_input : createForm.frame_meters_3_leaves_input;
 
-        if (form && weight) {
-            const prices = calculatePrices(value, weight);
+        if (form && weight && frameMetersInput && windowsMetersInput && frameMeters3LeavesInput) {
+            const prices = calculateAllPrices(value, weight, frameMetersInput, windowsMetersInput, frameMeters3LeavesInput);
             if (isEdit && editingProfile) {
                 setEditingProfile({
                     ...editingProfile,
                     kg_price: value,
                     frame_price: prices.framePrice,
-                    frame_price_3: prices.framePrice3,
+                    frame_price_3: prices.framePrice3Leaves,
                     leaf_price: prices.leafPrice,
                 });
             } else {
@@ -752,7 +1069,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                     ...createForm,
                     kg_price: value,
                     frame_price: prices.framePrice,
-                    frame_price_3: prices.framePrice3,
+                    frame_price_3: prices.framePrice3Leaves,
                     leaf_price: prices.leafPrice,
                 });
             }
@@ -762,15 +1079,18 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
     const handleWeightChange = (value: number, isEdit: boolean = false) => {
         const form = isEdit ? editingProfile : createForm;
         const kgPrice = isEdit ? editingProfile?.kg_price : createForm.kg_price;
+        const frameMetersInput = isEdit ? editingProfile?.frame_meters_input : createForm.frame_meters_input;
+        const windowsMetersInput = isEdit ? editingProfile?.windows_meters_input : createForm.windows_meters_input;
+        const frameMeters3LeavesInput = isEdit ? editingProfile?.frame_meters_3_leaves_input : createForm.frame_meters_3_leaves_input;
 
-        if (form && kgPrice) {
-            const prices = calculatePrices(kgPrice, value);
+        if (form && kgPrice && frameMetersInput && windowsMetersInput && frameMeters3LeavesInput) {
+            const prices = calculateAllPrices(kgPrice, value, frameMetersInput, windowsMetersInput, frameMeters3LeavesInput);
             if (isEdit && editingProfile) {
                 setEditingProfile({
                     ...editingProfile,
                     weight_6m: value,
                     frame_price: prices.framePrice,
-                    frame_price_3: prices.framePrice3,
+                    frame_price_3: prices.framePrice3Leaves,
                     leaf_price: prices.leafPrice,
                 });
             } else {
@@ -778,7 +1098,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                     ...createForm,
                     weight_6m: value,
                     frame_price: prices.framePrice,
-                    frame_price_3: prices.framePrice3,
+                    frame_price_3: prices.framePrice3Leaves,
                     leaf_price: prices.leafPrice,
                 });
             }
@@ -1601,42 +1921,24 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
             {/* Create Profile Modal */}
             {showCreateModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-lg p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
                         <h3 className="text-lg font-semibold mb-4">
                             Create New Profile
                         </h3>
 
-                        <div className="space-y-4">
-                            {/* Basic Info */}
+                        <div className="space-y-6">
+                            {/* Basic Information */}
                             <div>
-                                <h4 className="font-medium mb-3">
-                                    Basic Information
-                                </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>Profile Name</Label>
-                                        <Input
-                                            value={createForm.name || ""}
-                                            onChange={(e) =>
-                                                handleCreateChange(
-                                                    "name",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Profile name"
-                                        />
-                                    </div>
+                                <h4 className="font-medium mb-3">Basic Information</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <Label>Profile Code</Label>
                                         <Input
                                             value={createForm.code || ""}
                                             onChange={(e) =>
-                                                handleCreateChange(
-                                                    "code",
-                                                    e.target.value
-                                                )
+                                                handleCreateChange("code", e.target.value)
                                             }
-                                            placeholder="Profile code"
+                                            placeholder="e.g., AL001"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -1644,43 +1946,20 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                         <Input
                                             value={createForm.brand || ""}
                                             onChange={(e) =>
-                                                handleCreateChange(
-                                                    "brand",
-                                                    e.target.value
-                                                )
+                                                handleCreateChange("brand", e.target.value)
                                             }
-                                            placeholder="Brand name"
+                                            placeholder="e.g., Cocoon"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>System Type</Label>
-                                        <Select
-                                            value={createForm.system_type || ""}
-                                            onValueChange={(value) =>
-                                                handleCreateChange(
-                                                    "system_type",
-                                                    value
-                                                )
+                                        <Label>Profile Name</Label>
+                                        <Input
+                                            value={createForm.name || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("name", e.target.value)
                                             }
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select system type" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="sliding">
-                                                    Sliding
-                                                </SelectItem>
-                                                <SelectItem value="hinged">
-                                                    Hinged
-                                                </SelectItem>
-                                                <SelectItem value="fixed">
-                                                    Fixed
-                                                </SelectItem>
-                                                <SelectItem value="curtain_wall">
-                                                    Curtain Wall
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                            placeholder="e.g., Standard Sliding Window"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -1688,7 +1967,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                             {/* Pricing */}
                             <div>
                                 <h4 className="font-medium mb-3">Pricing</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label>KG Price</Label>
                                         <Input
@@ -1696,83 +1975,325 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                             step="0.01"
                                             value={createForm.kg_price || ""}
                                             onChange={(e) =>
-                                                handleKgPriceChange(
-                                                    parseFloat(
-                                                        e.target.value
-                                                    ) || 0
-                                                )
+                                                handleCreateChange("kg_price", parseFloat(e.target.value) || 0)
                                             }
                                             placeholder="0.00"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Weight (6m)</Label>
+                                        <Label>Base Profit Rate (%)</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.weight_6m || ""}
+                                            value={createForm.base_profit_rate || ""}
                                             onChange={(e) =>
-                                                handleWeightChange(
-                                                    parseFloat(
-                                                        e.target.value
-                                                    ) || 0
-                                                )
+                                                handleCreateChange("base_profit_rate", parseFloat(e.target.value) || 0)
                                             }
-                                            placeholder="0.00"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Frame Price (calculated)</Label>
-                                        <Input
-                                            type="number"
-                                            step="0.01"
-                                            value={createForm.frame_price || ""}
-                                            disabled
-                                            placeholder="0.00"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>
-                                            Frame Price 3 (calculated)
-                                        </Label>
-                                        <Input
-                                            type="number"
-                                            step="0.01"
-                                            value={
-                                                createForm.frame_price_3 || ""
-                                            }
-                                            disabled
-                                            placeholder="0.00"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Leaf Price (calculated)</Label>
-                                        <Input
-                                            type="number"
-                                            step="0.01"
-                                            value={createForm.leaf_price || ""}
-                                            disabled
                                             placeholder="0.00"
                                         />
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex gap-2 mt-6">
-                                <Button
-                                    onClick={createProfile}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Save className="h-4 w-4" />
-                                    Create Profile
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setShowCreateModal(false)}
-                                >
-                                    Cancel
-                                </Button>
+                            {/* Frame Weights and Prices */}
+                            <div>
+                                <h4 className="font-medium mb-3">Frame Weights and Prices</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Frame Weight 2,4 Sach</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.frame_weight_2_4_sach || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("frame_weight_2_4_sach", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Frame Price</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.frame_price || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("frame_price", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Frame Weight 3 Sach</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.frame_weight_3_sach || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("frame_weight_3_sach", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Frame Price 3</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.frame_price_3 || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("frame_price_3", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
                             </div>
+
+                            {/* Sach Weights and Prices */}
+                            <div>
+                                <h4 className="font-medium mb-3">Sach Weights and Prices</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Sach Weight</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.sach_weight || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("sach_weight", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Sach Price</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.sach_price || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("sach_price", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Mosquito Weights and Prices */}
+                            <div>
+                                <h4 className="font-medium mb-3">Mosquito Weights and Prices</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Mosquito Weight</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.mosquito_weight || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("mosquito_weight", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Mosquito Price Fixed</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.mosquito_price_fixed || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("mosquito_price_fixed", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Mosquito Price Plisse</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.mosquito_price_plisse || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("mosquito_price_plisse", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Net Price Panda</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.net_price_panda || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("net_price_panda", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Arc Weights and Prices */}
+                            <div>
+                                <h4 className="font-medium mb-3">Arc Weights and Prices</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Arc Trave Weight</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.arc_trave_weight || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("arc_trave_weight", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Arc Price</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.arc_price || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("arc_price", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Accessories */}
+                            <div>
+                                <h4 className="font-medium mb-3">Accessories</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Accessories 2 Sach</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.accessories_2_sach || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("accessories_2_sach", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Accessories 3 Sach</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.accessories_3_sach || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("accessories_3_sach", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Accessories 4 Sach</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.accessories_4_sach || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("accessories_4_sach", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* System Specifications */}
+                            <div>
+                                <h4 className="font-medium mb-3">System Specifications</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>System</Label>
+                                        <Select
+                                            value={createForm.system || ""}
+                                            onValueChange={(value) =>
+                                                handleCreateChange("system", value)
+                                            }
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select system" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="sliding">Sliding</SelectItem>
+                                                <SelectItem value="hinged">Hinged</SelectItem>
+                                                <SelectItem value="fixed">Fixed</SelectItem>
+                                                <SelectItem value="curtain_wall">Curtain Wall</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Max Height (m)</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.max_h || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("max_h", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Max Width (m)</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={createForm.max_w || ""}
+                                            onChange={(e) =>
+                                                handleCreateChange("max_w", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>System Type</Label>
+                                        <Select
+                                            value={createForm.system_type || ""}
+                                            onValueChange={(value) =>
+                                                handleCreateChange("system_type", value)
+                                            }
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select system type" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="sliding">Sliding</SelectItem>
+                                                <SelectItem value="hinged">Hinged</SelectItem>
+                                                <SelectItem value="fixed">Fixed</SelectItem>
+                                                <SelectItem value="curtain_wall">Curtain Wall</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2 mt-6">
+                            <Button
+                                onClick={createProfile}
+                                className="flex items-center gap-2"
+                            >
+                                <Save className="h-4 w-4" />
+                                Create Profile
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowCreateModal(false)}
+                            >
+                                Cancel
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -1781,42 +2302,24 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
             {/* Edit Profile Modal */}
             {showEditModal && editingProfile && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-lg p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
                         <h3 className="text-lg font-semibold mb-4">
                             Edit Profile
                         </h3>
 
-                        <div className="space-y-4">
-                            {/* Basic Info */}
+                        <div className="space-y-6">
+                            {/* Basic Information */}
                             <div>
-                                <h4 className="font-medium mb-3">
-                                    Basic Information
-                                </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>Profile Name</Label>
-                                        <Input
-                                            value={editingProfile.name || ""}
-                                            onChange={(e) =>
-                                                handleEditChange(
-                                                    "name",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Profile name"
-                                        />
-                                    </div>
+                                <h4 className="font-medium mb-3">Basic Information</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <Label>Profile Code</Label>
                                         <Input
                                             value={editingProfile.code || ""}
                                             onChange={(e) =>
-                                                handleEditChange(
-                                                    "code",
-                                                    e.target.value
-                                                )
+                                                handleEditChange("code", e.target.value)
                                             }
-                                            placeholder="Profile code"
+                                            placeholder="e.g., AL001"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -1824,45 +2327,20 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                         <Input
                                             value={editingProfile.brand || ""}
                                             onChange={(e) =>
-                                                handleEditChange(
-                                                    "brand",
-                                                    e.target.value
-                                                )
+                                                handleEditChange("brand", e.target.value)
                                             }
-                                            placeholder="Brand name"
+                                            placeholder="e.g., Cocoon"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>System Type</Label>
-                                        <Select
-                                            value={
-                                                editingProfile.system_type || ""
+                                        <Label>Profile Name</Label>
+                                        <Input
+                                            value={editingProfile.name || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("name", e.target.value)
                                             }
-                                            onValueChange={(value) =>
-                                                handleEditChange(
-                                                    "system_type",
-                                                    value
-                                                )
-                                            }
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select system type" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="sliding">
-                                                    Sliding
-                                                </SelectItem>
-                                                <SelectItem value="hinged">
-                                                    Hinged
-                                                </SelectItem>
-                                                <SelectItem value="fixed">
-                                                    Fixed
-                                                </SelectItem>
-                                                <SelectItem value="curtain_wall">
-                                                    Curtain Wall
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                            placeholder="e.g., Standard Sliding Window"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -1870,102 +2348,333 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                             {/* Pricing */}
                             <div>
                                 <h4 className="font-medium mb-3">Pricing</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label>KG Price</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={
-                                                editingProfile.kg_price || ""
-                                            }
+                                            value={editingProfile.kg_price || ""}
                                             onChange={(e) =>
-                                                handleKgPriceChange(
-                                                    parseFloat(
-                                                        e.target.value
-                                                    ) || 0,
-                                                    true
-                                                )
+                                                handleEditChange("kg_price", parseFloat(e.target.value) || 0)
                                             }
                                             placeholder="0.00"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Weight (6m)</Label>
+                                        <Label>Base Profit Rate (%)</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={
-                                                editingProfile.weight_6m || ""
-                                            }
+                                            value={editingProfile.base_profit_rate || ""}
                                             onChange={(e) =>
-                                                handleWeightChange(
-                                                    parseFloat(
-                                                        e.target.value
-                                                    ) || 0,
-                                                    true
-                                                )
+                                                handleEditChange("base_profit_rate", parseFloat(e.target.value) || 0)
                                             }
-                                            placeholder="0.00"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Frame Price (calculated)</Label>
-                                        <Input
-                                            type="number"
-                                            step="0.01"
-                                            value={
-                                                editingProfile.frame_price || ""
-                                            }
-                                            disabled
-                                            placeholder="0.00"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>
-                                            Frame Price 3 (calculated)
-                                        </Label>
-                                        <Input
-                                            type="number"
-                                            step="0.01"
-                                            value={
-                                                editingProfile.frame_price_3 ||
-                                                ""
-                                            }
-                                            disabled
-                                            placeholder="0.00"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Leaf Price (calculated)</Label>
-                                        <Input
-                                            type="number"
-                                            step="0.01"
-                                            value={
-                                                editingProfile.leaf_price || ""
-                                            }
-                                            disabled
                                             placeholder="0.00"
                                         />
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex gap-2 mt-6">
-                                <Button
-                                    onClick={updateProfile}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Save className="h-4 w-4" />
-                                    Update Profile
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setShowEditModal(false)}
-                                >
-                                    Cancel
-                                </Button>
+                            {/* Frame Weights and Prices */}
+                            <div>
+                                <h4 className="font-medium mb-3">Frame Weights and Prices</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Frame Weight 2,4 Sach</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.frame_weight_2_4_sach || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("frame_weight_2_4_sach", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Frame Price</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.frame_price || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("frame_price", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Frame Weight 3 Sach</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.frame_weight_3_sach || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("frame_weight_3_sach", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Frame Price 3</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.frame_price_3 || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("frame_price_3", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
                             </div>
+
+                            {/* Sach Weights and Prices */}
+                            <div>
+                                <h4 className="font-medium mb-3">Sach Weights and Prices</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Sach Weight</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.sach_weight || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("sach_weight", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Sach Price</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.sach_price || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("sach_price", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Mosquito Weights and Prices */}
+                            <div>
+                                <h4 className="font-medium mb-3">Mosquito Weights and Prices</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Mosquito Weight</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.mosquito_weight || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("mosquito_weight", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Mosquito Price Fixed</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.mosquito_price_fixed || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("mosquito_price_fixed", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Mosquito Price Plisse</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.mosquito_price_plisse || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("mosquito_price_plisse", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Net Price Panda</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.net_price_panda || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("net_price_panda", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Arc Weights and Prices */}
+                            <div>
+                                <h4 className="font-medium mb-3">Arc Weights and Prices</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Arc Trave Weight</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.arc_trave_weight || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("arc_trave_weight", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Arc Price</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.arc_price || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("arc_price", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Accessories */}
+                            <div>
+                                <h4 className="font-medium mb-3">Accessories</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Accessories 2 Sach</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.accessories_2_sach || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("accessories_2_sach", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Accessories 3 Sach</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.accessories_3_sach || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("accessories_3_sach", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Accessories 4 Sach</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.accessories_4_sach || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("accessories_4_sach", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* System Specifications */}
+                            <div>
+                                <h4 className="font-medium mb-3">System Specifications</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>System</Label>
+                                        <Select
+                                            value={editingProfile.system || ""}
+                                            onValueChange={(value) =>
+                                                handleEditChange("system", value)
+                                            }
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select system" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="sliding">Sliding</SelectItem>
+                                                <SelectItem value="hinged">Hinged</SelectItem>
+                                                <SelectItem value="fixed">Fixed</SelectItem>
+                                                <SelectItem value="curtain_wall">Curtain Wall</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Max Height (m)</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.max_h || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("max_h", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Max Width (m)</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={editingProfile.max_w || ""}
+                                            onChange={(e) =>
+                                                handleEditChange("max_w", parseFloat(e.target.value) || 0)
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>System Type</Label>
+                                        <Select
+                                            value={editingProfile.system_type || ""}
+                                            onValueChange={(value) =>
+                                                handleEditChange("system_type", value)
+                                            }
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select system type" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="sliding">Sliding</SelectItem>
+                                                <SelectItem value="hinged">Hinged</SelectItem>
+                                                <SelectItem value="fixed">Fixed</SelectItem>
+                                                <SelectItem value="curtain_wall">Curtain Wall</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2 mt-6">
+                            <Button
+                                onClick={updateProfile}
+                                className="flex items-center gap-2"
+                            >
+                                <Save className="h-4 w-4" />
+                                Update Profile
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowEditModal(false)}
+                            >
+                                Cancel
+                            </Button>
                         </div>
                     </div>
                 </div>
