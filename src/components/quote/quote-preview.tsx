@@ -84,15 +84,52 @@ export function QuotePreview({
                 let svgElements = "";
                 svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWallWidth}" height="${scaledWallHeight}" fill="none" stroke="#374151" stroke-width="1"/>`;
 
+                // Get grid information
+                const { columns, rows, columnSizes, rowSizes } = item.designData;
+                
+                // Use provided columnSizes/rowSizes if available, otherwise create uniform sizes
+                const effectiveColumnSizes = columnSizes && columnSizes.length > 0 
+                    ? columnSizes 
+                    : Array(columns).fill(wallWidth / columns);
+                const effectiveRowSizes = rowSizes && rowSizes.length > 0 
+                    ? rowSizes 
+                    : Array(rows).fill(wallHeight / rows);
+
+                // Compute cumulative positions for columns
+                const cumulativeColPositions = [0];
+                for (let i = 0; i < effectiveColumnSizes.length; i++) {
+                    cumulativeColPositions.push(cumulativeColPositions[i] + effectiveColumnSizes[i]);
+                }
+                const totalColumnSizes = cumulativeColPositions[cumulativeColPositions.length - 1];
+
+                // Compute cumulative positions for rows
+                const cumulativeRowPositions = [0];
+                for (let i = 0; i < effectiveRowSizes.length; i++) {
+                    cumulativeRowPositions.push(cumulativeRowPositions[i] + effectiveRowSizes[i]);
+                }
+                const totalRowSizes = cumulativeRowPositions[cumulativeRowPositions.length - 1];
+
                 panels.forEach((panel) => {
-                    const panelX =
-                        offsetX + (panel.left / 100) * scaledWallWidth;
-                    const panelY =
-                        offsetY + (panel.top / 100) * scaledWallHeight;
-                    const panelWidth =
-                        (panel.widthMeters / wallWidth) * scaledWallWidth;
-                    const panelHeight =
-                        (panel.heightMeters / wallHeight) * scaledWallHeight;
+                    // Calculate panel position and size based on cumulative positions
+                    const col = panel.col || 0;
+                    const row = panel.row || 0;
+                    const colSpan = panel.colSpan || 1;
+                    const rowSpan = panel.rowSpan || 1;
+
+                    // Ensure we don't go out of bounds
+                    const endCol = Math.min(col + colSpan, cumulativeColPositions.length - 1);
+                    const endRow = Math.min(row + rowSpan, cumulativeRowPositions.length - 1);
+
+                    const leftInMeters = cumulativeColPositions[col];
+                    const topInMeters = cumulativeRowPositions[row];
+                    const widthInMeters = cumulativeColPositions[endCol] - leftInMeters;
+                    const heightInMeters = cumulativeRowPositions[endRow] - topInMeters;
+
+                    // Convert to SVG coordinates
+                    const panelX = offsetX + (leftInMeters / totalColumnSizes) * scaledWallWidth;
+                    const panelY = offsetY + (topInMeters / totalRowSizes) * scaledWallHeight;
+                    const panelWidth = (widthInMeters / totalColumnSizes) * scaledWallWidth;
+                    const panelHeight = (heightInMeters / totalRowSizes) * scaledWallHeight;
 
                     let fillColor = "#87CEEB";
                     let strokeColor = "#666";

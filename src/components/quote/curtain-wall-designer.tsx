@@ -93,6 +93,12 @@ interface CurtainWallDesignerProps {
         cornerCount: number;
         totalCost: number;
         materialBreakdown: Record<string, number>;
+        columns: number;
+        rows: number;
+        columnSizes: number[];
+        rowSizes: number[];
+        wallWidth: number;
+        wallHeight: number;
     }) => void;
 }
 
@@ -269,6 +275,12 @@ export function CurtainWallDesigner({
                 cornerCount,
                 totalCost,
                 materialBreakdown,
+                columns: currentColumns,
+                rows: currentRows,
+                columnSizes,
+                rowSizes,
+                wallWidth,
+                wallHeight,
             });
         },
         [wallWidth, wallHeight, material, glassType, onDesignChange]
