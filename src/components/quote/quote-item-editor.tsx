@@ -53,6 +53,7 @@ interface QuoteItemEditorProps {
     onRemove: () => void;
     index: number;
     globalColor?: ColorOption;
+    onUpdateGlobalColor?: (color: ColorOption) => void;
 }
 
 export function QuoteItemEditor({
@@ -61,6 +62,7 @@ export function QuoteItemEditor({
     onRemove,
     index,
     globalColor,
+    onUpdateGlobalColor,
 }: QuoteItemEditorProps) {
     const [isExpanded, setIsExpanded] = useState(true);
     const [showProfileManager, setShowProfileManager] = useState(false);
@@ -158,7 +160,13 @@ export function QuoteItemEditor({
     };
 
     const handleColorSelect = (color: ColorOption) => {
-        handleUpdate("color", color);
+        // If no global color is set, set the global color
+        // Otherwise, set the item-specific color
+        if (!globalColor && onUpdateGlobalColor) {
+            onUpdateGlobalColor(color);
+        } else {
+            handleUpdate("color", color);
+        }
         setShowColorManager(false);
     };
 
@@ -231,55 +239,119 @@ export function QuoteItemEditor({
                 panels.forEach((panel) => {
                     // Use cumulative positioning for non-uniform sizes (primary method)
                     let panelX, panelY, panelWidth, panelHeight;
-                    
+
                     if (panel.col !== undefined && panel.row !== undefined) {
                         // Calculate cumulative positions for columns
                         const totalWidth = wallWidth;
                         const totalHeight = wallHeight;
                         const cumulativeColumnPositions = [0];
                         const cumulativeRowPositions = [0];
-                        
+
                         // Build cumulative positions based on column/row sizes if available
-                        if (item.designData?.columnSizes && item.designData.columnSizes.length > 0) {
-                            for (let i = 0; i < item.designData.columnSizes.length; i++) {
-                                cumulativeColumnPositions.push(cumulativeColumnPositions[i] + item.designData.columnSizes[i]);
+                        if (
+                            item.designData?.columnSizes &&
+                            item.designData.columnSizes.length > 0
+                        ) {
+                            for (
+                                let i = 0;
+                                i < item.designData.columnSizes.length;
+                                i++
+                            ) {
+                                cumulativeColumnPositions.push(
+                                    cumulativeColumnPositions[i] +
+                                        item.designData.columnSizes[i]
+                                );
                             }
                         } else {
-                            const uniformColumnWidth = wallWidth / (item.designData?.columns || 4);
-                            for (let i = 0; i <= (item.designData?.columns || 4); i++) {
-                                cumulativeColumnPositions.push(i * uniformColumnWidth);
+                            const uniformColumnWidth =
+                                wallWidth / (item.designData?.columns || 4);
+                            for (
+                                let i = 0;
+                                i <= (item.designData?.columns || 4);
+                                i++
+                            ) {
+                                cumulativeColumnPositions.push(
+                                    i * uniformColumnWidth
+                                );
                             }
                         }
-                        
-                        if (item.designData?.rowSizes && item.designData.rowSizes.length > 0) {
-                            for (let i = 0; i < item.designData.rowSizes.length; i++) {
-                                cumulativeRowPositions.push(cumulativeRowPositions[i] + item.designData.rowSizes[i]);
+
+                        if (
+                            item.designData?.rowSizes &&
+                            item.designData.rowSizes.length > 0
+                        ) {
+                            for (
+                                let i = 0;
+                                i < item.designData.rowSizes.length;
+                                i++
+                            ) {
+                                cumulativeRowPositions.push(
+                                    cumulativeRowPositions[i] +
+                                        item.designData.rowSizes[i]
+                                );
                             }
                         } else {
-                            const uniformRowHeight = wallHeight / (item.designData?.rows || 3);
-                            for (let i = 0; i <= (item.designData?.rows || 3); i++) {
-                                cumulativeRowPositions.push(i * uniformRowHeight);
+                            const uniformRowHeight =
+                                wallHeight / (item.designData?.rows || 3);
+                            for (
+                                let i = 0;
+                                i <= (item.designData?.rows || 3);
+                                i++
+                            ) {
+                                cumulativeRowPositions.push(
+                                    i * uniformRowHeight
+                                );
                             }
                         }
-                        
-                        const col = Math.min(panel.col, cumulativeColumnPositions.length - 1);
-                        const row = Math.min(panel.row, cumulativeRowPositions.length - 1);
+
+                        const col = Math.min(
+                            panel.col,
+                            cumulativeColumnPositions.length - 1
+                        );
+                        const row = Math.min(
+                            panel.row,
+                            cumulativeRowPositions.length - 1
+                        );
                         const colSpan = panel.colSpan || 1;
                         const rowSpan = panel.rowSpan || 1;
-                        
+
                         // Calculate position based on cumulative positions
                         const leftMeters = cumulativeColumnPositions[col];
                         const topMeters = cumulativeRowPositions[row];
-                        const rightMeters = cumulativeColumnPositions[Math.min(col + colSpan, cumulativeColumnPositions.length - 1)];
-                        const bottomMeters = cumulativeRowPositions[Math.min(row + rowSpan, cumulativeRowPositions.length - 1)];
-                        
+                        const rightMeters =
+                            cumulativeColumnPositions[
+                                Math.min(
+                                    col + colSpan,
+                                    cumulativeColumnPositions.length - 1
+                                )
+                            ];
+                        const bottomMeters =
+                            cumulativeRowPositions[
+                                Math.min(
+                                    row + rowSpan,
+                                    cumulativeRowPositions.length - 1
+                                )
+                            ];
+
                         // Convert to SVG coordinates
-                        panelX = offsetX + (leftMeters / totalWidth) * scaledWallWidth;
-                        panelY = offsetY + (topMeters / totalHeight) * scaledWallHeight;
-                        panelWidth = ((rightMeters - leftMeters) / totalWidth) * scaledWallWidth;
-                        panelHeight = ((bottomMeters - topMeters) / totalHeight) * scaledWallHeight;
-                    } else if (panel.left !== undefined && panel.top !== undefined && 
-                        panel.width !== undefined && panel.height !== undefined) {
+                        panelX =
+                            offsetX +
+                            (leftMeters / totalWidth) * scaledWallWidth;
+                        panelY =
+                            offsetY +
+                            (topMeters / totalHeight) * scaledWallHeight;
+                        panelWidth =
+                            ((rightMeters - leftMeters) / totalWidth) *
+                            scaledWallWidth;
+                        panelHeight =
+                            ((bottomMeters - topMeters) / totalHeight) *
+                            scaledWallHeight;
+                    } else if (
+                        panel.left !== undefined &&
+                        panel.top !== undefined &&
+                        panel.width !== undefined &&
+                        panel.height !== undefined
+                    ) {
                         // Fallback to percentage-based positioning
                         panelX = offsetX + (panel.left / 100) * scaledWallWidth;
                         panelY = offsetY + (panel.top / 100) * scaledWallHeight;
@@ -287,8 +359,11 @@ export function QuoteItemEditor({
                         panelHeight = (panel.height / 100) * scaledWallHeight;
                     } else {
                         // Final fallback to meter-based positioning
-                        panelWidth = (panel.widthMeters / wallWidth) * scaledWallWidth;
-                        panelHeight = (panel.heightMeters / wallHeight) * scaledWallHeight;
+                        panelWidth =
+                            (panel.widthMeters / wallWidth) * scaledWallWidth;
+                        panelHeight =
+                            (panel.heightMeters / wallHeight) *
+                            scaledWallHeight;
                         panelX = offsetX + (panel.left / 100) * scaledWallWidth;
                         panelY = offsetY + (panel.top / 100) * scaledWallHeight;
                     }

@@ -291,6 +291,9 @@ export default function QuoteGeneratorPage() {
                                                 globalColor={
                                                     quoteData.globalColor
                                                 }
+                                                onUpdateGlobalColor={
+                                                    updateGlobalColor
+                                                }
                                             />
                                         ))}
                                     </div>
