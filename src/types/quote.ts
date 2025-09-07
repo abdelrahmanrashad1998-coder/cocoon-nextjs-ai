@@ -95,6 +95,7 @@ export interface QuoteData {
     priority?: "low" | "medium" | "high";
     estimatedCompletionDate?: string;
     actualCompletionDate?: string;
+    productionStartDate?: string;
 }
 
 export interface QuoteTotals {

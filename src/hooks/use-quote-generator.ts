@@ -229,7 +229,18 @@ export const useQuoteGenerator = () => {
                 return obj;
             };
 
-            const sanitizedQuoteData = sanitizeForFirestore(quoteData);
+            // Handle production start date tracking
+            const quoteDataToSave = { ...quoteData };
+            
+            // If status is changing to in_production and we don't have a production start date, set it
+            if (quoteDataToSave.status === "in_production" && !quoteDataToSave.productionStartDate) {
+                quoteDataToSave.productionStartDate = new Date().toISOString();
+            }
+            
+            // Always update the updatedAt timestamp
+            quoteDataToSave.updatedAt = new Date().toISOString();
+
+            const sanitizedQuoteData = sanitizeForFirestore(quoteDataToSave);
 
             const { setDoc, doc } = await import("firebase/firestore");
             const docRef = doc(db, "quotes", sanitizedQuoteName);
@@ -1444,6 +1455,55 @@ export const useQuoteGenerator = () => {
         [quoteData, calculateTotals]
     );
 
+    const updateQuoteStatus = useCallback(async (quoteId: string, newStatus: QuoteStatus) => {
+        setLoading(true);
+        setError(null);
+        try {
+            console.log("Updating quote status:", quoteId, "to", newStatus);
+            
+            // Get current quote data
+            const { getDoc, doc, setDoc } = await import("firebase/firestore");
+            const docRef = doc(db, "quotes", quoteId);
+            const docSnap = await getDoc(docRef);
+            
+            if (!docSnap.exists()) {
+                throw new Error("Quote not found");
+            }
+            
+            const currentData = docSnap.data() as QuoteData;
+            const updatedData = { ...currentData };
+            
+            // Update status
+            updatedData.status = newStatus;
+            updatedData.updatedAt = new Date().toISOString();
+            
+            // If changing to in_production and no production start date, set it
+            if (newStatus === "in_production" && !updatedData.productionStartDate) {
+                updatedData.productionStartDate = new Date().toISOString();
+            }
+            
+            // If changing to completed, set actual completion date
+            if (newStatus === "completed" && !updatedData.actualCompletionDate) {
+                updatedData.actualCompletionDate = new Date().toISOString();
+            }
+            
+            await setDoc(docRef, updatedData);
+            console.log("Quote status updated successfully");
+            
+            return updatedData;
+        } catch (err) {
+            console.error("Update quote status error:", err);
+            setError(
+                `Failed to update quote status: ${
+                    err instanceof Error ? err.message : "Unknown error"
+                }`
+            );
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     return {
         quoteData,
         addItem,
@@ -1459,6 +1519,7 @@ export const useQuoteGenerator = () => {
         fetchQuotes,
         fetchQuoteById,
         deleteQuote,
+        updateQuoteStatus,
         loadQuote,
         resetQuote,
         loading,

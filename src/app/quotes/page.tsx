@@ -62,12 +62,13 @@ export default function QuotesPage() {
     const [statusFilter, setStatusFilter] = useState<QuoteStatus | "all">("all");
     const [priorityFilter, setPriorityFilter] = useState<"all" | "low" | "medium" | "high">("all");
     const [loading, setLoading] = useState(true);
+    const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
     const [selectedQuote, setSelectedQuote] = useState<QuoteData | null>(null);
     const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
     const [rejectionReason, setRejectionReason] = useState("");
     const [approvalNotes, setApprovalNotes] = useState("");
     const router = useRouter();
-    const { fetchQuotes, deleteQuote } = useQuoteGenerator();
+    const { fetchQuotes, deleteQuote, updateQuoteStatus } = useQuoteGenerator();
 
     useEffect(() => {
         const loadQuotes = async () => {
@@ -161,8 +162,12 @@ export default function QuotesPage() {
     };
 
     const handleStatusChange = async (quoteId: string, newStatus: QuoteStatus) => {
+        setUpdatingStatus(quoteId);
         try {
-            // Update local state immediately for better UX
+            // Update Firebase first
+            await updateQuoteStatus(quoteId, newStatus);
+            
+            // Update local state after successful Firebase update
             setQuotes((prev) =>
                 prev.map((quote) =>
                     quote.id === quoteId
@@ -174,14 +179,13 @@ export default function QuotesPage() {
                         : quote
                 )
             );
-
-            // Here you would typically make an API call to update the quote status
-            // await updateQuoteStatus(quoteId, newStatus);
             
-            console.log(`Quote ${quoteId} status changed to ${newStatus}`);
+            console.log(`Quote ${quoteId} status changed to ${newStatus} and saved to Firebase`);
         } catch (error) {
             console.error("Failed to update quote status:", error);
             alert("Failed to update quote status. Please try again.");
+        } finally {
+            setUpdatingStatus(null);
         }
     };
 
@@ -189,24 +193,27 @@ export default function QuotesPage() {
         if (!selectedQuote) return;
         
         try {
-            const updatedQuote = {
-                ...selectedQuote,
-                status: "approved" as QuoteStatus,
-                approval: {
-                    ...selectedQuote.approval,
-                    approvedBy: "Current User", // Replace with actual user
-                    approvedAt: new Date().toISOString(),
-                    notes: approvalNotes,
-                },
-                updatedAt: new Date().toISOString(),
-            };
-
+            await updateQuoteStatus(selectedQuote.id, "approved");
+            
+            // Update local state
             setQuotes((prev) =>
                 prev.map((quote) =>
-                    quote.id === selectedQuote.id ? updatedQuote : quote
+                    quote.id === selectedQuote.id 
+                        ? { 
+                            ...quote, 
+                            status: "approved" as QuoteStatus,
+                            approval: {
+                                ...quote.approval,
+                                approvedBy: "Current User",
+                                approvedAt: new Date().toISOString(),
+                                notes: approvalNotes,
+                            },
+                            updatedAt: new Date().toISOString(),
+                        }
+                        : quote
                 )
             );
-
+            
             setApprovalDialogOpen(false);
             setApprovalNotes("");
             setSelectedQuote(null);
@@ -220,25 +227,28 @@ export default function QuotesPage() {
         if (!selectedQuote || !rejectionReason.trim()) return;
         
         try {
-            const updatedQuote = {
-                ...selectedQuote,
-                status: "rejected" as QuoteStatus,
-                approval: {
-                    ...selectedQuote.approval,
-                    rejectedBy: "Current User", // Replace with actual user
-                    rejectedAt: new Date().toISOString(),
-                    rejectionReason: rejectionReason,
-                    notes: approvalNotes,
-                },
-                updatedAt: new Date().toISOString(),
-            };
-
+            await updateQuoteStatus(selectedQuote.id, "rejected");
+            
+            // Update local state
             setQuotes((prev) =>
                 prev.map((quote) =>
-                    quote.id === selectedQuote.id ? updatedQuote : quote
+                    quote.id === selectedQuote.id 
+                        ? { 
+                            ...quote, 
+                            status: "rejected" as QuoteStatus,
+                            approval: {
+                                ...quote.approval,
+                                rejectedBy: "Current User",
+                                rejectedAt: new Date().toISOString(),
+                                rejectionReason: rejectionReason,
+                                notes: approvalNotes,
+                            },
+                            updatedAt: new Date().toISOString(),
+                        }
+                        : quote
                 )
             );
-
+            
             setApprovalDialogOpen(false);
             setRejectionReason("");
             setApprovalNotes("");
@@ -480,9 +490,13 @@ export default function QuotesPage() {
                                                     <Select
                                                         value={quote.status}
                                                         onValueChange={(value) => handleStatusChange(quote.id, value as QuoteStatus)}
+                                                        disabled={updatingStatus === quote.id}
                                                     >
                                                         <SelectTrigger className="w-32 h-8">
                                                             <SelectValue />
+                                                            {updatingStatus === quote.id && (
+                                                                <div className="ml-2 h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600"></div>
+                                                            )}
                                                         </SelectTrigger>
                                                         <SelectContent>
                                                             <SelectItem value="draft">Draft</SelectItem>
