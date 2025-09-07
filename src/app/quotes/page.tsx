@@ -48,11 +48,13 @@ import {
     Filter,
     Eye,
     User,
-    Calendar
+    Calendar,
+    History,
+    RotateCcw
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/dashboard-layout";
-import { QuoteData, QuoteStatus } from "@/types/quote";
+import { QuoteData, QuoteStatus, QuoteHistoryEntry } from "@/types/quote";
 import { useQuoteGenerator } from "@/hooks/use-quote-generator";
 
 export default function QuotesPage() {
@@ -66,6 +68,8 @@ export default function QuotesPage() {
     const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
     const [rejectionReason, setRejectionReason] = useState("");
     const [approvalNotes, setApprovalNotes] = useState("");
+    const [showHistory, setShowHistory] = useState(false);
+    const [historyQuote, setHistoryQuote] = useState<QuoteData | null>(null);
     const router = useRouter();
     const { fetchQuotes, deleteQuote, updateQuoteStatus } = useQuoteGenerator();
 
@@ -144,6 +148,46 @@ export default function QuotesPage() {
 
     const handleView = (quoteId: string) => {
         router.push(`/quote-generator?id=${quoteId}&mode=view`);
+    };
+
+    const handleViewHistory = (quote: QuoteData) => {
+        setHistoryQuote(quote);
+        setShowHistory(true);
+    };
+
+    const handleRestoreFromHistory = async (quote: QuoteData, historyEntry: QuoteHistoryEntry) => {
+        if (confirm("Are you sure you want to restore this version? This will replace the current quote data.")) {
+            try {
+                // Update the quote with the restored data
+                const updatedQuote = {
+                    ...quote,
+                    ...historyEntry.data,
+                    updatedAt: new Date().toISOString(),
+                };
+                
+                // Save the restored quote
+                const { setDoc, doc } = await import("firebase/firestore");
+                const { db } = await import("@/lib/firebase");
+                const sanitizedQuoteName = quote.name
+                    .replace(/[^a-zA-Z0-9]/g, "_")
+                    .replace(/^_+|_+$/g, "")
+                    .substring(0, 150);
+                
+                const docRef = doc(db, "quotes", sanitizedQuoteName);
+                await setDoc(docRef, updatedQuote);
+                
+                // Update local state
+                setQuotes(prev => 
+                    prev.map(q => q.id === quote.id ? updatedQuote : q)
+                );
+                
+                setShowHistory(false);
+                alert("Quote restored successfully!");
+            } catch (error) {
+                console.error("Failed to restore quote:", error);
+                alert("Failed to restore quote. Please try again.");
+            }
+        }
     };
 
     const handleDelete = async (quoteId: string) => {
@@ -419,6 +463,7 @@ export default function QuotesPage() {
                                     <TableHead>Priority</TableHead>
                                     <TableHead>Assigned To</TableHead>
                                     <TableHead>Created</TableHead>
+                                    <TableHead>History</TableHead>
                                     <TableHead>Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -454,6 +499,21 @@ export default function QuotesPage() {
                                                     <Calendar className="h-3 w-3" />
                                                     {new Date(quote.createdAt).toLocaleDateString()}
                                                 </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                {quote.history && quote.history.length > 0 ? (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => handleViewHistory(quote)}
+                                                        className="flex items-center gap-1"
+                                                    >
+                                                        <History className="h-3 w-3" />
+                                                        {quote.history.length}
+                                                    </Button>
+                                                ) : (
+                                                    <span className="text-muted-foreground text-sm">No history</span>
+                                                )}
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex gap-1">
@@ -590,6 +650,83 @@ export default function QuotesPage() {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+
+                {/* Quote History Modal */}
+                {showHistory && historyQuote && (
+                    <Dialog open={showHistory} onOpenChange={setShowHistory}>
+                        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                                <DialogTitle>Quote History - {historyQuote.name}</DialogTitle>
+                                <DialogDescription>
+                                    View and restore previous versions of this quote
+                                </DialogDescription>
+                            </DialogHeader>
+                            
+                            {historyQuote.history && historyQuote.history.length > 0 ? (
+                                <div className="space-y-4">
+                                    {historyQuote.history.map((entry, index) => (
+                                        <Card key={entry.id} className="border-l-4 border-l-blue-500">
+                                            <CardContent className="pt-4">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <History className="h-4 w-4 text-blue-500" />
+                                                            <span className="font-medium">
+                                                                {entry.changeDescription || `Version ${historyQuote.history!.length - index}`}
+                                                            </span>
+                                                            <Badge 
+                                                                variant={entry.changeDescription === "Auto-save" ? "secondary" : "outline"} 
+                                                                className="text-xs"
+                                                            >
+                                                                {entry.changeDescription === "Auto-save" ? "Auto" : "Manual"}
+                                                            </Badge>
+                                                        </div>
+                                                        <div className="text-sm text-muted-foreground mb-2">
+                                                            {new Date(entry.timestamp).toLocaleString()}
+                                                        </div>
+                                                        <div className="text-sm">
+                                                            <div className="grid grid-cols-2 gap-4">
+                                                                <div>
+                                                                    <span className="font-medium">Items:</span> {entry.data.items.length}
+                                                                </div>
+                                                                <div>
+                                                                    <span className="font-medium">Customer:</span> {entry.data.contactInfo.name || "Not specified"}
+                                                                </div>
+                                                                <div>
+                                                                    <span className="font-medium">Status:</span> {entry.data.status}
+                                                                </div>
+                                                                <div>
+                                                                    <span className="font-medium">Total Price:</span> ${calculateTotalPrice(entry.data).toLocaleString()}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => handleRestoreFromHistory(historyQuote, entry)}
+                                                        className="ml-4"
+                                                    >
+                                                        <RotateCcw className="h-4 w-4 mr-2" />
+                                                        Restore
+                                                    </Button>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-8">
+                                    <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                    <h3 className="text-lg font-medium mb-2">No History Available</h3>
+                                    <p className="text-muted-foreground">
+                                        This quote doesn't have any saved history yet.
+                                    </p>
+                                </div>
+                            )}
+                        </DialogContent>
+                    </Dialog>
+                )}
                 </div>
             </div>
         </DashboardLayout>

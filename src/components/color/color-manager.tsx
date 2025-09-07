@@ -801,7 +801,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                 value="import"
                                 className="space-y-6"
                             >
-                                {console.log("Import tab is being rendered, canManageColors:", canManageColors)}
+                                {/* Import tab is being rendered */}
                                 <Card>
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2">

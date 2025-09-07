@@ -81,6 +81,14 @@ export interface QuoteApproval {
     notes?: string;
 }
 
+export interface QuoteHistoryEntry {
+    id: string;
+    timestamp: string;
+    data: QuoteData;
+    changeDescription?: string;
+    savedBy?: string;
+}
+
 export interface QuoteData {
     id: string;
     name: string;
@@ -97,6 +105,8 @@ export interface QuoteData {
     estimatedCompletionDate?: string;
     actualCompletionDate?: string;
     productionStartDate?: string;
+    history?: QuoteHistoryEntry[];
+    lastAutoSaved?: string;
 }
 
 export interface QuoteTotals {

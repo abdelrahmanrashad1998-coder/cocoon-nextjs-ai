@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Calculator, Save, Plus, X } from "lucide-react";
+import { Calculator, Save, Plus, X, Clock, History, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/dashboard-layout";
 import { QuoteItemEditor } from "@/components/quote/quote-item-editor";
@@ -23,7 +23,7 @@ import { QuotePreview } from "@/components/quote/quote-preview";
 import { QuoteSettings } from "@/components/quote/quote-settings";
 import { useQuoteGenerator } from "@/hooks/use-quote-generator";
 import ColorManager from "@/components/color/color-manager";
-import { ColorOption, QuoteData } from "@/types/quote";
+import { ColorOption, QuoteData, QuoteHistoryEntry } from "@/types/quote";
 import { Palette } from "lucide-react";
 
 function QuoteGeneratorContent() {
@@ -46,12 +46,20 @@ function QuoteGeneratorContent() {
         fetchQuoteById,
         loadQuote,
         resetQuote,
+        autoSaveQuote,
+        addToHistory,
+        restoreFromHistory,
+        clearHistory,
+        setAutoSaveEnabled,
         loading,
         error,
+        autoSaveEnabled,
+        lastSaved,
     } = useQuoteGenerator();
 
     const [activeTab, setActiveTab] = useState("items");
     const [showGlobalColorManager, setShowGlobalColorManager] = useState(false);
+    const [showHistory, setShowHistory] = useState(false);
 
     // Load quote data if ID is provided
     useEffect(() => {
@@ -97,78 +105,6 @@ function QuoteGeneratorContent() {
         setActiveTab("items");
     };
 
-    const handleSaveQuote = async () => {
-        // Validate customer name
-        if (
-            !quoteData.contactInfo.name ||
-            quoteData.contactInfo.name.trim() === ""
-        ) {
-            toast.error("Customer name is required", {
-                description:
-                    "Please enter the customer name before saving the quote.",
-                duration: 5000,
-                position: "top-center",
-                style: {
-                    fontSize: "16px",
-                    padding: "20px 28px",
-                    minWidth: "380px",
-                    background: "linear-gradient(135deg, #ef4444, #dc2626)",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "12px",
-                    boxShadow: "0 10px 25px rgba(239, 68, 68, 0.3)",
-                    fontWeight: "500",
-                    textAlign: "center",
-                },
-                icon: "❌",
-            });
-            // Switch to contact tab to show the required field
-            setActiveTab("contact");
-            return;
-        }
-
-        try {
-            await saveQuote();
-            toast.success("Quote saved successfully!", {
-                description: "Your quote has been saved to the database.",
-                duration: 5000,
-                position: "top-center",
-                style: {
-                    fontSize: "16px",
-                    padding: "20px 28px",
-                    minWidth: "380px",
-                    background: "linear-gradient(135deg, #10b981, #059669)",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "12px",
-                    boxShadow: "0 10px 25px rgba(16, 185, 129, 0.3)",
-                    fontWeight: "500",
-                    textAlign: "center",
-                },
-                icon: "✅",
-            });
-        } catch (error) {
-            console.error("Error saving quote:", error);
-            toast.error("Failed to save quote", {
-                description: "Please check your connection and try again.",
-                duration: 5000,
-                position: "top-center",
-                style: {
-                    fontSize: "16px",
-                    padding: "20px 28px",
-                    minWidth: "380px",
-                    background: "linear-gradient(135deg, #ef4444, #dc2626)",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "12px",
-                    boxShadow: "0 10px 25px rgba(239, 68, 68, 0.3)",
-                    fontWeight: "500",
-                    textAlign: "center",
-                },
-                icon: "❌",
-            });
-        }
-    };
 
     const handleCancelEdit = () => {
         resetQuote();
@@ -182,6 +118,38 @@ function QuoteGeneratorContent() {
         setShowGlobalColorManager(false);
     };
 
+    const handleRestoreFromHistory = (historyEntry: QuoteHistoryEntry) => {
+        if (confirm("Are you sure you want to restore this version? This will replace your current quote data.")) {
+            restoreFromHistory(historyEntry);
+            toast.success("Quote restored from history!", {
+                description: `Restored version from ${new Date(historyEntry.timestamp).toLocaleString()}`,
+            });
+            setShowHistory(false);
+        }
+    };
+
+    const handleClearHistory = () => {
+        if (confirm("Are you sure you want to clear all quote history? This action cannot be undone.")) {
+            clearHistory();
+            toast.success("Quote history cleared!");
+            setShowHistory(false);
+        }
+    };
+
+    const handleManualSave = async () => {
+        try {
+            await saveQuote();
+            toast.success("Quote saved successfully!", {
+                description: "Your quote has been saved to the database.",
+            });
+        } catch (error) {
+            console.error("Error saving quote:", error);
+            toast.error("Failed to save quote", {
+                description: "Please check your connection and try again.",
+            });
+        }
+    };
+
     return (
         <DashboardLayout>
             <div className="container mx-auto max-w-7xl">
@@ -189,8 +157,39 @@ function QuoteGeneratorContent() {
                     <div className="flex items-center gap-2">
                         <Calculator className="h-6 w-6 text-primary" />
                         <h1 className="text-3xl font-bold">Quote Generator</h1>
+                        {lastSaved && (
+                            <div className="flex items-center gap-2 ml-4 text-sm text-muted-foreground">
+                                <Clock className="h-4 w-4" />
+                                <span>Last saved: {new Date(lastSaved).toLocaleTimeString()}</span>
+                                {autoSaveEnabled ? (
+                                    <Badge variant="outline" className="text-xs">
+                                        Auto-save enabled
+                                    </Badge>
+                                ) : (
+                                    <Badge variant="secondary" className="text-xs">
+                                        Auto-save disabled
+                                    </Badge>
+                                )}
+                            </div>
+                        )}
                     </div>
                     <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setAutoSaveEnabled(!autoSaveEnabled)}
+                        >
+                            {autoSaveEnabled ? "Disable Auto-save" : "Enable Auto-save"}
+                        </Button>
+                        {quoteData.history && quoteData.history.length > 0 && (
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowHistory(true)}
+                            >
+                                <History className="mr-2 h-4 w-4" />
+                                History ({quoteData.history.length})
+                            </Button>
+                        )}
                         <Button
                             variant="outline"
                             onClick={handleCancelEdit}
@@ -199,7 +198,7 @@ function QuoteGeneratorContent() {
                             Cancel Edit
                         </Button>
                         <Button
-                            onClick={handleSaveQuote}
+                            onClick={handleManualSave}
                             disabled={
                                 loading ||
                                 quoteData.items.length === 0 ||
@@ -604,6 +603,92 @@ function QuoteGeneratorContent() {
                             onColorSelect={handleGlobalColorSelect}
                             showSelection={true}
                         />
+                    </div>
+                </div>
+            )}
+
+            {/* Quote History Modal */}
+            {showHistory && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold">
+                                Quote History
+                            </h3>
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleClearHistory}
+                                >
+                                    Clear History
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setShowHistory(false)}
+                                >
+                                    Close
+                                </Button>
+                            </div>
+                        </div>
+                        
+                        {quoteData.history && quoteData.history.length > 0 ? (
+                            <div className="space-y-4">
+                                {quoteData.history.map((entry, index) => (
+                                    <Card key={entry.id} className="border-l-4 border-l-blue-500">
+                                        <CardContent className="pt-4">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex-1">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <History className="h-4 w-4 text-blue-500" />
+                                                            <span className="font-medium">
+                                                                {entry.changeDescription || `Version ${quoteData.history!.length - index}`}
+                                                            </span>
+                                                            <Badge 
+                                                                variant={entry.changeDescription === "Auto-save" ? "secondary" : "outline"} 
+                                                                className="text-xs"
+                                                            >
+                                                                {entry.changeDescription === "Auto-save" ? "Auto" : "Manual"}
+                                                            </Badge>
+                                                        </div>
+                                                    <div className="text-sm text-muted-foreground mb-2">
+                                                        {new Date(entry.timestamp).toLocaleString()}
+                                                    </div>
+                                                    <div className="text-sm">
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <div>
+                                                                <span className="font-medium">Items:</span> {entry.data.items.length}
+                                                            </div>
+                                                            <div>
+                                                                <span className="font-medium">Customer:</span> {entry.data.contactInfo.name || "Not specified"}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => handleRestoreFromHistory(entry)}
+                                                    className="ml-4"
+                                                >
+                                                    <RotateCcw className="h-4 w-4 mr-2" />
+                                                    Restore
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-8">
+                                <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                <h3 className="text-lg font-medium mb-2">No History Available</h3>
+                                <p className="text-muted-foreground">
+                                    Quote history will appear here after you save changes to this quote.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

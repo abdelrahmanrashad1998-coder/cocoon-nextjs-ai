@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
     QuoteItem,
     QuoteData,
@@ -8,6 +8,7 @@ import {
     QuoteTotals,
     ColorOption,
     QuoteStatus,
+    QuoteHistoryEntry,
 } from "@/types/quote";
 import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
@@ -40,6 +41,10 @@ export const useQuoteGenerator = () => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
+    const [lastSaved, setLastSaved] = useState<string | null>(null);
+    const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const lastQuoteDataRef = useRef<QuoteData | null>(null);
 
     const addItem = useCallback((item: Omit<QuoteItem, "id">) => {
         setQuoteData((prev) => ({
@@ -129,9 +134,170 @@ export const useQuoteGenerator = () => {
             },
             globalColor: undefined,
             status: "draft",
+            history: [],
         });
 
         setError(null);
+        setLastSaved(null);
+        lastQuoteDataRef.current = null;
+    }, []);
+
+    // Auto-save functionality
+    const autoSaveQuote = useCallback(async (isManualSave = false) => {
+        if (!autoSaveEnabled || loading) return;
+
+        try {
+            // Check if quote has meaningful data to save
+            const hasData = quoteData.contactInfo.name?.trim() || quoteData.items.length > 0;
+            if (!hasData) return;
+
+            // Check if data has changed since last save
+            const currentDataString = JSON.stringify(quoteData);
+            const lastDataString = lastQuoteDataRef.current ? JSON.stringify(lastQuoteDataRef.current) : null;
+            
+            if (currentDataString === lastDataString && !isManualSave) return;
+
+            console.log("Auto-saving quote...");
+            
+            // Create history entry for both manual and auto saves
+            const historyEntry: QuoteHistoryEntry = {
+                id: `history-${Date.now()}`,
+                timestamp: new Date().toISOString(),
+                data: { ...quoteData },
+                changeDescription: isManualSave ? "Manual save" : "Auto-save",
+                savedBy: "Current User",
+            };
+
+            const quoteDataToSave = {
+                ...quoteData,
+                updatedAt: new Date().toISOString(),
+                lastAutoSaved: new Date().toISOString(),
+                history: [...(quoteData.history || []), historyEntry].slice(-10), // Keep only last 10 history entries
+            };
+
+            // Handle production start date tracking
+            if (
+                quoteDataToSave.status === "in_production" &&
+                !quoteDataToSave.productionStartDate
+            ) {
+                quoteDataToSave.productionStartDate = new Date().toISOString();
+            }
+
+            // Save to Firebase
+            const { getAuth } = await import("firebase/auth");
+            const auth = getAuth();
+            const user = auth.currentUser;
+
+            if (!user) {
+                console.warn("User not authenticated for auto-save");
+                return;
+            }
+
+            const sanitizedQuoteName = quoteData.name
+                .replace(/[^a-zA-Z0-9]/g, "_")
+                .replace(/^_+|_+$/g, "")
+                .substring(0, 150);
+
+            // Ensure the ID matches the document ID
+            quoteDataToSave.id = sanitizedQuoteName;
+
+            const sanitizeForFirestore = (obj: unknown): unknown => {
+                if (obj === null || obj === undefined) {
+                    return null;
+                }
+                if (typeof obj === "object" && !Array.isArray(obj) && obj !== null) {
+                    const sanitized: Record<string, unknown> = {};
+                    for (const key in obj) {
+                        if (obj.hasOwnProperty(key)) {
+                            sanitized[key] = sanitizeForFirestore((obj as Record<string, unknown>)[key]);
+                        }
+                    }
+                    return sanitized;
+                }
+                if (Array.isArray(obj)) {
+                    return obj.map(sanitizeForFirestore);
+                }
+                return obj;
+            };
+
+            const sanitizedQuoteData = sanitizeForFirestore(quoteDataToSave);
+            const { setDoc, doc } = await import("firebase/firestore");
+            const docRef = doc(db, "quotes", sanitizedQuoteName);
+            await setDoc(docRef, sanitizedQuoteData);
+
+            // Update local state
+            lastQuoteDataRef.current = { ...quoteDataToSave };
+            setLastSaved(new Date().toISOString());
+            
+            // Always update the quote data with history for both manual and auto saves
+            setQuoteData(quoteDataToSave);
+
+            console.log("Auto-save completed successfully");
+            
+            // Show toast notification for auto-save (only for auto-saves, not manual saves)
+            if (!isManualSave) {
+                const { toast } = await import("sonner");
+                toast.success("Quote auto-saved", {
+                    description: `Saved at ${new Date().toLocaleTimeString()}`,
+                    duration: 2000,
+                });
+            }
+        } catch (error) {
+            console.error("Auto-save failed:", error);
+        }
+    }, [quoteData, autoSaveEnabled, loading]);
+
+    // Set up auto-save interval
+    useEffect(() => {
+        if (autoSaveEnabled) {
+            autoSaveIntervalRef.current = setInterval(() => {
+                autoSaveQuote(false);
+            }, 60000); // Auto-save every minute
+
+            return () => {
+                if (autoSaveIntervalRef.current) {
+                    clearInterval(autoSaveIntervalRef.current);
+                }
+            };
+        }
+    }, [autoSaveEnabled, autoSaveQuote]);
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            if (autoSaveIntervalRef.current) {
+                clearInterval(autoSaveIntervalRef.current);
+            }
+        };
+    }, []);
+
+    // History management functions
+    const addToHistory = useCallback((changeDescription: string) => {
+        const historyEntry: QuoteHistoryEntry = {
+            id: `history-${Date.now()}`,
+            timestamp: new Date().toISOString(),
+            data: { ...quoteData },
+            changeDescription,
+            savedBy: "Current User",
+        };
+
+        setQuoteData(prev => ({
+            ...prev,
+            history: [...(prev.history || []), historyEntry].slice(-10), // Keep only last 10 entries
+        }));
+    }, [quoteData]);
+
+    const restoreFromHistory = useCallback((historyEntry: QuoteHistoryEntry) => {
+        setQuoteData(historyEntry.data);
+        setLastSaved(historyEntry.timestamp);
+        lastQuoteDataRef.current = historyEntry.data;
+    }, []);
+
+    const clearHistory = useCallback(() => {
+        setQuoteData(prev => ({
+            ...prev,
+            history: [],
+        }));
     }, []);
 
     const calculateTotals = useCallback((): QuoteTotals => {
@@ -171,86 +337,12 @@ export const useQuoteGenerator = () => {
     const saveQuote = useCallback(async () => {
         setLoading(true);
         try {
-            console.log("Starting save quote process...");
-            console.log("Quote data:", quoteData);
-
-            // Check authentication status
-            const { getAuth } = await import("firebase/auth");
-            const auth = getAuth();
-            const user = auth.currentUser;
-            console.log(
-                "Current user:",
-                user ? user.email : "No user authenticated"
-            );
-
-            if (!user) {
-                throw new Error(
-                    "User not authenticated. Please log in to save quotes."
-                );
-            }
-
-            console.log("Attempting to save to Firestore...");
-            // Use quote name as document ID, sanitized for Firestore
-            const sanitizedQuoteName = quoteData.name
-                .replace(/[^a-zA-Z0-9]/g, "_") // Replace special chars with underscores
-                .replace(/^_+|_+$/g, "") // Remove leading/trailing underscores
-                .substring(0, 150); // Limit length
-
-            // Function to recursively remove undefined values and replace with null
-            const sanitizeForFirestore = (obj: unknown): unknown => {
-                if (obj === null || obj === undefined) {
-                    return null;
-                }
-                if (
-                    typeof obj === "object" &&
-                    !Array.isArray(obj) &&
-                    obj !== null
-                ) {
-                    const sanitized: Record<string, unknown> = {};
-                    for (const key in obj) {
-                        if (obj.hasOwnProperty(key)) {
-                            sanitized[key] = sanitizeForFirestore(
-                                (obj as Record<string, unknown>)[key]
-                            );
-                        }
-                    }
-                    return sanitized;
-                }
-                if (Array.isArray(obj)) {
-                    return obj.map(sanitizeForFirestore);
-                }
-                return obj;
-            };
-
-            // Handle production start date tracking
-            const quoteDataToSave = { ...quoteData };
-
-            // Ensure the ID matches the document ID
-            quoteDataToSave.id = sanitizedQuoteName;
-
-            // If status is changing to in_production and we don't have a production start date, set it
-            if (
-                quoteDataToSave.status === "in_production" &&
-                !quoteDataToSave.productionStartDate
-            ) {
-                quoteDataToSave.productionStartDate = new Date().toISOString();
-            }
-
-            // Always update the updatedAt timestamp
-            quoteDataToSave.updatedAt = new Date().toISOString();
-
-            const sanitizedQuoteData = sanitizeForFirestore(quoteDataToSave);
-
-            const { setDoc, doc } = await import("firebase/firestore");
-            const docRef = doc(db, "quotes", sanitizedQuoteName);
-            await setDoc(docRef, sanitizedQuoteData);
-            console.log(
-                "Quote saved successfully with ID:",
-                sanitizedQuoteName
-            );
-
-            // Reset the quote data after successful save
-            resetQuote();
+            console.log("Starting manual save quote process...");
+            
+            // Use the auto-save function with manual flag
+            await autoSaveQuote(true);
+            
+            console.log("Manual save completed successfully");
         } catch (err) {
             console.error("Save quote error:", err);
             setError(
@@ -262,7 +354,7 @@ export const useQuoteGenerator = () => {
         } finally {
             setLoading(false);
         }
-    }, [quoteData]);
+    }, [autoSaveQuote]);
 
     const fetchQuotes = useCallback(async () => {
         setLoading(true);
@@ -1659,7 +1751,16 @@ export const useQuoteGenerator = () => {
         updateQuoteStatus,
         loadQuote,
         resetQuote,
+        // Auto-save and history functions
+        autoSaveQuote,
+        addToHistory,
+        restoreFromHistory,
+        clearHistory,
+        setAutoSaveEnabled,
+        // State
         loading,
         error,
+        autoSaveEnabled,
+        lastSaved,
     };
 };
