@@ -62,14 +62,39 @@ export interface QuoteSettings {
     exportFormat: "pdf" | "print" | "email";
 }
 
+export type QuoteStatus = 
+    | "draft" 
+    | "pending_review" 
+    | "approved" 
+    | "rejected" 
+    | "in_production" 
+    | "completed" 
+    | "cancelled";
+
+export interface QuoteApproval {
+    approvedBy?: string;
+    approvedAt?: string;
+    rejectedBy?: string;
+    rejectedAt?: string;
+    rejectionReason?: string;
+    notes?: string;
+}
+
 export interface QuoteData {
     id: string;
     name: string;
     createdAt: string;
+    updatedAt?: string;
     contactInfo: ContactInfo;
     items: QuoteItem[];
     settings: QuoteSettings;
     globalColor?: ColorOption;
+    status: QuoteStatus;
+    approval?: QuoteApproval;
+    assignedTo?: string;
+    priority?: "low" | "medium" | "high";
+    estimatedCompletionDate?: string;
+    actualCompletionDate?: string;
 }
 
 export interface QuoteTotals {
