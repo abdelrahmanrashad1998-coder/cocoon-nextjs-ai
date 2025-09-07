@@ -251,6 +251,22 @@ export function DetailedPricingBreakdown({
                                     </TableCell>
                                 </TableRow>
                             )}
+                            {pricing.additionalCostTotal > 0 && (
+                                <TableRow>
+                                    <TableCell>Additional Cost</TableCell>
+                                    <TableCell className="text-right">
+                                        {formatCurrency(
+                                            pricing.additionalCostTotal / item.quantity
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {item.quantity}
+                                    </TableCell>
+                                    <TableCell className="text-right font-medium">
+                                        {formatCurrency(pricing.additionalCostTotal)}
+                                    </TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </div>
@@ -480,6 +496,22 @@ export function DetailedPricingBreakdown({
                                     {formatCurrency(pricing.cornersCost)}
                                 </TableCell>
                             </TableRow>
+                            {pricing.additionalCostTotal > 0 && (
+                                <TableRow>
+                                    <TableCell>Additional Cost</TableCell>
+                                    <TableCell className="text-right">
+                                        {formatCurrency(
+                                            pricing.additionalCostTotal / item.quantity
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {item.quantity}
+                                    </TableCell>
+                                    <TableCell className="text-right font-medium">
+                                        {formatCurrency(pricing.additionalCostTotal)}
+                                    </TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </div>

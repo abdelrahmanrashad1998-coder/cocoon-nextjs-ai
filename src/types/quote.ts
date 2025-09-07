@@ -25,6 +25,7 @@ export interface QuoteItem {
     upperPanelType?: "fixed" | "hinged";
     profile?: AluminiumProfile;
     color?: ColorOption;
+    additionalCost?: number; // Additional cost per item
     // Curtain wall specific properties
     designData?: {
         wallWidth: number;
@@ -127,6 +128,7 @@ export interface PricedItem extends QuoteItem {
     glassCost: number;
     netCost: number;
     archCost: number;
+    additionalCostTotal: number; // Total additional cost (additionalCost * quantity)
     totalBeforeProfit: number;
     profitAmount: number;
     totalPrice: number;

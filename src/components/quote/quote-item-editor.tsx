@@ -726,6 +726,25 @@ export function QuoteItemEditor({
                                         )}
                                     </TableCell>
                                 </TableRow>
+                                {pricing.additionalCostTotal > 0 && (
+                                    <TableRow>
+                                        <TableCell>Additional Cost</TableCell>
+                                        <TableCell className="text-right text-sm text-muted-foreground">
+                                            Per item
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            {formatCurrency(
+                                                pricing.additionalCostTotal / item.quantity
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            {item.quantity}
+                                        </TableCell>
+                                        <TableCell className="text-right font-medium">
+                                            {formatCurrency(pricing.additionalCostTotal)}
+                                        </TableCell>
+                                    </TableRow>
+                                )}
                                 {item.mosquito && (
                                     <TableRow>
                                         <TableCell>Mosquito Net</TableCell>
@@ -1097,6 +1116,25 @@ export function QuoteItemEditor({
                                         </TableCell>
                                     </TableRow>
                                 )}
+                                {pricing.additionalCostTotal > 0 && (
+                                    <TableRow>
+                                        <TableCell>Additional Cost</TableCell>
+                                        <TableCell className="text-right text-sm text-muted-foreground">
+                                            Per item
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            {formatCurrency(
+                                                pricing.additionalCostTotal / item.quantity
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            {item.quantity}
+                                        </TableCell>
+                                        <TableCell className="text-right font-medium">
+                                            {formatCurrency(pricing.additionalCostTotal)}
+                                        </TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
                     </div>
@@ -1369,6 +1407,26 @@ export function QuoteItemEditor({
                                             )
                                         }
                                         placeholder="Quantity"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor={`additionalCost-${item.id}`}>
+                                        Additional Cost (per item)
+                                    </Label>
+                                    <Input
+                                        id={`additionalCost-${item.id}`}
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={item.additionalCost || 0}
+                                        onChange={(e) =>
+                                            handleUpdate(
+                                                "additionalCost",
+                                                parseFloat(e.target.value) || 0
+                                            )
+                                        }
+                                        placeholder="0.00"
                                     />
                                 </div>
 

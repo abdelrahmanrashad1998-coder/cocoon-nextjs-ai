@@ -11,6 +11,7 @@ import {
 } from "@/types/quote";
 import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
+import { calculateItemPricing } from "@/lib/pricing-calculator";
 
 export const useQuoteGenerator = () => {
     const [quoteData, setQuoteData] = useState<QuoteData>({
@@ -39,12 +40,6 @@ export const useQuoteGenerator = () => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    // Mock pricing calculation function
-    const calculateItemPricing = (item: QuoteItem) => {
-        const basePrice = item.width * item.height * item.quantity * 1200; // Mock calculation
-        return { totalPrice: basePrice };
-    };
 
     const addItem = useCallback((item: Omit<QuoteItem, "id">) => {
         setQuoteData((prev) => ({
@@ -1294,6 +1289,10 @@ export const useQuoteGenerator = () => {
                             if (item.arch) {
                                 specs +=
                                     '<span class="spec-tag tag-arch">Arch Trave</span>';
+                            }
+                            if (item.additionalCost && item.additionalCost > 0) {
+                                specs +=
+                                    '<span class="spec-tag" style="background: linear-gradient(135deg, #9f7aea, #b794f6); color: white;">Additional Cost</span>';
                             }
 
                             const itemPrice = Math.round(

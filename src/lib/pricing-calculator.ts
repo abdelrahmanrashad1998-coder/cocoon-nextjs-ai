@@ -123,13 +123,17 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
         const frameAccessoriesUnit = frameMeters * frameAccessoriesPerMeter;
         const cornersUnit = cornerCount * cornerAccessory;
 
+        // Additional cost per unit
+        const additionalCostUnit = Number(raw.additionalCost || 0);
+
         // Subtotal before profit
         const totalBeforeProfitUnit =
             frameCostUnit +
             windowsCostUnit +
             accessoriesWinDoorUnit +
             frameAccessoriesUnit +
-            cornersUnit;
+            cornersUnit +
+            additionalCostUnit;
 
         // Profit calculation
         const profitRate = Number(p.base_profit_rate || 0);
@@ -157,6 +161,7 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
             cornersCost: +(cornersUnit * qty).toFixed(2),
 
             // totals
+            additionalCostTotal: +(additionalCostUnit * qty).toFixed(2),
             totalBeforeProfit: +(totalBeforeProfitUnit * qty).toFixed(2),
             base_profit_rate: +profitRate.toFixed(4),
             profitAmount: +(profitAmountUnit * qty).toFixed(2),
@@ -222,13 +227,17 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
 
     const archCostUnit = raw.arch ? p.arc_price * frameLengthUnit : 0;
 
+    // Additional cost per unit
+    const additionalCostUnit = Number(raw.additionalCost || 0);
+
     const totalBeforeProfitUnit =
         accessoriesUnit +
         frameCostUnit +
         leafCostUnit +
         glassCostUnit +
         netCostUnit +
-        archCostUnit;
+        archCostUnit +
+        additionalCostUnit;
     let profitRate = Number(p.base_profit_rate || 0);
     const extraArea = areaUnit > 4 ? Math.ceil(areaUnit - 4) : 0;
     profitRate += extraArea * 0.1;
@@ -251,6 +260,7 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
         glassCost: +(glassCostUnit * qty).toFixed(2),
         netCost: +(netCostUnit * qty).toFixed(2),
         archCost: +(archCostUnit * qty).toFixed(2),
+        additionalCostTotal: +(additionalCostUnit * qty).toFixed(2),
         totalBeforeProfit: +(totalBeforeProfitUnit * qty).toFixed(2),
         base_profit_rate: +profitRate.toFixed(2),
         profitAmount: +(profitAmountUnit * qty).toFixed(2),
