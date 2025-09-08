@@ -11,6 +11,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
     Table,
     TableBody,
@@ -107,25 +108,7 @@ export default function QuotesPage() {
     });
 
     const getStatusBadge = (status: QuoteStatus) => {
-        const statusConfig = {
-            draft: { variant: "secondary" as const, text: "Draft", icon: FileText },
-            pending_review: { variant: "outline" as const, text: "Pending Review", icon: Clock },
-            approved: { variant: "default" as const, text: "Approved", icon: CheckCircle },
-            rejected: { variant: "destructive" as const, text: "Rejected", icon: XCircle },
-            in_production: { variant: "default" as const, text: "In Production", icon: AlertCircle },
-            completed: { variant: "default" as const, text: "Completed", icon: CheckCircle },
-            cancelled: { variant: "secondary" as const, text: "Cancelled", icon: XCircle },
-        };
-
-        const config = statusConfig[status] || statusConfig.draft;
-        const IconComponent = config.icon;
-        
-        return (
-            <Badge variant={config.variant} className="flex items-center gap-1">
-                <IconComponent className="h-3 w-3" />
-                {config.text}
-            </Badge>
-        );
+        return <StatusBadge status={status} />;
     };
 
 
@@ -346,40 +329,40 @@ export default function QuotesPage() {
                             <p className="text-xs text-muted-foreground">Total</p>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className="border-info/20 bg-info/5">
                         <CardContent className="p-4">
                             <div className="text-2xl font-bold text-info">{statusCounts.draft}</div>
-                            <p className="text-xs text-muted-foreground">Draft</p>
+                            <p className="text-xs text-info/80">Draft</p>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className="border-warning/20 bg-warning/5">
                         <CardContent className="p-4">
                             <div className="text-2xl font-bold text-warning">{statusCounts.pending_review}</div>
-                            <p className="text-xs text-muted-foreground">Pending</p>
+                            <p className="text-xs text-warning/80">Pending</p>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className="border-success/20 bg-success/5">
                         <CardContent className="p-4">
                             <div className="text-2xl font-bold text-success">{statusCounts.approved}</div>
-                            <p className="text-xs text-muted-foreground">Approved</p>
+                            <p className="text-xs text-success/80">Approved</p>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className="border-destructive/20 bg-destructive/5">
                         <CardContent className="p-4">
                             <div className="text-2xl font-bold text-destructive">{statusCounts.rejected}</div>
-                            <p className="text-xs text-muted-foreground">Rejected</p>
+                            <p className="text-xs text-destructive/80">Rejected</p>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className="border-special/20 bg-special/5">
                         <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-warning">{statusCounts.in_production}</div>
-                            <p className="text-xs text-muted-foreground">Production</p>
+                            <div className="text-2xl font-bold text-special">{statusCounts.in_production}</div>
+                            <p className="text-xs text-special/80">Production</p>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className="border-success/20 bg-success/5">
                         <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-special">{statusCounts.completed}</div>
-                            <p className="text-xs text-muted-foreground">Completed</p>
+                            <div className="text-2xl font-bold text-success">{statusCounts.completed}</div>
+                            <p className="text-xs text-success/80">Completed</p>
                         </CardContent>
                     </Card>
                 </div>

@@ -55,6 +55,7 @@ import { z } from "zod"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Badge } from "@/components/ui/badge"
+import { StatusBadge } from "@/components/ui/status-badge"
 import { Button } from "@/components/ui/button"
 import {
   ChartConfig,
@@ -190,46 +191,20 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
     header: "Status",
     cell: ({ row }) => {
       const status = row.original.status
-      let badgeVariant: "default" | "secondary" | "destructive" | "outline" = "outline"
-      let badgeClassName = "px-1.5"
-      let iconColor = ""
-
-      if (status === "Done" || status === "Completed") {
-        badgeVariant = "default"
-        badgeClassName += " bg-success/10 text-success-foreground border-success/20 dark:bg-success/20 dark:text-success dark:border-success/80"
-        iconColor = "fill-green-500 dark:fill-green-400"
-      } else if (status === "Approved") {
-        badgeVariant = "default"
-        badgeClassName += " bg-success/10 text-success-foreground border-success/20 dark:bg-success/20 dark:text-success dark:border-success/80"
-        iconColor = "fill-emerald-500 dark:fill-emerald-400"
-      } else if (status === "In Production") {
-        badgeVariant = "default"
-        badgeClassName += " bg-special/10 text-special-foreground border-special/20 dark:bg-special/20 dark:text-special dark:border-special/80"
-        iconColor = "text-special dark:text-special"
-      } else if (status === "In Progress") {
-        badgeVariant = "default"
-        badgeClassName += " bg-info/10 text-info-foreground border-info/20 dark:bg-info/20 dark:text-info dark:border-info/80"
-        iconColor = "text-info dark:text-info"
-      } else if (status === "Not Started") {
-        badgeVariant = "default"
-        badgeClassName += " bg-muted text-muted-foreground border-border dark:bg-muted dark:text-muted-foreground dark:border-border"
-        iconColor = "text-muted-foreground dark:text-muted-foreground"
-      } else {
-        badgeVariant = "outline"
-        badgeClassName += " text-muted-foreground"
-        iconColor = "text-muted-foreground"
+      
+      // Map dashboard status values to unified status types
+      const statusMap: Record<string, string> = {
+        "Done": "done",
+        "Completed": "completed", 
+        "Approved": "approved",
+        "In Production": "in_production",
+        "In Progress": "in_progress",
+        "Not Started": "not_started"
       }
-
-      return (
-        <Badge variant={badgeVariant} className={badgeClassName}>
-          {status === "Done" || status === "Completed" || status === "Approved" ? (
-            <IconCircleCheckFilled className={`${iconColor} mr-1`} />
-          ) : (
-            <IconLoader className={`${iconColor} mr-1`} />
-          )}
-          {status}
-        </Badge>
-      )
+      
+      const mappedStatus = statusMap[status] || status.toLowerCase().replace(/\s+/g, '_')
+      
+      return <StatusBadge status={mappedStatus as any} />
     },
   },
   {
