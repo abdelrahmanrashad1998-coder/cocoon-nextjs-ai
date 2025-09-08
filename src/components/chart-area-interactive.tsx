@@ -39,7 +39,7 @@ const chartConfig = {
   },
   completed: {
     label: "Completed",
-    color: "var(--primary)",
+    color: "var(--success)",
   },
   inProgress: {
     label: "In Progress",

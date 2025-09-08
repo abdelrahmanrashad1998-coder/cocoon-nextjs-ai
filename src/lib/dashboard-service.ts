@@ -4,6 +4,7 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { QuoteData, QuoteStatus } from "@/types/quote";
+import { calculateItemPricing } from "./pricing-calculator";
 
 export interface DashboardMetrics {
   totalRevenue: number;
@@ -82,21 +83,25 @@ export class DashboardService {
       new Date(quote.createdAt) >= lastQuarter
     );
 
-    // Calculate totals
-    const totalRevenue = allQuotes.reduce((sum, quote) => {
+    // Calculate totals - include approved, in_production, and completed projects for revenue
+    const revenueQuotes = allQuotes.filter(quote => 
+      ["approved", "in_production", "completed"].includes(quote.status || "draft")
+    );
+    const totalRevenue = revenueQuotes.reduce((sum, quote) => {
       const quoteTotal = quote.items.reduce((itemSum, item) => {
-        const area = item.width * item.height * item.quantity;
-        const basePrice = area * 150; // Base price per m²
-        return itemSum + basePrice;
+        const pricing = calculateItemPricing(item);
+        return itemSum + pricing.totalPrice;
       }, 0);
       return sum + quoteTotal;
     }, 0);
 
-    const lastQuarterRevenue = lastQuarterQuotes.reduce((sum, quote) => {
+    const lastQuarterRevenueQuotes = lastQuarterQuotes.filter(quote => 
+      ["approved", "in_production", "completed"].includes(quote.status || "draft")
+    );
+    const lastQuarterRevenue = lastQuarterRevenueQuotes.reduce((sum, quote) => {
       const quoteTotal = quote.items.reduce((itemSum, item) => {
-        const area = item.width * item.height * item.quantity;
-        const basePrice = area * 150;
-        return itemSum + basePrice;
+        const pricing = calculateItemPricing(item);
+        return itemSum + pricing.totalPrice;
       }, 0);
       return sum + quoteTotal;
     }, 0);
@@ -188,11 +193,10 @@ export class DashboardService {
         cancelled: "Cancelled"
       };
 
-      // Calculate project value
+      // Calculate project value using real pricing
       const totalValue = quote.items.reduce((sum, item) => {
-        const area = item.width * item.height * item.quantity;
-        const basePrice = area * 150;
-        return sum + basePrice;
+        const pricing = calculateItemPricing(item);
+        return sum + pricing.totalPrice;
       }, 0);
 
       return {
@@ -237,10 +241,13 @@ export class DashboardService {
         ["draft", "pending_review", "approved", "in_production"].includes(q.status || "draft")
       ).length;
 
-      const revenue = dayQuotes.reduce((sum, quote) => {
+      const revenueDayQuotes = dayQuotes.filter(q => 
+        ["approved", "in_production", "completed"].includes(q.status || "draft")
+      );
+      const revenue = revenueDayQuotes.reduce((sum, quote) => {
         return sum + quote.items.reduce((itemSum, item) => {
-          const area = item.width * item.height * item.quantity;
-          return itemSum + (area * 150);
+          const pricing = calculateItemPricing(item);
+          return itemSum + pricing.totalPrice;
         }, 0);
       }, 0);
 

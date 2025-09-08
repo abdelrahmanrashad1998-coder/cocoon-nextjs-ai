@@ -7,7 +7,7 @@ import DashboardLayout from "@/components/dashboard-layout"
 export default function HelpPage() {
   return (
     <DashboardLayout>
-      <div className="container mx-auto">
+      <div className="container mx-auto p-4">
         <div className="flex items-center gap-2 mb-6">
           <HelpCircle className="h-6 w-6 text-primary" />
           <h1 className="text-3xl font-bold">Help & Support</h1>
@@ -22,8 +22,7 @@ export default function HelpPage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              Help and support documentation is under development. This will include 
-              user guides, FAQs, and contact information for technical support.
+              Please contact us at <a href="mailto:abashraf9803@gmail.com" className="text-primary">abashraf9803@gmail.com</a> or call us at <a href="tel:+201092201107" className="text-primary">+201092201107</a> for help.
             </p>
           </CardContent>
         </Card>

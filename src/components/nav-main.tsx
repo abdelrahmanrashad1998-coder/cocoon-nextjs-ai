@@ -39,17 +39,7 @@ export function NavMain({
                 <span>Quick Create</span>
               </Link>
             </SidebarMenuButton>
-            <Button
-              size="icon"
-              className="size-8 group-data-[collapsible=icon]:opacity-0"
-              variant="outline"
-              asChild
-            >
-              <Link href="/quotes">
-                <IconMail />
-                <span className="sr-only">Quotes</span>
-              </Link>
-            </Button>
+            
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>

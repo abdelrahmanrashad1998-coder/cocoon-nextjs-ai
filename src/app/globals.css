@@ -92,6 +92,7 @@
   --warning-foreground: oklch(0.15 0 0);
   --special: oklch(0.6 0.15 300);
   --special-foreground: oklch(0.98 0 0);
+  --completet: oklch(0.6 0.15 142);
 }
 
 .dark {

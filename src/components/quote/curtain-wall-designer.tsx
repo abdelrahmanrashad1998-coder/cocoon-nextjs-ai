@@ -1033,34 +1033,7 @@ export function CurtainWallDesigner({
     return (
         <div className="space-y-6">
             {/* Header */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Grid3X3 className="h-6 w-6 text-primary" />
-                            <span>Advanced Curtain Wall Designer</span>
-                        </div>
-                        <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowGrid(!showGrid)}
-                            >
-                                <Eye className="h-4 w-4 mr-1" />
-                                {showGrid ? "Hide" : "Show"} Grid
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={generateGrid}
-                            >
-                                <RotateCcw className="h-4 w-4 mr-1" />
-                                Reset
-                            </Button>
-                        </div>
-                    </CardTitle>
-                </CardHeader>
-            </Card>
+            
 
             {/* Main Content with Tabs */}
             <Tabs

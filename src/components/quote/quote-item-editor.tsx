@@ -133,8 +133,8 @@ export function QuoteItemEditor({
         onUpdate({
             ...item,
             designData: {
-                wallWidth: item.designData?.wallWidth || 0,
-                wallHeight: item.designData?.wallHeight || 0,
+                wallWidth: item.width || 0,
+                wallHeight: item.height || 0,
                 panels: design.panels,
                 frameMeters: design.frameMeters,
                 windowMeters: design.windowMeters,
@@ -225,7 +225,9 @@ export function QuoteItemEditor({
         if (item.type === "curtain_wall") {
             // For curtain wall, use the existing logic from ItemSvgGenerator
             if (item.designData?.panels) {
-                const { panels, wallWidth, wallHeight } = item.designData;
+                const { panels } = item.designData;
+                const wallWidth = item.width || 0;
+                const wallHeight = item.height || 0;
                 const scale = Math.min(300 / wallWidth, 200 / wallHeight) * 0.9;
                 const scaledWallWidth = wallWidth * scale;
                 const scaledWallHeight = wallHeight * scale;
@@ -1572,7 +1574,7 @@ export function QuoteItemEditor({
                                         <Label className="text-sm font-medium">
                                             Curtain Wall Design
                                         </Label>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <Label
                                                     htmlFor={`wallWidth-${item.id}`}
@@ -1584,8 +1586,7 @@ export function QuoteItemEditor({
                                                     type="number"
                                                     step="0.1"
                                                     value={
-                                                        item.designData
-                                                            ?.wallWidth || 0
+                                                        item.width || 0
                                                     }
                                                     onChange={(e) =>
                                                         handleNestedUpdate(
@@ -1610,8 +1611,7 @@ export function QuoteItemEditor({
                                                     type="number"
                                                     step="0.1"
                                                     value={
-                                                        item.designData
-                                                            ?.wallHeight || 0
+                                                        item.height || 0
                                                     }
                                                     onChange={(e) =>
                                                         handleNestedUpdate(
@@ -1625,22 +1625,20 @@ export function QuoteItemEditor({
                                                     placeholder="Wall Height"
                                                 />
                                             </div>
-                                        </div>
+                                        </div> */}
 
                                         {/* Curtain Wall Designer */}
-                                        {(item.designData?.wallWidth || 0) >
+                                        {(item.width || 0) >
                                             0 &&
-                                            (item.designData?.wallHeight || 0) >
-                                                0 && (
+                                            (item.height || 0) >
+                                                0 && item.type === "curtain_wall" && (
                                                 <div className="mt-6">
                                                     <CurtainWallDesigner
                                                         wallWidth={
-                                                            item.designData
-                                                                ?.wallWidth || 0
+                                                            item.width || 0
                                                         }
                                                         wallHeight={
-                                                            item.designData
-                                                                ?.wallHeight ||
+                                                            item.height ||
                                                             0
                                                         }
                                                         initialDesignData={
@@ -1852,7 +1850,7 @@ export function QuoteItemEditor({
                                         <div className="flex justify-center flex-1 items-center">
                                             {svgContent ? (
                                                 <div
-                                                    className="max-h-full max-w-full scale-75 place-self-center overflow-hidden"
+                                                    className="max-h-full max-w-full scale-75 place-self-center p-2"
                                                     dangerouslySetInnerHTML={{
                                                         __html: svgContent,
                                                     }}

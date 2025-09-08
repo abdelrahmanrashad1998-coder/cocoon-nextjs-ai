@@ -7,7 +7,7 @@ import DashboardLayout from "@/components/dashboard-layout"
 export default function ReportsPage() {
   return (
     <DashboardLayout>
-      <div className="container mx-auto">
+      <div className="container mx-auto p-5">
         <div className="flex items-center gap-2 mb-6">
           <FileText className="h-6 w-6 text-primary" />
           <h1 className="text-3xl font-bold">Reports</h1>

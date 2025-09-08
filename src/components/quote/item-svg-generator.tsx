@@ -180,7 +180,9 @@ function generateCurtainWallSvg(
         return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="#666">No design data</text></svg>`;
     }
 
-    const { panels, wallWidth, wallHeight, columns, rows, columnSizes, rowSizes } = item.designData;
+    const { panels, columns, rows, columnSizes, rowSizes } = item.designData;
+    const wallWidth = item.width || 0;
+    const wallHeight = item.height || 0;
 
     // Filter panels to render (exclude merged children but include merged parents)
     const panelsToRender = panels.filter(

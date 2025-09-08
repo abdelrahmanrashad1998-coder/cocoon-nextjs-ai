@@ -155,7 +155,7 @@ export default function ClientsPage() {
             <div className="container mx-auto max-w-7xl">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
-                        <Users className="h-6 w-6 text-primary" />
+                        <Users className="h-6 w-6 " />
                         <h1 className="text-3xl font-bold">Client Management</h1>
                     </div>
                     <div className="text-right">

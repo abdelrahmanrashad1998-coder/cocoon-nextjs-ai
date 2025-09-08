@@ -74,7 +74,9 @@ export function QuotePreview({
         if (item.type === "curtain_wall") {
             // For curtain wall, use the existing logic from ItemSvgGenerator
             if (item.designData?.panels) {
-                const { panels, wallWidth, wallHeight } = item.designData;
+                const { panels } = item.designData;
+                const wallWidth = item.width || 0;
+                const wallHeight = item.height || 0;
                 const scale = Math.min(150 / wallWidth, 100 / wallHeight) * 0.9;
                 const scaledWallWidth = wallWidth * scale;
                 const scaledWallHeight = wallHeight * scale;
