@@ -1053,8 +1053,8 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                             </CardContent>
                         </Card>
                     )}
-
-                    {success && (
+                    {/* Loaded x Profiles message */}
+                    {/* {success && (
                         <Card className="border-red-200 bg-red-50">
                             <CardContent className="pt-6">
                                 <div className="flex items-center gap-2 text-red-600">
@@ -1063,7 +1063,7 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                 </div>
                             </CardContent>
                         </Card>
-                    )}
+                    )} */}
 
                     <Tabs
                         value={activeTab}
@@ -1277,6 +1277,65 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-6">
+
+                                         {/* Import Instructions */}
+                                         <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                                                Import Instructions
+                                            </h3>
+                                            <div className="space-y-2 text-gray-700">
+                                                <div className="flex items-start gap-2">
+                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                        1
+                                                    </span>
+                                                    <span>
+                                                        Download the sample CSV
+                                                        file to see the required
+                                                        format
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-start gap-2">
+                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                        2
+                                                    </span>
+                                                    <span>
+                                                        Fill in your profile
+                                                        data following the
+                                                        sample format
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-start gap-2">
+                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                        3
+                                                    </span>
+                                                    <span>
+                                                        Save your file as CSV
+                                                        format
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-start gap-2">
+                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                        4
+                                                    </span>
+                                                    <span>
+                                                        Click &#34;Choose CSV
+                                                        File&rdquo; and select
+                                                        your file
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-start gap-2">
+                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                        5
+                                                    </span>
+                                                    <span>
+                                                        Review the import
+                                                        results and check for
+                                                        any errors
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         {/* CSV Import Section */}
                                         <div className="border border-red-200 rounded-lg p-6 bg-red-50">
                                             <h3 className="text-lg font-semibold text-red-900 mb-3 flex items-center gap-2">
@@ -1352,99 +1411,8 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                             )}
                                         </div>
 
-                                        {/* Sample CSV Format */}
-                                        <div className="border border-yellow-200 rounded-lg p-6 bg-yellow-50">
-                                            <h3 className="text-lg font-semibold text-yellow-900 mb-3 flex items-center gap-2">
-                                                <AlertCircle className="h-5 w-5" />
-                                                Sample CSV Format
-                                            </h3>
-                                            <div className="bg-white p-4 rounded border font-mono text-sm overflow-x-auto">
-                                                <div className="text-yellow-800 font-semibold mb-2">
-                                                    Required columns:
-                                                </div>
-                                                <div className="text-gray-700 mb-4">
-                                                    profile_code,brand,profile_name,system_type,kg_price,weight_6m,frame_price,frame_price_3,sach_price
-                                                </div>
-                                                <div className="text-yellow-800 font-semibold mb-2">
-                                                    Example data:
-                                                </div>
-                                                <div className="text-gray-700 space-y-1">
-                                                    <div>
-                                                        AL001,Cocoon,Standard
-                                                        Sliding
-                                                        Window,sliding,15.50,25.00,64.58,193.75,64.58
-                                                    </div>
-                                                    <div>
-                                                        AL002,Cocoon,Premium
-                                                        Hinged
-                                                        Door,hinged,18.00,30.00,90.00,270.00,90.00
-                                                    </div>
-                                                    <div>
-                                                        AL003,Cocoon,Curtain
-                                                        Wall
-                                                        System,curtain_wall,20.00,35.00,116.67,350.00,116.67
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        {/* Import Instructions */}
-                                        <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-                                            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                                                Import Instructions
-                                            </h3>
-                                            <div className="space-y-2 text-gray-700">
-                                                <div className="flex items-start gap-2">
-                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                                                        1
-                                                    </span>
-                                                    <span>
-                                                        Download the sample CSV
-                                                        file to see the required
-                                                        format
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-start gap-2">
-                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                                                        2
-                                                    </span>
-                                                    <span>
-                                                        Fill in your profile
-                                                        data following the
-                                                        sample format
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-start gap-2">
-                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                                                        3
-                                                    </span>
-                                                    <span>
-                                                        Save your file as CSV
-                                                        format
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-start gap-2">
-                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                                                        4
-                                                    </span>
-                                                    <span>
-                                                        Click &#34;Choose CSV
-                                                        File&rdquo; and select
-                                                        your file
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-start gap-2">
-                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                                                        5
-                                                    </span>
-                                                    <span>
-                                                        Review the import
-                                                        results and check for
-                                                        any errors
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
+                                       
                                     </CardContent>
                                 </Card>
                             </TabsContent>

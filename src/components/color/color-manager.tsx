@@ -573,7 +573,9 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                         </Card>
                     )}
 
-                    {success && (
+
+                    {/* loaded colors message */}
+                    {/* {success && (
                         <Card className="border-green-200 bg-green-50">
                             <CardContent className="pt-6">
                                 <div className="flex items-center gap-2 text-green-600">
@@ -582,7 +584,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                 </div>
                             </CardContent>
                         </Card>
-                    )}
+                    )} */}
 
                     <Tabs
                         value={activeTab}
@@ -863,7 +865,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                 />
                                             </div>
                                             
-                                            {/* Alternative file input for testing */}
+                                            {/* Alternative file input for testing
                                             <div className="mt-4 p-4 border border-gray-300 rounded-lg bg-gray-50">
                                                 <p className="text-sm text-gray-600 mb-2">Alternative file input (for testing):</p>
                                                 <input
@@ -875,7 +877,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                     }}
                                                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                                 />
-                                            </div>
+                                            </div> */}
 
                                             {/* CSV Format Instructions */}
                                             <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
