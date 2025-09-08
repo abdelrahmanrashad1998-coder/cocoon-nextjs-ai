@@ -1820,7 +1820,7 @@ export function QuoteItemEditor({
                                             <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                                                 <Database className="h-8 w-8 mb-2" />
                                                 <span className="text-sm">No profile selected</span>
-                                                <span className="text-xs mt-1">Click "Select Profile" to choose</span>
+                                                <span className="text-xs mt-1">Click &quotSelect Profile&quote to choose</span>
                                             </div>
                                         )}
                                     </div>
@@ -1957,7 +1957,7 @@ export function QuoteItemEditor({
                                             <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                                                 <Palette className="h-8 w-8 mb-2" />
                                                 <span className="text-sm">No color selected</span>
-                                                <span className="text-xs mt-1">Click "Select Color" to choose</span>
+                                                <span className="text-xs mt-1">Click &quoteSelect Color&quote to choose</span>
                                             </div>
                                         )}
                                     </div>
