@@ -156,6 +156,7 @@ export function QuoteItemEditor({
     const handleProfileSelect = (profile: AluminiumProfile) => {
         handleUpdate("profile", profile);
         setShowProfileManager(false);
+        setShowColorManager(false);
     };
 
     const handleColorSelect = (color: ColorOption) => {
@@ -166,6 +167,7 @@ export function QuoteItemEditor({
         } else {
             handleUpdate("color", color);
         }
+        setShowProfileManager(false);
         setShowColorManager(false);
     };
 
@@ -1725,9 +1727,10 @@ export function QuoteItemEditor({
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() =>
-                                            setShowProfileManager(true)
-                                        }
+                                        onClick={() => {
+                                            setShowProfileManager(true);
+                                            setShowColorManager(true);
+                                        }}
                                         className="flex items-center gap-2"
                                     >
                                         <Database className="h-4 w-4" />
@@ -1905,9 +1908,10 @@ export function QuoteItemEditor({
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() =>
-                                                setShowColorManager(true)
-                                            }
+                                            onClick={() => {
+                                                setShowProfileManager(true);
+                                                setShowColorManager(true);
+                                            }}
                                             className="flex items-center gap-2"
                                         >
                                             <Palette className="h-4 w-4" />
@@ -2121,54 +2125,51 @@ export function QuoteItemEditor({
                 </Collapsible>
             </Card>
 
-            {/* Profile Manager Modal */}
-            {showProfileManager && (
+            {/* Combined Profile and Color Manager Modal */}
+            {(showProfileManager || showColorManager) && (
                 <div className="fixed inset-0 bg-card border-border border bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-card rounded-lg p-6 max-w-[1400px] w-full max-h-[90vh] overflow-y-auto">
+                    <div className="bg-card rounded-lg p-6 max-w-[1600px] w-full max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-semibold">
-                                Select Aluminium Profile
+                                Select Profile and Color
                             </h3>
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setShowProfileManager(false)}
+                                onClick={() => {
+                                    setShowProfileManager(false);
+                                    setShowColorManager(false);
+                                }}
                             >
                                 <X className="h-4 w-4" />
                             </Button>
                         </div>
-                        <ProfileManager
-                            onProfileSelect={handleProfileSelect}
-                            selectedProfile={item.profile}
-                            showSelection={true}
-                            initialSystemTypeFilter={getNormalizedSystemType(
-                                item.system
-                            )}
-                        />
-                    </div>
-                </div>
-            )}
-
-            {/* Color Manager Modal */}
-            {showColorManager && (
-                <div className="fixed inset-0 bg-card border-border border bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-card rounded-lg p-6 max-w-[1400px] w-full max-h-[90vh] overflow-y-auto">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold">
-                                Select Color Option
-                            </h3>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowColorManager(false)}
-                            >
-                                <X className="h-4 w-4" />
-                            </Button>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <h4 className="text-md font-semibold mb-4 flex items-center gap-2">
+                                    <Database className="h-4 w-4" />
+                                    Aluminium Profiles
+                                </h4>
+                                <ProfileManager
+                                    onProfileSelect={handleProfileSelect}
+                                    selectedProfile={item.profile}
+                                    showSelection={true}
+                                    initialSystemTypeFilter={getNormalizedSystemType(
+                                        item.system
+                                    )}
+                                />
+                            </div>
+                            <div>
+                                <h4 className="text-md font-semibold mb-4 flex items-center gap-2">
+                                    <Palette className="h-4 w-4" />
+                                    Color Options
+                                </h4>
+                                <ColorManager
+                                    onColorSelect={handleColorSelect}
+                                    showSelection={true}
+                                />
+                            </div>
                         </div>
-                        <ColorManager
-                            onColorSelect={handleColorSelect}
-                            showSelection={true}
-                        />
                     </div>
                 </div>
             )}

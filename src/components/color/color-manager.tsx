@@ -717,10 +717,15 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                         }}
                                                     >
                                                         <CardContent className="p-4">
-                                                            <div className="flex items-center justify-between mb-2">
-                                                                <h4 className="font-semibold text-foreground">
-                                                                    {color.code}
-                                                                </h4>
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h4 className="font-semibold text-foreground truncate">
+                                                                        {color.code}
+                                                                    </h4>
+                                                                    <div className="mt-1 text-sm text-gray-500">
+                                                                        <span className="font-medium">Color:</span> {color.color}
+                                                                    </div>
+                                                                </div>
                                                                 <div className="flex items-center gap-2">
                                                                     {showSelection && (
                                                                         <div className="w-4 h-4 rounded-full border-2 border-border flex items-center justify-center">
@@ -754,38 +759,6 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                                             </button>
                                                                         </div>
                                                                     )}
-                                                                </div>
-                                                            </div>
-                                                            <div className="space-y-1 text-sm">
-                                                                <div className="flex items-center gap-2">
-                                                                    <Badge
-                                                                        variant="outline"
-                                                                        className="text-primary"
-                                                                    >
-                                                                        {
-                                                                            color.brand
-                                                                        }
-                                                                    </Badge>
-                                                                </div>
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Color:
-                                                                    </span>{" "}
-                                                                    <span className="text-muted-foreground">
-                                                                        {
-                                                                            color.color
-                                                                        }
-                                                                    </span>
-                                                                </div>
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Finish:
-                                                                    </span>{" "}
-                                                                    <span className="text-muted-foreground">
-                                                                        {
-                                                                            color.finish
-                                                                        }
-                                                                    </span>
                                                                 </div>
                                                             </div>
                                                         </CardContent>
