@@ -315,12 +315,20 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
         }
 
         console.log("Starting CSV import for file:", file.name);
-        console.log("User:", user?.email, "Role:", userRole, "Can manage colors:", canManageColors);
+        console.log(
+            "User:",
+            user?.email,
+            "Role:",
+            userRole,
+            "Can manage colors:",
+            canManageColors
+        );
 
         if (!canManageColors) {
             setCsvImportStatus({
                 type: "error",
-                message: "You don't have permission to import colors. Only admin and manager users can import colors.",
+                message:
+                    "You don't have permission to import colors. Only admin and manager users can import colors.",
             });
             setTimeout(() => setCsvImportStatus(null), 5000);
             return;
@@ -334,25 +342,31 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
         try {
             const text = await file.text();
             console.log("File content:", text.substring(0, 200) + "...");
-            
-            const lines = text.split("\n").filter(line => line.trim() !== "");
+
+            const lines = text.split("\n").filter((line) => line.trim() !== "");
             console.log("Number of lines:", lines.length);
-            
+
             if (lines.length < 2) {
-                throw new Error("CSV file must have at least a header row and one data row");
+                throw new Error(
+                    "CSV file must have at least a header row and one data row"
+                );
             }
 
             const headers = lines[0]
                 .split(",")
                 .map((h) => h.trim().replace(/"/g, "").toLowerCase());
-            
+
             console.log("Headers found:", headers);
 
             // Validate headers
-            const requiredHeaders = ['code', 'brand', 'color', 'finish'];
-            const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
+            const requiredHeaders = ["code", "brand", "color", "finish"];
+            const missingHeaders = requiredHeaders.filter(
+                (header) => !headers.includes(header)
+            );
             if (missingHeaders.length > 0) {
-                throw new Error(`Missing required headers: ${missingHeaders.join(', ')}`);
+                throw new Error(
+                    `Missing required headers: ${missingHeaders.join(", ")}`
+                );
             }
 
             let importedCount = 0;
@@ -409,20 +423,21 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
 
             // Clear status after 5 seconds
             setTimeout(() => setCsvImportStatus(null), 5000);
-            
+
             // Reload colors to show the imported ones
             loadColors();
         } catch (error: unknown) {
             const err = error as { code?: string; message?: string };
             console.error("Error importing color CSV:", error);
-            
+
             let errorMessage = "Unknown error occurred";
             if (err.code === "permission-denied") {
-                errorMessage = "Permission denied: Please check your Firebase security rules. You may need to update them to allow access to the colorOptions collection.";
+                errorMessage =
+                    "Permission denied: Please check your Firebase security rules. You may need to update them to allow access to the colorOptions collection.";
             } else if (err.message) {
                 errorMessage = err.message;
             }
-            
+
             setCsvImportStatus({
                 type: "error",
                 message: `Error importing color CSV: ${errorMessage}`,
@@ -437,26 +452,25 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
     // Helper function to parse CSV line properly handling quoted values
     const parseCSVLine = (line: string): string[] => {
         const result: string[] = [];
-        let current = '';
+        let current = "";
         let inQuotes = false;
-        
+
         for (let i = 0; i < line.length; i++) {
             const char = line[i];
-            
+
             if (char === '"') {
                 inQuotes = !inQuotes;
-            } else if (char === ',' && !inQuotes) {
+            } else if (char === "," && !inQuotes) {
                 result.push(current);
-                current = '';
+                current = "";
             } else {
                 current += char;
             }
         }
-        
+
         result.push(current);
         return result;
     };
-
 
     const handleCreateChange = (field: keyof ColorOption, value: string) => {
         setCreateForm((prev) => ({ ...prev, [field]: value }));
@@ -572,7 +586,6 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                             </CardContent>
                         </Card>
                     )}
-
 
                     {/* loaded colors message */}
                     {/* {success && (
@@ -717,15 +730,10 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                         }}
                                                     >
                                                         <CardContent className="p-4">
-                                                            <div className="flex items-center justify-between">
-                                                                <div className="flex-1 min-w-0">
-                                                                    <h4 className="font-semibold text-foreground truncate">
-                                                                        {color.code}
-                                                                    </h4>
-                                                                    <div className="mt-1 text-sm text-gray-500">
-                                                                        <span className="font-medium">Color:</span> {color.color}
-                                                                    </div>
-                                                                </div>
+                                                            <div className="flex items-center justify-between mb-2">
+                                                                <h4 className="font-semibold text-foreground">
+                                                                    {color.code}
+                                                                </h4>
                                                                 <div className="flex items-center gap-2">
                                                                     {showSelection && (
                                                                         <div className="w-4 h-4 rounded-full border-2 border-border flex items-center justify-center">
@@ -738,9 +746,13 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                                     {canManageColors && (
                                                                         <div className="flex gap-1">
                                                                             <button
-                                                                                onClick={(e) => {
+                                                                                onClick={(
+                                                                                    e
+                                                                                ) => {
                                                                                     e.stopPropagation();
-                                                                                    handleEditColor(color);
+                                                                                    handleEditColor(
+                                                                                        color
+                                                                                    );
                                                                                 }}
                                                                                 className="p-1 hover:bg-muted rounded transition-colors"
                                                                                 title="Edit color"
@@ -748,9 +760,16 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                                                 <Edit className="h-3 w-3 text-muted-foreground" />
                                                                             </button>
                                                                             <button
-                                                                                onClick={(e) => {
+                                                                                onClick={(
+                                                                                    e
+                                                                                ) => {
                                                                                     e.stopPropagation();
-                                                                                    if (color.id) deleteColor(color.id);
+                                                                                    if (
+                                                                                        color.id
+                                                                                    )
+                                                                                        deleteColor(
+                                                                                            color.id
+                                                                                        );
                                                                                 }}
                                                                                 className="p-1 hover:bg-destructive/10 rounded transition-colors"
                                                                                 title="Delete color"
@@ -759,6 +778,38 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                                             </button>
                                                                         </div>
                                                                     )}
+                                                                </div>
+                                                            </div>
+                                                            <div className="space-y-1 text-sm">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Badge
+                                                                        variant="outline"
+                                                                        className="text-primary"
+                                                                    >
+                                                                        {
+                                                                            color.brand
+                                                                        }
+                                                                    </Badge>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="font-medium">
+                                                                        Color:
+                                                                    </span>{" "}
+                                                                    <span className="text-muted-foreground">
+                                                                        {
+                                                                            color.color
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="font-medium">
+                                                                        Finish:
+                                                                    </span>{" "}
+                                                                    <span className="text-muted-foreground">
+                                                                        {
+                                                                            color.finish
+                                                                        }
+                                                                    </span>
                                                                 </div>
                                                             </div>
                                                         </CardContent>
@@ -792,30 +843,46 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                 Import Color Options
                                             </h3>
                                             <p className="text-primary mb-4">
-                                                Upload a CSV file with your color data. The file should include columns: code, brand, color, finish.
+                                                Upload a CSV file with your
+                                                color data. The file should
+                                                include columns: code, brand,
+                                                color, finish.
                                             </p>
-                                            
+
                                             <div className="flex gap-4 mb-4">
                                                 <Button
-                                                    onClick={downloadColorSampleCSV}
+                                                    onClick={
+                                                        downloadColorSampleCSV
+                                                    }
                                                     variant="outline"
                                                     className="border-primary/30 text-primary hover:bg-primary/10"
                                                 >
                                                     <Download className="mr-2 h-4 w-4" />
                                                     Download Sample CSV
                                                 </Button>
-                                                
+
                                                 <Button
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
-                                                        console.log("Choose CSV button clicked");
-                                                        console.log("File input ref:", fileInputRef.current);
-                                                        if (fileInputRef.current) {
-                                                            console.log("Triggering file input click");
+                                                        console.log(
+                                                            "Choose CSV button clicked"
+                                                        );
+                                                        console.log(
+                                                            "File input ref:",
+                                                            fileInputRef.current
+                                                        );
+                                                        if (
+                                                            fileInputRef.current
+                                                        ) {
+                                                            console.log(
+                                                                "Triggering file input click"
+                                                            );
                                                             fileInputRef.current.click();
                                                         } else {
-                                                            console.error("File input ref not found");
+                                                            console.error(
+                                                                "File input ref not found"
+                                                            );
                                                         }
                                                     }}
                                                     className="bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -823,7 +890,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                     <Upload className="mr-2 h-4 w-4" />
                                                     Choose CSV File
                                                 </Button>
-                                                
+
                                                 <input
                                                     ref={fileInputRef}
                                                     id="colorCsvFileInput"
@@ -831,13 +898,16 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                     accept=".csv"
                                                     title="Choose CSV file for color import"
                                                     onChange={(e) => {
-                                                        console.log("File input changed:", e.target.files);
+                                                        console.log(
+                                                            "File input changed:",
+                                                            e.target.files
+                                                        );
                                                         handleColorCSVImport(e);
                                                     }}
                                                     className="hidden"
                                                 />
                                             </div>
-                                            
+
                                             {/* Alternative file input for testing
                                             <div className="mt-4 p-4 border border-border rounded-lg bg-muted">
                                                 <p className="text-sm text-muted-foreground mb-2">Alternative file input (for testing):</p>
@@ -858,24 +928,58 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                     CSV Format Requirements
                                                 </h4>
                                                 <div className="text-sm text-muted-foreground mb-3">
-                                                    Your CSV file must have the following columns (in any order):
+                                                    Your CSV file must have the
+                                                    following columns (in any
+                                                    order):
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-2 text-sm">
                                                     <div className="flex items-center gap-2">
-                                                        <Badge variant="outline" className="text-xs">code</Badge>
-                                                        <span className="text-muted-foreground">Color code (e.g., RAL-9005)</span>
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="text-xs"
+                                                        >
+                                                            code
+                                                        </Badge>
+                                                        <span className="text-muted-foreground">
+                                                            Color code (e.g.,
+                                                            RAL-9005)
+                                                        </span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
-                                                        <Badge variant="outline" className="text-xs">brand</Badge>
-                                                        <span className="text-muted-foreground">Brand name (e.g., Cocoon)</span>
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="text-xs"
+                                                        >
+                                                            brand
+                                                        </Badge>
+                                                        <span className="text-muted-foreground">
+                                                            Brand name (e.g.,
+                                                            Cocoon)
+                                                        </span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
-                                                        <Badge variant="outline" className="text-xs">color</Badge>
-                                                        <span className="text-muted-foreground">Color name (e.g., Black)</span>
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="text-xs"
+                                                        >
+                                                            color
+                                                        </Badge>
+                                                        <span className="text-muted-foreground">
+                                                            Color name (e.g.,
+                                                            Black)
+                                                        </span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
-                                                        <Badge variant="outline" className="text-xs">finish</Badge>
-                                                        <span className="text-muted-foreground">Finish type (e.g., Matte)</span>
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="text-xs"
+                                                        >
+                                                            finish
+                                                        </Badge>
+                                                        <span className="text-muted-foreground">
+                                                            Finish type (e.g.,
+                                                            Matte)
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -883,23 +987,32 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
 
                                         {/* CSV Import Status */}
                                         {csvImportStatus && (
-                                            <Card className={`border-2 ${
-                                                csvImportStatus.type === "success" 
-                                                    ? "border-success/20 bg-success/5" 
-                                                    : "border-destructive/20 bg-destructive/5"
-                                            }`}>
+                                            <Card
+                                                className={`border-2 ${
+                                                    csvImportStatus.type ===
+                                                    "success"
+                                                        ? "border-success/20 bg-success/5"
+                                                        : "border-destructive/20 bg-destructive/5"
+                                                }`}
+                                            >
                                                 <CardContent className="pt-6">
-                                                    <div className={`flex items-center gap-2 ${
-                                                        csvImportStatus.type === "success" 
-                                                            ? "text-success" 
-                                                            : "text-destructive"
-                                                    }`}>
-                                                        {csvImportStatus.type === "success" ? (
+                                                    <div
+                                                        className={`flex items-center gap-2 ${
+                                                            csvImportStatus.type ===
+                                                            "success"
+                                                                ? "text-success"
+                                                                : "text-destructive"
+                                                        }`}
+                                                    >
+                                                        {csvImportStatus.type ===
+                                                        "success" ? (
                                                             <CheckCircle className="h-4 w-4" />
                                                         ) : (
                                                             <AlertCircle className="h-4 w-4" />
                                                         )}
-                                                        {csvImportStatus.message}
+                                                        {
+                                                            csvImportStatus.message
+                                                        }
                                                     </div>
                                                 </CardContent>
                                             </Card>
