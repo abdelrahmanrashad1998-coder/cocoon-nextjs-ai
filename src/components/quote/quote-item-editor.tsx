@@ -118,37 +118,37 @@ export function QuoteItemEditor({
             //    mergedId?: string;
             //    isSpanned?: boolean;
             //}>;
-            frameMeters: number;
-            windowMeters: number;
-            glassArea: number;
-            cornerCount: number;
+        frameMeters: number;
+        windowMeters: number;
+        glassArea: number;
+        cornerCount: number;
             totalCost?: number;
             materialBreakdown?: Record<string, number>;
             columns: number;
             rows: number;
             columnSizes: number[];
             rowSizes: number[];
-        }) => {
-            // Update the entire designData object at once to ensure proper state updates
-            onUpdate({
-                ...item,
-                designData: {
-                    wallWidth: item.designData?.wallWidth || 0,
-                    wallHeight: item.designData?.wallHeight || 0,
-                    panels: design.panels,
-                    frameMeters: design.frameMeters,
-                    windowMeters: design.windowMeters,
-                    glassArea: design.glassArea,
-                    cornerCount: design.cornerCount,
+    }) => {
+        // Update the entire designData object at once to ensure proper state updates
+        onUpdate({
+            ...item,
+            designData: {
+                wallWidth: item.designData?.wallWidth || 0,
+                wallHeight: item.designData?.wallHeight || 0,
+                panels: design.panels,
+                frameMeters: design.frameMeters,
+                windowMeters: design.windowMeters,
+                glassArea: design.glassArea,
+                cornerCount: design.cornerCount,
                     totalCost: design.totalCost,
                     materialBreakdown: design.materialBreakdown,
                     columns: design.columns,
                     rows: design.rows,
                     columnSizes: design.columnSizes,
                     rowSizes: design.rowSizes,
-                    visualSvg: item.designData?.visualSvg,
-                },
-            });
+                visualSvg: item.designData?.visualSvg,
+            },
+        });
         },
         [item, onUpdate]
     );
@@ -1672,8 +1672,8 @@ export function QuoteItemEditor({
                                                         ) =>
                                                             handleCurtainWallDesignChange(
                                                                 {
-                                                                    ...design,
-                                                                    // Provide default values for missing fields to match expected type
+                                                                ...design,
+                                                                // Provide default values for missing fields to match expected type
                                                                     frameMeters:
                                                                         design.frameMeters ??
                                                                         0,
@@ -1745,13 +1745,14 @@ export function QuoteItemEditor({
                                 </>
                             )}
 
-                            {/* Profile Information */}
+                            {/* Profile and Color Information */}
                             <Separator />
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
                                     <Label className="text-sm font-medium">
-                                        Profile Information
+                                        Profile & Color
                                     </Label>
+                                    <div className="flex items-center gap-2">
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -1763,30 +1764,50 @@ export function QuoteItemEditor({
                                         <Database className="h-4 w-4" />
                                         Select Profile
                                     </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() =>
+                                                setShowColorManager(true)
+                                            }
+                                            className="flex items-center gap-2"
+                                        >
+                                            <Palette className="h-4 w-4" />
+                                            Select Color
+                                        </Button>
+                                        {globalColor && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => {
+                                                    if (globalColor) {
+                                                        handleUpdate("color", globalColor);
+                                                    }
+                                                }}
+                                                className="flex items-center gap-2 bg-primary/10 hover:bg-primary/20 border-primary/30 text-primary"
+                                            >
+                                                <Palette className="h-4 w-4" />
+                                                Use Global Color
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
 
+                                <div className="flex items-center gap-4 p-3 border rounded-lg">
+                                    {/* Profile Information */}
+                                    <div className="flex-1">
                                 {item.profile ? (
-                                    <Card className="border-destructive/20 bg-destructive/5">
-                                        <CardContent className="pt-4">
                                             <div className="flex items-center justify-between">
-                                                <div>
-                                                    <h4 className="font-semibold text-destructive">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="font-medium text-destructive">
                                                         {item.profile.name}
-                                                    </h4>
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="text-destructive"
-                                                        >
-                                                            {item.profile.brand}
-                                                        </Badge>
+                                                    </span>
                                                         <Badge
                                                             variant="secondary"
-                                                            className="text-destructive"
+                                                        className="text-destructive w-fit"
                                                         >
                                                             {item.profile.code}
                                                         </Badge>
-                                                    </div>
                                                 </div>
                                                 <Button
                                                     variant="outline"
@@ -1801,69 +1822,94 @@ export function QuoteItemEditor({
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
-                                                <div>
-                                                    <span className="font-medium">
-                                                        Frame Price:
+                                        ) : (
+                                            <div className="flex items-center gap-2 text-muted-foreground">
+                                                <Database className="h-4 w-4" />
+                                                <span className="text-sm">No profile selected</span>
+                                                </div>
+                                        )}
+                                                </div>
+
+                                    {/* Separator */}
+                                    <div className="w-px h-6 bg-border"></div>
+
+                                    {/* Color Information */}
+                                    <div className="flex-1">
+                                        {item.color || globalColor ? (
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="font-medium text-info">
+                                                        {(item.color || globalColor)?.color}
                                                     </span>
-                                                    <span className="text-destructive ml-2">
-                                                        EGP
-                                                        {
-                                                            item.profile
-                                                                .frame_price
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className="text-info w-fit"
+                                                    >
+                                                        {(item.color || globalColor)?.code}
+                                                    </Badge>
+                                                </div>
+                                                {item.color && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                            handleUpdate(
+                                                                "color",
+                                                                undefined
+                                                            )
                                                         }
-                                                    </span>
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                )}
                                                 </div>
-                                                <div>
-                                                    <span className="font-medium">
-                                                        Sach Price:
-                                                    </span>
-                                                    <span className="text-destructive ml-2">
-                                                        EGP
-                                                        {
-                                                            item.profile
-                                                                .sach_price
-                                                        }
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <span className="font-medium">
-                                                        Glass (Double):
-                                                    </span>
-                                                    <span className="text-destructive ml-2">
-                                                        EGP{" "}
-                                                        {
-                                                            item.profile
-                                                                .glass_price_double
-                                                        }
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <span className="font-medium">
-                                                        Profit Rate:
-                                                    </span>
-                                                    <span className="text-warning ml-2">
-                                                        {item.profile
-                                                            .base_profit_rate *
-                                                            100}
-                                                        %
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ) : (
-                                    <div className="text-center py-6 border-2 border-dashed border-border rounded-lg">
-                                        <Database className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                                        <p className="text-muted-foreground">
-                                            No profile selected
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            Click &quot;Select Profile&quot; to
-                                            choose an aluminium profile
-                                        </p>
+                                        ) : (
+                                            <div className="flex items-center gap-2 text-muted-foreground">
+                                                <Palette className="h-4 w-4" />
+                                                <span className="text-sm">No color selected</span>
                                     </div>
                                 )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Item SVG Preview */}
+                            <Separator />
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-sm font-medium">
+                                        Item Preview
+                                    </Label>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={generateItemSvg}
+                                        className="flex items-center gap-2"
+                                    >
+                                        Generate SVG
+                                    </Button>
+                                </div>
+                                <div className="border rounded-lg p-4 bg-card">
+                                    <div className="text-xs text-muted-foreground mb-2 text-center">
+                                        {item.type === "curtain_wall"
+                                            ? "Curtain Wall Layout"
+                                            : `${item.system} System`}
+                                    </div>
+                                    <div className="flex justify-center">
+                                        {svgContent ? (
+                                            <div
+                                                dangerouslySetInnerHTML={{
+                                                    __html: svgContent,
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="text-center text-muted-foreground py-8">
+                                                Click &quot;Generate SVG&quot;
+                                                to create the preview
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Pricing Details */}
@@ -1909,183 +1955,7 @@ export function QuoteItemEditor({
                                 </>
                             )}
 
-                            {/* Color Information */}
-                            <Separator />
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <Label className="text-sm font-medium">
-                                        Color Information
-                                    </Label>
-                                    <div className="flex gap-2">
-                                        {globalColor && (
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() =>
-                                                    handleUpdate(
-                                                        "color",
-                                                        undefined
-                                                    )
-                                                }
-                                                className="text-xs"
-                                            >
-                                                Use Global
-                                            </Button>
-                                        )}
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() =>
-                                                setShowColorManager(true)
-                                            }
-                                            className="flex items-center gap-2"
-                                        >
-                                            <Palette className="h-4 w-4" />
-                                            {item.color
-                                                ? "Change Color"
-                                                : "Select Color"}
-                                        </Button>
-                                    </div>
-                                </div>
 
-                                {/* Show effective color (item-specific or global) */}
-                                {item.color || globalColor ? (
-                                    <Card className="border-info/20 bg-info/5">
-                                        <CardContent className="pt-4">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <h4 className="font-semibold text-info">
-                                                            {
-                                                                (
-                                                                    item.color ||
-                                                                    globalColor
-                                                                )?.code
-                                                            }
-                                                        </h4>
-                                                        {item.color ? (
-                                                            <Badge
-                                                                variant="secondary"
-                                                                className="text-xs"
-                                                            >
-                                                                Item Override
-                                                            </Badge>
-                                                        ) : globalColor ? (
-                                                            <Badge
-                                                                variant="outline"
-                                                                className="text-xs"
-                                                            >
-                                                                Global Color
-                                                            </Badge>
-                                                        ) : null}
-                                                    </div>
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="text-info"
-                                                        >
-                                                            {
-                                                                (
-                                                                    item.color ||
-                                                                    globalColor
-                                                                )?.brand
-                                                            }
-                                                        </Badge>
-                                                        <Badge
-                                                            variant="secondary"
-                                                            className="text-info"
-                                                        >
-                                                            {
-                                                                (
-                                                                    item.color ||
-                                                                    globalColor
-                                                                )?.color
-                                                            }
-                                                        </Badge>
-                                                    </div>
-                                                </div>
-                                                {item.color && (
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            handleUpdate(
-                                                                "color",
-                                                                undefined
-                                                            )
-                                                        }
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                )}
-                                            </div>
-                                            <div className="mt-3 text-sm">
-                                                <span className="font-medium">
-                                                    Finish:
-                                                </span>{" "}
-                                                <span className="text-info ml-2">
-                                                    {
-                                                        (
-                                                            item.color ||
-                                                            globalColor
-                                                        )?.finish
-                                                    }
-                                                </span>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ) : (
-                                    <div className="text-center py-6 border-2 border-dashed border-border rounded-lg">
-                                        <Palette className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                                        <p className="text-muted-foreground">
-                                            No color selected
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            Click &quot;Select Color&quot; to
-                                            choose a color option
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Item SVG Preview */}
-                            <Separator />
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <Label className="text-sm font-medium">
-                                        Item Preview
-                                    </Label>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={generateItemSvg}
-                                        className="flex items-center gap-2"
-                                    >
-                                        Generate SVG
-                                    </Button>
-                                </div>
-                                <div className="border rounded-lg p-4 bg-card">
-                                    <div className="text-xs text-muted-foreground mb-2 text-center">
-                                        {item.type === "curtain_wall"
-                                            ? "Curtain Wall Layout"
-                                            : `${item.system} System`}
-                                    </div>
-                                    <div className="flex justify-center">
-                                        {svgContent ? (
-                                            <div
-                                                dangerouslySetInnerHTML={{
-                                                    __html: svgContent,
-                                                }}
-                                            />
-                                        ) : (
-                                            <div className="text-center text-muted-foreground py-8">
-                                                Click &quot;Generate SVG&quot;
-                                                to create the preview
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
 
                             {/* Item Summary */}
                             <div className="bg-muted p-4 rounded-lg">
