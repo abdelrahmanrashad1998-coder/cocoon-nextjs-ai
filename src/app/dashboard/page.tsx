@@ -22,9 +22,9 @@ export default function Page() {
         // Filter projects by status - need to filter at the quote level before conversion
         const quotes = await DashboardService.fetchQuotes()
         
-        // Filter active projects (draft, pending_review, approved, in_production)
+        // Filter active projects (only approved and in_production)
         const activeQuotes = quotes.filter(quote => 
-          ["draft", "pending_review", "approved", "in_production"].includes(quote.status || "draft")
+          ["approved", "in_production"].includes(quote.status || "draft")
         )
         const activeProjectsData = DashboardService.convertQuotesToProjects(activeQuotes)
         setActiveProjects(activeProjectsData)

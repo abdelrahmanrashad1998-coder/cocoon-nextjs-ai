@@ -106,18 +106,26 @@ export class DashboardService {
       return sum + quoteTotal;
     }, 0);
 
-    // Count projects by status
+    // Count projects by status - only approved and in_production are considered active
     const activeProjects = quotes.filter(quote => 
-      ["draft", "pending_review", "approved", "in_production"].includes(quote.status || "draft")
+      ["approved", "in_production"].includes(quote.status || "draft")
     ).length;
 
     const completedProjects = quotes.filter(quote => 
       quote.status === "completed"
     ).length;
 
-    // Calculate profit margin (simplified calculation)
-    const totalCosts = totalRevenue * 0.7; // Assume 70% costs
-    const profitMargin = totalRevenue > 0 ? ((totalRevenue - totalCosts) / totalRevenue) * 100 : 0;
+    // Calculate profit margin using real cost data from pricing calculator
+    const totalCosts = revenueQuotes.reduce((sum, quote) => {
+      const quoteCosts = quote.items.reduce((itemSum, item) => {
+        const pricing = calculateItemPricing(item);
+        return itemSum + pricing.totalBeforeProfit; // Use actual costs before profit
+      }, 0);
+      return sum + quoteCosts;
+    }, 0);
+    
+    const totalProfit = totalRevenue - totalCosts;
+    const profitMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
 
     // Calculate growth percentages
     const revenueGrowth = lastQuarterRevenue > 0 ? 
@@ -130,7 +138,18 @@ export class DashboardService {
       ((completedProjects - lastMonthQuotes.filter(q => q.status === "completed").length) / 
        lastMonthQuotes.filter(q => q.status === "completed").length) * 100 : 0;
 
-    const profitGrowth = 2.1; // Mock value for now
+    // Calculate profit growth using real profit data
+    const lastQuarterCosts = lastQuarterRevenueQuotes.reduce((sum, quote) => {
+      const quoteCosts = quote.items.reduce((itemSum, item) => {
+        const pricing = calculateItemPricing(item);
+        return itemSum + pricing.totalBeforeProfit;
+      }, 0);
+      return sum + quoteCosts;
+    }, 0);
+    
+    const lastQuarterProfit = lastQuarterRevenue - lastQuarterCosts;
+    const profitGrowth = lastQuarterProfit > 0 ? 
+      ((totalProfit - lastQuarterProfit) / lastQuarterProfit) * 100 : 0;
 
     return {
       totalRevenue,
