@@ -1747,165 +1747,218 @@ export function QuoteItemEditor({
 
                             {/* Profile and Color Information */}
                             <Separator />
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <Label className="text-sm font-medium">
-                                        Profile & Color
-                                    </Label>
-                                    <div className="flex items-center gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() =>
-                                            setShowProfileManager(true)
-                                        }
-                                        className="flex items-center gap-2"
-                                    >
-                                        <Database className="h-4 w-4" />
-                                        Select Profile
-                                    </Button>
+                            {/* Horizontal Layout: Profile Select | Item Preview | Color Select */}
+                            <div className="grid grid-cols-3 gap-4">
+                                {/* Left: Profile Select */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-sm font-medium">
+                                            Profile
+                                        </Label>
                                         <Button
                                             variant="outline"
                                             size="sm"
                                             onClick={() =>
-                                                setShowColorManager(true)
+                                                setShowProfileManager(true)
                                             }
                                             className="flex items-center gap-2"
                                         >
-                                            <Palette className="h-4 w-4" />
-                                            Select Color
+                                            <Database className="h-4 w-4" />
+                                            Select Profile
                                         </Button>
-                                        {globalColor && (
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => {
-                                                    if (globalColor) {
-                                                        handleUpdate("color", globalColor);
-                                                    }
-                                                }}
-                                                className="flex items-center gap-2 bg-primary/10 hover:bg-primary/20 border-primary/30 text-primary"
-                                            >
-                                                <Palette className="h-4 w-4" />
-                                                Use Global Color
-                                            </Button>
-                                        )}
                                     </div>
-                                </div>
-
-                                <div className="flex items-center gap-4 p-3 border rounded-lg">
+                                    
                                     {/* Profile Information */}
-                                    <div className="flex-1">
-                                {item.profile ? (
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex flex-col gap-1">
-                                                    <span className="font-medium text-destructive">
-                                                        {item.profile.name}
-                                                    </span>
+                                    <div className="border rounded-lg p-4 bg-card">
+                                        {item.profile ? (
+                                            <div className="space-y-3">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="font-medium text-destructive">
+                                                            {item.profile.name}
+                                                        </span>
                                                         <Badge
                                                             variant="secondary"
-                                                        className="text-destructive w-fit"
+                                                            className="text-destructive w-fit"
                                                         >
                                                             {item.profile.code}
                                                         </Badge>
-                                                </div>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        handleUpdate(
-                                                            "profile",
-                                                            undefined
-                                                        )
-                                                    }
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center gap-2 text-muted-foreground">
-                                                <Database className="h-4 w-4" />
-                                                <span className="text-sm">No profile selected</span>
-                                                </div>
-                                        )}
-                                                </div>
-
-                                    {/* Separator */}
-                                    <div className="w-px h-6 bg-border"></div>
-
-                                    {/* Color Information */}
-                                    <div className="flex-1">
-                                        {item.color || globalColor ? (
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex flex-col gap-1">
-                                                    <span className="font-medium text-info">
-                                                        {(item.color || globalColor)?.color}
-                                                    </span>
-                                                    <Badge
-                                                        variant="secondary"
-                                                        className="text-info w-fit"
-                                                    >
-                                                        {(item.color || globalColor)?.code}
-                                                    </Badge>
-                                                </div>
-                                                {item.color && (
+                                                    </div>
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
                                                         onClick={() =>
                                                             handleUpdate(
-                                                                "color",
+                                                                "profile",
                                                                 undefined
                                                             )
                                                         }
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
-                                                )}
                                                 </div>
+                                                
+                                                {/* Profile Details */}
+                                                <div className="space-y-2 text-xs">
+                                                    <div className="flex justify-between">
+                                                        <span className="text-muted-foreground">System:</span>
+                                                        <span className="font-medium">{item.profile.system_type}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-muted-foreground">Brand:</span>
+                                                        <span className="font-medium">{item.profile.brand}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-muted-foreground">Frame Price:</span>
+                                                        <span className="font-medium text-success">{item.profile.frame_price} EGP</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-muted-foreground">KG Price:</span>
+                                                        <span className="font-medium text-success">{item.profile.kg_price} EGP/kg</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         ) : (
-                                            <div className="flex items-center gap-2 text-muted-foreground">
-                                                <Palette className="h-4 w-4" />
-                                                <span className="text-sm">No color selected</span>
-                                    </div>
-                                )}
+                                            <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                                                <Database className="h-8 w-8 mb-2" />
+                                                <span className="text-sm">No profile selected</span>
+                                                <span className="text-xs mt-1">Click "Select Profile" to choose</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Item SVG Preview */}
-                            <Separator />
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <Label className="text-sm font-medium">
-                                        Item Preview
-                                    </Label>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={generateItemSvg}
-                                        className="flex items-center gap-2"
-                                    >
-                                        Generate SVG
-                                    </Button>
-                                </div>
-                                <div className="border rounded-lg p-4 bg-card">
-                                    <div className="text-xs text-muted-foreground mb-2 text-center">
-                                        {item.type === "curtain_wall"
-                                            ? "Curtain Wall Layout"
-                                            : `${item.system} System`}
+                                {/* Center: Item Preview */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-sm font-medium">
+                                            Item Preview
+                                        </Label>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={generateItemSvg}
+                                            className="flex items-center gap-2"
+                                        >
+                                            Generate SVG
+                                        </Button>
                                     </div>
-                                    <div className="flex justify-center">
-                                        {svgContent ? (
-                                            <div
-                                                dangerouslySetInnerHTML={{
-                                                    __html: svgContent,
-                                                }}
-                                            />
+                                    <div className="border rounded-lg p-4 bg-card">
+                                        <div className="text-xs text-muted-foreground mb-2 text-center">
+                                            {item.type === "curtain_wall"
+                                                ? "Curtain Wall Layout"
+                                                : `${item.system} System`}
+                                        </div>
+                                        <div className="flex justify-center">
+                                            {svgContent ? (
+                                                <div
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: svgContent,
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="text-center text-muted-foreground py-8">
+                                                    Click &quot;Generate SVG&quot;
+                                                    to create the preview
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right: Color Select */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-sm font-medium">
+                                            Color
+                                        </Label>
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() =>
+                                                    setShowColorManager(true)
+                                                }
+                                                className="flex items-center gap-2"
+                                            >
+                                                <Palette className="h-4 w-4" />
+                                                Select Color
+                                            </Button>
+                                            {globalColor && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        if (globalColor) {
+                                                            handleUpdate("color", globalColor);
+                                                        }
+                                                    }}
+                                                    className="flex items-center gap-2 bg-primary/10 hover:bg-primary/20 border-primary/30 text-primary"
+                                                >
+                                                    <Palette className="h-4 w-4" />
+                                                    Use Global Color
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Color Information */}
+                                    <div className="border rounded-lg p-4 bg-card">
+                                        {item.color || globalColor ? (
+                                            <div className="space-y-3">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="font-medium text-info">
+                                                            {(item.color || globalColor)?.color}
+                                                        </span>
+                                                        <Badge
+                                                            variant="secondary"
+                                                            className="text-info w-fit"
+                                                        >
+                                                            {(item.color || globalColor)?.code}
+                                                        </Badge>
+                                                    </div>
+                                                    {item.color && (
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                handleUpdate(
+                                                                    "color",
+                                                                    undefined
+                                                                )
+                                                            }
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                                
+                                                {/* Color Details */}
+                                                <div className="space-y-2 text-xs">
+                                                    <div className="flex justify-between">
+                                                        <span className="text-muted-foreground">Brand:</span>
+                                                        <span className="font-medium">{(item.color || globalColor)?.brand}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-muted-foreground">Finish:</span>
+                                                        <span className="font-medium">{(item.color || globalColor)?.finish}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-muted-foreground">Type:</span>
+                                                        <span className="font-medium">Powder Coating</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span className="text-muted-foreground">Status:</span>
+                                                        <span className="font-medium text-success">Available</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         ) : (
-                                            <div className="text-center text-muted-foreground py-8">
-                                                Click &quot;Generate SVG&quot;
-                                                to create the preview
+                                            <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                                                <Palette className="h-8 w-8 mb-2" />
+                                                <span className="text-sm">No color selected</span>
+                                                <span className="text-xs mt-1">Click "Select Color" to choose</span>
                                             </div>
                                         )}
                                     </div>
