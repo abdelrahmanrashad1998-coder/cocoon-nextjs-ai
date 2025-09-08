@@ -745,25 +745,6 @@ export function QuoteItemEditor({
                                         </TableCell>
                                     </TableRow>
                                 )}
-                                {item.mosquito && (
-                                    <TableRow>
-                                        <TableCell>Mosquito Net</TableCell>
-                                        <TableCell className="text-right text-sm text-muted-foreground">
-                                            1 × 500
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            {"EGP "}
-                                            {500}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            {item.quantity}
-                                        </TableCell>
-                                        <TableCell className="text-right font-medium">
-                                            {"EGP "}
-                                            {500}
-                                        </TableCell>
-                                    </TableRow>
-                                )}
                                 {item.arch && (
                                     <TableRow>
                                         <TableCell>Arch Trave</TableCell>
@@ -1058,7 +1039,7 @@ export function QuoteItemEditor({
                                         </TableCell>
                                     </TableRow>
                                 )}
-                                {pricing.netCost > 0 && (
+                                {(pricing.netCost > 0 || (item.mosquito && item.system?.toLowerCase() === "hinged")) && (
                                     <TableRow>
                                         <TableCell>Mosquito Net</TableCell>
                                         <TableCell className="text-right text-sm text-muted-foreground">
@@ -1066,17 +1047,12 @@ export function QuoteItemEditor({
                                             ×{" "}
                                             {formatCurrency(
                                                 item.netType === "fixed"
-                                                    ? item.profile?.net_price ||
-                                                          0
+                                                    ? item.profile?.mosquito_price_fixed || 0
                                                     : item.netType === "plisse"
-                                                    ? item.profile
-                                                          ?.net_price_plisse ||
-                                                      0
+                                                    ? item.profile?.mosquito_price_plisse || 0
                                                     : item.netType === "panda"
-                                                    ? item.profile
-                                                          ?.net_price_panda || 0
-                                                    : item.profile?.net_price ||
-                                                      0
+                                                    ? item.profile?.net_price_panda || 0
+                                                    : item.profile?.mosquito_price_fixed || 0
                                             )}
                                             /m
                                         </TableCell>

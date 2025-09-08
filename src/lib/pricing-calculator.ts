@@ -29,8 +29,8 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
               glass_price_single: Number(raw.profile.glass_price_single || 0),
               glass_price_double: Number(raw.profile.glass_price_double || 0),
               arc_price: Number(raw.profile.arc_price || 0),
-              net_price: Number(raw.profile.net_price_panda || 0),
-              net_price_plisse: Number(raw.profile.net_price_plisse || 0),
+              net_price: Number(raw.profile.mosquito_price_fixed || 0),
+              net_price_plisse: Number(raw.profile.mosquito_price_plisse || 0),
               net_price_panda: Number(raw.profile.net_price_panda || 0),
               base_profit_rate: Number(raw.profile.base_profit_rate || 0),
           }
@@ -216,6 +216,7 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
     let netCostUnit = 0;
     if (raw.mosquito) {
         const netType = raw.netType?.toLowerCase() || "fixed";
+        
         if (netType === "fixed") {
             netCostUnit = p.net_price * leafPerimeter;
         } else if (netType === "plisse") {
