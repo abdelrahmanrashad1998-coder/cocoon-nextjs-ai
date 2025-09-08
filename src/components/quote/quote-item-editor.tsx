@@ -1843,21 +1843,22 @@ export function QuoteItemEditor({
                                             Generate SVG
                                         </Button>
                                     </div>
-                                    <div className="border rounded-lg p-4 bg-card">
-                                        <div className="text-xs text-muted-foreground mb-2 text-center">
+                                    <div className="border rounded-lg p-4 bg-card h-48 flex flex-col items-center justify-center">
+                                        {/* <div className="text-xs text-muted-foreground mb-2 text-center">
                                             {item.type === "curtain_wall"
                                                 ? "Curtain Wall Layout"
                                                 : `${item.system} System`}
-                                        </div>
-                                        <div className="flex justify-center">
+                                        </div> */}
+                                        <div className="flex justify-center flex-1 items-center">
                                             {svgContent ? (
                                                 <div
+                                                    className="max-h-full max-w-full scale-75 place-self-center overflow-hidden"
                                                     dangerouslySetInnerHTML={{
                                                         __html: svgContent,
                                                     }}
                                                 />
                                             ) : (
-                                                <div className="text-center text-muted-foreground py-8">
+                                                <div className="text-center text-muted-foreground">
                                                     Click &quot;Generate SVG&quot;
                                                     to create the preview
                                                 </div>
