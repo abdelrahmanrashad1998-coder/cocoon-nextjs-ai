@@ -31,6 +31,7 @@ import { Users, Search, Mail, Phone, MapPin, FileText, Calendar, Eye } from "luc
 import DashboardLayout from "@/components/dashboard-layout";
 import { QuoteData } from "@/types/quote";
 import { useQuoteGenerator } from "@/hooks/use-quote-generator";
+import { calculateItemPricing } from "@/lib/pricing-calculator";
 
 interface ClientData {
     name: string;
@@ -88,7 +89,7 @@ export default function ClientsPage() {
                 const clientsArray = Array.from(clientMap.values()).map((client) => {
                     const totalValue = client.quotes.reduce((sum, quote) => {
                         return sum + quote.items.reduce((itemSum, item) => {
-                            return itemSum + (item.width * item.height * item.quantity * 1200); // Using same calculation as in hook
+                            return itemSum + calculateItemPricing(item).totalPrice;
                         }, 0);
                     }, 0);
 
@@ -394,7 +395,7 @@ export default function ClientsPage() {
                                                                                                 <div className="text-right">
                                                                                                     <div className="text-lg font-bold text-green-600">
                                                                                                         {formatCurrency(quote.items.reduce((sum, item) => 
-                                                                                                            sum + (item.width * item.height * item.quantity * 1200), 0
+                                                                                                            sum + calculateItemPricing(item).totalPrice, 0
                                                                                                         ))}
                                                                                                     </div>
                                                                                                     <div className="text-sm text-gray-600">

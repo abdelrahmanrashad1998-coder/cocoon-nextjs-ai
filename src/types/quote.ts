@@ -100,8 +100,6 @@ export interface QuoteData {
     globalColor?: ColorOption;
     status: QuoteStatus;
     approval?: QuoteApproval;
-    assignedTo?: string;
-    priority?: "low" | "medium" | "high";
     estimatedCompletionDate?: string;
     actualCompletionDate?: string;
     productionStartDate?: string;

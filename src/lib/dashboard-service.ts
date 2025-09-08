@@ -202,7 +202,7 @@ export class DashboardService {
         status: statusMap[quote.status || "draft"],
         target: targetDays.toString(),
         limit: actualDays.toString(),
-        reviewer: quote.assignedTo || "Assign manager",
+        reviewer: "Assign manager",
         createdAt: quote.createdAt,
         updatedAt: quote.updatedAt,
         totalValue,

@@ -47,7 +47,6 @@ import {
     AlertCircle,
     Filter,
     Eye,
-    User,
     Calendar,
     History,
     RotateCcw
@@ -56,12 +55,12 @@ import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/dashboard-layout";
 import { QuoteData, QuoteStatus, QuoteHistoryEntry } from "@/types/quote";
 import { useQuoteGenerator } from "@/hooks/use-quote-generator";
+import { calculateItemPricing } from "@/lib/pricing-calculator";
 
 export default function QuotesPage() {
     const [quotes, setQuotes] = useState<QuoteData[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState<QuoteStatus | "all">("all");
-    const [priorityFilter, setPriorityFilter] = useState<"all" | "low" | "medium" | "high">("all");
     const [loading, setLoading] = useState(true);
     const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
     const [selectedQuote, setSelectedQuote] = useState<QuoteData | null>(null);
@@ -81,7 +80,6 @@ export default function QuotesPage() {
                 const quotesWithDefaults = fetchedQuotes.map(quote => ({
                     ...quote,
                     status: quote.status || "draft",
-                    priority: quote.priority || "medium",
                     updatedAt: quote.updatedAt || quote.createdAt,
                 }));
                 setQuotes(quotesWithDefaults);
@@ -104,9 +102,8 @@ export default function QuotesPage() {
             );
         
         const matchesStatus = statusFilter === "all" || quote.status === statusFilter;
-        const matchesPriority = priorityFilter === "all" || quote.priority === priorityFilter;
         
-        return matchesSearch && matchesStatus && matchesPriority;
+        return matchesSearch && matchesStatus;
     });
 
     const getStatusBadge = (status: QuoteStatus) => {
@@ -131,16 +128,6 @@ export default function QuotesPage() {
         );
     };
 
-    const getPriorityBadge = (priority: "low" | "medium" | "high") => {
-        const priorityConfig = {
-            low: { variant: "secondary" as const, text: "Low" },
-            medium: { variant: "outline" as const, text: "Medium" },
-            high: { variant: "destructive" as const, text: "High" },
-        };
-
-        const config = priorityConfig[priority] || priorityConfig.medium;
-        return <Badge variant={config.variant}>{config.text}</Badge>;
-    };
 
     const handleEdit = (quoteId: string) => {
         router.push(`/quote-generator?id=${quoteId}`);
@@ -304,8 +291,7 @@ export default function QuotesPage() {
 
     const calculateTotalPrice = (quote: QuoteData) => {
         return quote.items.reduce((sum, item) => {
-            const area = item.width * item.height * item.quantity;
-            return sum + area * 1200; // Mock calculation - replace with actual pricing
+            return sum + calculateItemPricing(item).totalPrice;
         }, 0);
     };
 
@@ -438,17 +424,6 @@ export default function QuotesPage() {
                                         <SelectItem value="cancelled">Cancelled</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <Select value={priorityFilter} onValueChange={(value) => setPriorityFilter(value as "all" | "low" | "medium" | "high")}>
-                                    <SelectTrigger className="w-32">
-                                        <SelectValue placeholder="Priority" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Priority</SelectItem>
-                                        <SelectItem value="high">High</SelectItem>
-                                        <SelectItem value="medium">Medium</SelectItem>
-                                        <SelectItem value="low">Low</SelectItem>
-                                    </SelectContent>
-                                </Select>
                             </div>
                         </div>
                     </CardHeader>
@@ -460,8 +435,6 @@ export default function QuotesPage() {
                                     <TableHead>Project Type</TableHead>
                                     <TableHead>Total Price</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>Priority</TableHead>
-                                    <TableHead>Assigned To</TableHead>
                                     <TableHead>Created</TableHead>
                                     <TableHead>History</TableHead>
                                     <TableHead>Actions</TableHead>
@@ -481,19 +454,8 @@ export default function QuotesPage() {
                                                 </div>
                                             </TableCell>
                                             <TableCell>{projectType}</TableCell>
-                                            <TableCell>${totalPrice.toLocaleString()}</TableCell>
+                                            <TableCell>{totalPrice.toLocaleString()} EGP</TableCell>
                                             <TableCell>{getStatusBadge(quote.status)}</TableCell>
-                                            <TableCell>{getPriorityBadge(quote.priority || "medium")}</TableCell>
-                                            <TableCell>
-                                                {quote.assignedTo ? (
-                                                    <div className="flex items-center gap-1">
-                                                        <User className="h-3 w-3" />
-                                                        {quote.assignedTo}
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-muted-foreground">Unassigned</span>
-                                                )}
-                                            </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-1">
                                                     <Calendar className="h-3 w-3" />
@@ -696,7 +658,7 @@ export default function QuotesPage() {
                                                                     <span className="font-medium">Status:</span> {entry.data.status}
                                                                 </div>
                                                                 <div>
-                                                                    <span className="font-medium">Total Price:</span> ${calculateTotalPrice(entry.data).toLocaleString()}
+                                                                    <span className="font-medium">Total Price:</span> {calculateTotalPrice(entry.data).toLocaleString()} EGP
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -720,7 +682,7 @@ export default function QuotesPage() {
                                     <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                                     <h3 className="text-lg font-medium mb-2">No History Available</h3>
                                     <p className="text-muted-foreground">
-                                        This quote doesn't have any saved history yet.
+                                        This quote doesn&apos;t have any saved history yet.
                                     </p>
                                 </div>
                             )}

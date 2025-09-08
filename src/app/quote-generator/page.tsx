@@ -30,6 +30,7 @@ function QuoteGeneratorContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const quoteId = searchParams.get("id");
+    const mode = searchParams.get("mode");
 
     const {
         quoteData,
@@ -89,6 +90,13 @@ function QuoteGeneratorContent() {
 
         loadQuoteData();
     }, [quoteId, fetchQuoteById, loadQuote]);
+
+    // Disable auto-save when in view mode
+    useEffect(() => {
+        if (mode === "view") {
+            setAutoSaveEnabled(false);
+        }
+    }, [mode, setAutoSaveEnabled]);
 
     const handleAddItem = () => {
         addItem({
@@ -157,7 +165,7 @@ function QuoteGeneratorContent() {
                     <div className="flex items-center gap-2">
                         <Calculator className="h-6 w-6 text-primary" />
                         <h1 className="text-3xl font-bold">Quote Generator</h1>
-                        {lastSaved && (
+                        {lastSaved && mode !== "view" && (
                             <div className="flex items-center gap-2 ml-4 text-sm text-muted-foreground">
                                 <Clock className="h-4 w-4" />
                                 <span>Last saved: {new Date(lastSaved).toLocaleTimeString()}</span>
@@ -174,13 +182,15 @@ function QuoteGeneratorContent() {
                         )}
                     </div>
                     <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setAutoSaveEnabled(!autoSaveEnabled)}
-                        >
-                            {autoSaveEnabled ? "Disable Auto-save" : "Enable Auto-save"}
-                        </Button>
+                        {mode !== "view" && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setAutoSaveEnabled(!autoSaveEnabled)}
+                            >
+                                {autoSaveEnabled ? "Disable Auto-save" : "Enable Auto-save"}
+                            </Button>
+                        )}
                         {quoteData.history && quoteData.history.length > 0 && (
                             <Button
                                 variant="outline"
