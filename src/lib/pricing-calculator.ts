@@ -16,7 +16,7 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
               profile_name: raw.profile.name,
               frame_price: Number(raw.profile.frame_price || 0),
               frame_price_3: Number(raw.profile.frame_price_3 || 0),
-              leaf_price: Number(raw.profile.sach_price || 0),
+              leaf_price: Number(raw.profile.sach_price || raw.profile.leaf_price || 0),
               accessories_2_leaves: Number(
                   raw.profile.accessories_2_leaves || 0
               ),
@@ -176,9 +176,9 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
 
             // keep these for compatibility
             frameLength: 0,
-            leafPerimeter: 0,
-            totalLeafLength: 0,
-            leafCost: 0,
+            sachPerimeter: 0,
+            totalSachLength: 0,
+            sachCost: 0,
             glassCost: 0,
             accessories: 0,
         };
@@ -196,8 +196,8 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
 
     const areaUnit = calcWidth * calcHeight;
     const frameLengthUnit = 2 * (calcWidth + calcHeight);
-    const leafPerimeter = 2 * (calcWidth / leaves + calcHeight);
-    const totalLeafLengthUnit = leafPerimeter * leaves;
+    const sachPerimeter = 2 * (calcWidth / leaves + calcHeight);
+    const totalSachLengthUnit = sachPerimeter * leaves;
 
     let accessoriesUnit = 0;
     if (leaves === 2) accessoriesUnit = p.accessories_2_leaves;
@@ -206,7 +206,7 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
 
     const selectedFramePrice = leaves === 3 ? p.frame_price_3 : p.frame_price;
     const frameCostUnit = selectedFramePrice * frameLengthUnit;
-    const leafCostUnit = p.leaf_price * totalLeafLengthUnit;
+    const sachCostUnit = p.leaf_price * totalSachLengthUnit;
 
     const glassType = raw.glassType?.toLowerCase() || "single";
     const glassRate =
@@ -218,11 +218,11 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
         const netType = raw.netType?.toLowerCase() || "fixed";
         
         if (netType === "fixed") {
-            netCostUnit = p.net_price * leafPerimeter;
+            netCostUnit = p.net_price * sachPerimeter;
         } else if (netType === "plisse") {
-            netCostUnit = p.net_price_plisse * leafPerimeter;
+            netCostUnit = p.net_price_plisse * sachPerimeter;
         } else if (netType === "panda") {
-            netCostUnit = p.net_price_panda * leafPerimeter;
+            netCostUnit = p.net_price_panda * sachPerimeter;
         }
     }
 
@@ -234,7 +234,7 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
     const totalBeforeProfitUnit =
         accessoriesUnit +
         frameCostUnit +
-        leafCostUnit +
+        sachCostUnit +
         glassCostUnit +
         netCostUnit +
         archCostUnit +
@@ -252,12 +252,12 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
         width: originalWidth,
         height: originalHeight,
         frameLength: +(frameLengthUnit * qty).toFixed(2),
-        leafPerimeter: +leafPerimeter.toFixed(2),
-        totalLeafLength: +(totalLeafLengthUnit * qty).toFixed(2),
+        sachPerimeter: +sachPerimeter.toFixed(2),
+        totalSachLength: +(totalSachLengthUnit * qty).toFixed(2),
         area: +(areaUnit * qty).toFixed(2),
         accessories: +(accessoriesUnit * qty).toFixed(2),
         frameCost: +(frameCostUnit * qty).toFixed(2),
-        leafCost: +(leafCostUnit * qty).toFixed(2),
+        sachCost: +(sachCostUnit * qty).toFixed(2),
         glassCost: +(glassCostUnit * qty).toFixed(2),
         netCost: +(netCostUnit * qty).toFixed(2),
         archCost: +(archCostUnit * qty).toFixed(2),

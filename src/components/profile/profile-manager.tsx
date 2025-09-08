@@ -89,7 +89,6 @@ export interface AluminiumProfile {
     frame_meters_input?: number;
     windows_meters_input?: number;
     frame_meters_3_leaves_input?: number;
-    leaf_price?: number;
     accessories_2_leaves?: number;
     accessories_3_leaves?: number;
     accessories_4_leaves?: number;
@@ -230,7 +229,7 @@ export default function ProfileManager({
                     
                     // Sach weights and prices
                     sach_weight: data.sach_weight || 0,
-                    sach_price: data.sach_price || 0,
+                    sach_price: data.sach_price || data.leaf_price || 0,
                     
                     // Mosquito weights and prices
                     mosquito_weight: data.mosquito_weight || 0,
@@ -262,7 +261,6 @@ export default function ProfileManager({
                     frame_meters_input: data.frame_meters_input || 0,
                     windows_meters_input: data.windows_meters_input || 0,
                     frame_meters_3_leaves_input: data.frame_meters_3_leaves_input || 0,
-                    leaf_price: data.leaf_price || 0,
                     accessories_2_leaves: data.accessories_2_leaves || 0,
                     accessories_3_leaves: data.accessories_3_leaves || 0,
                     accessories_4_leaves: data.accessories_4_leaves || 0,
@@ -349,7 +347,6 @@ export default function ProfileManager({
                 frame_meters_input: createForm.frame_meters_input || 0,
                 windows_meters_input: createForm.windows_meters_input || 0,
                 frame_meters_3_leaves_input: createForm.frame_meters_3_leaves_input || 0,
-                leaf_price: createForm.leaf_price || 0,
                 accessories_2_leaves: createForm.accessories_2_leaves || 0,
                 accessories_3_leaves: createForm.accessories_3_leaves || 0,
                 accessories_4_leaves: createForm.accessories_4_leaves || 0,
@@ -423,7 +420,6 @@ export default function ProfileManager({
                 frame_meters_input: editingProfile.frame_meters_input || 0,
                 windows_meters_input: editingProfile.windows_meters_input || 0,
                 frame_meters_3_leaves_input: editingProfile.frame_meters_3_leaves_input || 0,
-                leaf_price: editingProfile.leaf_price || 0,
                 accessories_2_leaves: editingProfile.accessories_2_leaves || 0,
                 accessories_3_leaves: editingProfile.accessories_3_leaves || 0,
                 accessories_4_leaves: editingProfile.accessories_4_leaves || 0,
@@ -655,7 +651,6 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                             "frame_meters_input",
                             "windows_meters_input",
                             "frame_meters_3_leaves_input",
-                            "leaf_price",
                             "accessories_2_leaves",
                             "accessories_3_leaves",
                             "accessories_4_leaves",
@@ -696,7 +691,7 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                             
                             // Sach weights and prices
                             sach_weight: profile.sach_weight || 0,
-                            sach_price: profile.sach_price || profile.leaf_price || 0,
+                            sach_price: profile.sach_price || 0,
                             
                             // Mosquito weights and prices
                             mosquito_weight: profile.mosquito_weight || 0,
@@ -728,7 +723,6 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                             frame_meters_input: profile.frame_meters_input || 0,
                             windows_meters_input: profile.windows_meters_input || 0,
                             frame_meters_3_leaves_input: profile.frame_meters_3_leaves_input || 0,
-                            leaf_price: profile.leaf_price || 0,
                             accessories_2_leaves: profile.accessories_2_leaves || 0,
                             accessories_3_leaves: profile.accessories_3_leaves || 0,
                             accessories_4_leaves: profile.accessories_4_leaves || 0,
@@ -789,7 +783,6 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                             frame_meters_input: newProfile.frame_meters_input,
                             windows_meters_input: newProfile.windows_meters_input,
                             frame_meters_3_leaves_input: newProfile.frame_meters_3_leaves_input,
-                            leaf_price: newProfile.leaf_price,
                             accessories_2_leaves: newProfile.accessories_2_leaves,
                             accessories_3_leaves: newProfile.accessories_3_leaves,
                             accessories_4_leaves: newProfile.accessories_4_leaves,
@@ -857,7 +850,6 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
             framePrice: pricePerMeter * frameMetersInput,
             sachPrice: pricePerMeter * windowsMetersInput,
             framePrice3Leaves: pricePerMeter * frameMeters3LeavesInput,
-            leafPrice: pricePerMeter, // Default leaf price calculation
         };
     };
 
@@ -896,13 +888,11 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                 setEditingProfile({
                     ...editingProfile,
                     windows_meters_input: value,
-                    leaf_price: sachPrice, // Sach price maps to leaf price
                 });
             } else {
                 setCreateForm({
                     ...createForm,
                     windows_meters_input: value,
-                    leaf_price: sachPrice,
                 });
             }
         }
@@ -947,7 +937,6 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                     kg_price: value,
                     frame_price: prices.framePrice,
                     frame_price_3: prices.framePrice3Leaves,
-                    leaf_price: prices.sachPrice,
                 });
             } else {
                 setCreateForm({
@@ -955,7 +944,6 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                     kg_price: value,
                     frame_price: prices.framePrice,
                     frame_price_3: prices.framePrice3Leaves,
-                    leaf_price: prices.sachPrice,
                 });
             }
         }
@@ -976,7 +964,6 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                     weight_6m: value,
                     frame_price: prices.framePrice,
                     frame_price_3: prices.framePrice3Leaves,
-                    leaf_price: prices.sachPrice,
                 });
             } else {
                 setCreateForm({
@@ -984,7 +971,6 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                     weight_6m: value,
                     frame_price: prices.framePrice,
                     frame_price_3: prices.framePrice3Leaves,
-                    leaf_price: prices.sachPrice,
                 });
             }
         }
@@ -1244,7 +1230,7 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                                     //    frame_price: number;
                                                     //    frame_price_3: number;
                                                     //    net_price: number;
-                                                    //    leaf_price: number;
+                                                    //    sach_price: number;
                                                     //    kg_price: number;
                                                     //    base_profit_rate: number;
                                                     //}
@@ -1377,7 +1363,7 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                                     Required columns:
                                                 </div>
                                                 <div className="text-gray-700 mb-4">
-                                                    profile_code,brand,profile_name,system_type,kg_price,weight_6m,frame_price,frame_price_3,leaf_price
+                                                    profile_code,brand,profile_name,system_type,kg_price,weight_6m,frame_price,frame_price_3,sach_price
                                                 </div>
                                                 <div className="text-yellow-800 font-semibold mb-2">
                                                     Example data:

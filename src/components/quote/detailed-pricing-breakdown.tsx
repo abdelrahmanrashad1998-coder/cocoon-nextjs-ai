@@ -80,7 +80,7 @@ export function DetailedPricingBreakdown({
                     </div>
                     <div>
                         <span className="font-medium text-muted-foreground">
-                            Leaves:
+                            Sach:
                         </span>
                         <div className="font-medium">{item.leaves}</div>
                     </div>
@@ -124,18 +124,18 @@ export function DetailedPricingBreakdown({
                     </div>
                     <div>
                         <span className="font-medium text-muted-foreground">
-                            Leaf Perimeter (m):
+                            Sach Perimeter (m):
                         </span>
                         <div className="font-medium">
-                            {pricing.leafPerimeter.toFixed(2)}
+                            {pricing.sachPerimeter.toFixed(2)}
                         </div>
                     </div>
                     <div>
                         <span className="font-medium text-muted-foreground">
-                            Total Leaf Length (m):
+                            Total Sach Length (m):
                         </span>
                         <div className="font-medium">
-                            {pricing.totalLeafLength.toFixed(2)}
+                            {pricing.totalSachLength.toFixed(2)}
                         </div>
                     </div>
                 </div>
@@ -176,17 +176,17 @@ export function DetailedPricingBreakdown({
                                 </TableCell>
                             </TableRow>
                             <TableRow>
-                                <TableCell>Leaf Cost</TableCell>
+                                <TableCell>Sach Cost</TableCell>
                                 <TableCell className="text-right">
                                     {formatCurrency(
-                                        pricing.leafCost / item.quantity
+                                        pricing.sachCost / item.quantity
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right">
                                     {item.quantity}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
-                                    {formatCurrency(pricing.leafCost)}
+                                    {formatCurrency(pricing.sachCost)}
                                 </TableCell>
                             </TableRow>
                             <TableRow>
@@ -357,7 +357,7 @@ export function DetailedPricingBreakdown({
                     </div>
                     <div>
                         <span className="font-medium text-muted-foreground">
-                            Window Meters:
+                            Sach Meters:
                         </span>
                         <div className="font-medium">
                             {pricing.windowMeters?.toFixed(2)}m
@@ -438,7 +438,7 @@ export function DetailedPricingBreakdown({
                                 </TableCell>
                             </TableRow>
                             <TableRow>
-                                <TableCell>Windows Cost</TableCell>
+                                <TableCell>Sach Cost</TableCell>
                                 <TableCell className="text-right">
                                     {formatCurrency(
                                         pricing.windowsCost / item.quantity

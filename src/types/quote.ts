@@ -128,11 +128,11 @@ export interface QuoteTotals {
 export interface PricedItem extends QuoteItem {
     area: number;
     frameLength: number;
-    leafPerimeter: number;
-    totalLeafLength: number;
+    sachPerimeter: number;
+    totalSachLength: number;
     accessories: number;
     frameCost: number;
-    leafCost: number;
+    sachCost: number;
     glassCost: number;
     netCost: number;
     archCost: number;

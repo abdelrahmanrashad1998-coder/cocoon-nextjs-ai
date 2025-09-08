@@ -527,7 +527,7 @@ export function QuoteItemEditor({
                         </div>
                         <div>
                             <span className="font-medium text-muted-foreground">
-                                Window Meters:
+                                Sach Meters:
                             </span>
                             <div className="font-medium">
                                 {pricing.windowMeters?.toFixed(2)}m
@@ -626,11 +626,11 @@ export function QuoteItemEditor({
                                     </TableCell>
                                 </TableRow>
                                 <TableRow>
-                                    <TableCell>Windows Cost</TableCell>
+                                    <TableCell>Sach Cost</TableCell>
                                     <TableCell className="text-right text-sm text-muted-foreground">
                                         {pricing.windowMeters?.toFixed(2)}m ×{" "}
                                         {formatCurrency(
-                                            item.profile?.sach_price || 0
+                                            item.profile?.sach_price || (item.profile as any)?.leaf_price || 0
                                         )}
                                         /m
                                     </TableCell>
@@ -848,7 +848,7 @@ export function QuoteItemEditor({
                         </div>
                         <div>
                             <span className="font-medium text-muted-foreground">
-                                Leaves:
+                                Sach:
                             </span>
                             <div className="font-medium">{item.leaves}</div>
                         </div>
@@ -892,18 +892,18 @@ export function QuoteItemEditor({
                         </div>
                         <div>
                             <span className="font-medium text-muted-foreground">
-                                Leaf Perimeter (m):
+                                Sach Perimeter (m):
                             </span>
                             <div className="font-medium">
-                                {pricing.leafPerimeter.toFixed(2)}
+                                {pricing.sachPerimeter.toFixed(2)}
                             </div>
                         </div>
                         <div>
                             <span className="font-medium text-muted-foreground">
-                                Total Leaf Length (m):
+                                Total Sach Length (m):
                             </span>
                             <div className="font-medium">
-                                {pricing.totalLeafLength.toFixed(2)}
+                                {pricing.totalSachLength.toFixed(2)}
                             </div>
                         </div>
                     </div>
@@ -956,24 +956,24 @@ export function QuoteItemEditor({
                                     </TableCell>
                                 </TableRow>
                                 <TableRow>
-                                    <TableCell>Leaf Cost</TableCell>
+                                    <TableCell>Sach Cost</TableCell>
                                     <TableCell className="text-right text-sm text-muted-foreground">
-                                        {pricing.totalLeafLength.toFixed(2)}m ×{" "}
+                                        {pricing.totalSachLength.toFixed(2)}m ×{" "}
                                         {formatCurrency(
-                                            item.profile?.sach_price || 0
+                                            item.profile?.sach_price || (item.profile as any)?.leaf_price || 0
                                         )}
                                         /m
                                     </TableCell>
                                     <TableCell className="text-right">
                                         {formatCurrency(
-                                            pricing.leafCost / item.quantity
+                                            pricing.sachCost / item.quantity
                                         )}
                                     </TableCell>
                                     <TableCell className="text-right">
                                         {item.quantity}
                                     </TableCell>
                                     <TableCell className="text-right font-medium">
-                                        {formatCurrency(pricing.leafCost)}
+                                        {formatCurrency(pricing.sachCost)}
                                     </TableCell>
                                 </TableRow>
                                 <TableRow>
@@ -1006,7 +1006,7 @@ export function QuoteItemEditor({
                                     <TableRow>
                                         <TableCell>Accessories</TableCell>
                                         <TableCell className="text-right text-sm text-muted-foreground">
-                                            {item.leaves} leaves ×{" "}
+                                            {item.leaves} sach ×{" "}
                                             {formatCurrency(
                                                 item.leaves === 2
                                                     ? item.profile
@@ -1043,7 +1043,7 @@ export function QuoteItemEditor({
                                     <TableRow>
                                         <TableCell>Mosquito Net</TableCell>
                                         <TableCell className="text-right text-sm text-muted-foreground">
-                                            {pricing.leafPerimeter.toFixed(2)}m
+                                            {pricing.sachPerimeter.toFixed(2)}m
                                             ×{" "}
                                             {formatCurrency(
                                                 item.netType === "fixed"
@@ -1335,7 +1335,7 @@ export function QuoteItemEditor({
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor={`leaves-${item.id}`}>
-                                        Leaves
+                                        Sach
                                     </Label>
                                     <Select
                                         value={item.leaves.toString()}
@@ -1348,20 +1348,20 @@ export function QuoteItemEditor({
                                         disabled={isCurtainWall}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select leaves" />
+                                            <SelectValue placeholder="Select sach" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="1">
-                                                1 Leaf
+                                                1 Sach
                                             </SelectItem>
                                             <SelectItem value="2">
-                                                2 Leaves
+                                                2 Sach
                                             </SelectItem>
                                             <SelectItem value="3">
-                                                3 Leaves
+                                                3 Sach
                                             </SelectItem>
                                             <SelectItem value="4">
-                                                4 Leaves
+                                                4 Sach
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -1686,7 +1686,7 @@ export function QuoteItemEditor({
                                                         ) || "0.00"}
                                                     </div>
                                                     <div className="text-sm text-gray-600">
-                                                        Window Meters
+                                                        Sach Meters
                                                     </div>
                                                 </div>
                                                 <div className="text-center p-3 bg-purple-50 rounded-lg">
@@ -1786,7 +1786,7 @@ export function QuoteItemEditor({
                                                 </div>
                                                 <div>
                                                     <span className="font-medium">
-                                                        Leaf Price:
+                                                        Sach Price:
                                                     </span>
                                                     <span className="text-red-600 ml-2">
                                                         EGP
@@ -2079,7 +2079,7 @@ export function QuoteItemEditor({
                                     </div>
                                     <div>
                                         <span className="font-medium">
-                                            Leaves:
+                                            Sach:
                                         </span>{" "}
                                         {item.leaves}
                                     </div>
