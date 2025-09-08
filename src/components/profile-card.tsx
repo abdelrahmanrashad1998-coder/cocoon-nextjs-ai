@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     CheckCircle,
     Edit,
     Trash2,
-    DollarSign,
-    Percent,
-    Package,
+    ChevronDown,
+    MoreHorizontal,
 } from "lucide-react";
 import { AluminiumProfile } from "./profile/profile-manager";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 
 //interface Profile {
 //    id: string;
@@ -42,6 +42,8 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
     onEdit,
     onDelete,
 }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    
     // Debug: Log the profile data to see what's available
     console.log("ProfileCard received profile:", profile);
     console.log("Net price fields:", {
@@ -51,198 +53,174 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
     });
     const isSelected = selectedProfile?.id === profile.id;
 
+    const handleCardClick = () => {
+        if (showSelection && onProfileSelect) {
+            onProfileSelect(profile);
+        }
+    };
+
+    const handleActionClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+    };
+
     return (
         <div
-            className={`group relative bg-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border ${
+            onClick={handleCardClick}
+            className={`group relative bg-white rounded-lg border transition-all duration-200 hover:shadow-lg hover:scale-[1.02] cursor-pointer ${
                 isSelected
-                    ? "border-secondary/20 shadow-secondary/20"
-                    : "border-border hover:border-border"
+                    ? "border-[#A72036] shadow-[#A72036]/10"
+                    : "border-gray-200 hover:border-gray-300"
             }`}
         >
-            {/* Selection Indicator */}
-            {isSelected && (
-                <div className="absolute -top-2 -right-2 bg-secondary text-primary-foreground rounded-full p-1.5 shadow-lg z-10">
-                    <CheckCircle className="h-4 w-4" />
-                </div>
-            )}
-
-            {/* Header Section */}
-            <div
-                className={`relative overflow-hidden rounded-t-2xl p-6 ${
-                    isSelected
-                        ? "bg-gradient-to-br from-secondary/20 via-muted to-destructive/5"
-                        : "bg-gradient-to-br from-muted via-destructive/5 to-destructive/5"
-                }`}
-            >
-                <div className="flex items-start justify-between mb-4">
+            {/* Header */}
+            <div className={`p-4 border-b ${
+                isSelected ? "border-[#A72036]/20" : "border-gray-100"
+            }`}>
+                <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                        <h3 className="text-xl font-bold text-foreground truncate mb-1">
+                        <h3 className={`text-lg font-semibold truncate ${
+                            "text-[#A72036]"
+                        }`}>
                             {profile.name}
                         </h3>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Package className="h-4 w-4" />
+                        <div className="mt-1 flex items-center gap-2 text-sm text-gray-500">
                             <span className="font-medium">Code:</span>
-                            <code className="bg-card/80 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-mono border border-card/50">
+                            <code className="bg-gray-100 px-2 py-0.5 rounded text-xs font-mono">
                                 {profile.code}
                             </code>
                         </div>
-                    </div>
-                    <div className="ml-4">
-                        <span
-                            className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${
-                                isSelected
-                                    ? "bg-success/10 text-success-foreground border border-secondary/20"
-                                    : "bg-destructive/10 text-destructive border border-destructive/20"
-                            }`}
-                        >
-                            {profile.system_type
-                                ?.replace("_", " ")
-                                .toUpperCase()}
-                        </span>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span className="font-medium">Brand:</span>
-                    <span className="bg-card/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-sm border border-card/50 font-medium">
-                        {profile.brand}
-                    </span>
-                </div>
-            </div>
-
-            {/* Pricing Grid */}
-            <div className="p-6 pt-4">
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="group/price bg-gradient-to-br from-destructive/10 to-destructive/5 rounded-xl p-4 border border-destructive/20 hover:border-destructive/20 transition-colors">
-                        <div className="text-xs font-medium text-destructive mb-1 uppercase tracking-wide">
-                            Frame 2,4 sach
+                        <div className="mt-1 text-sm text-gray-500">
+                            <span className="font-medium">Brand:</span> {profile.brand}
                         </div>
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-bold text-destructive">
-                                {profile.frame_price?.toFixed(2) || "0.00"}
-                            </span>
-                            <span className="text-sm text-destructive font-medium">
-                                EGP
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="group/price bg-gradient-to-br from-destructive/10 to-destructive/5 rounded-xl p-4 border border-destructive/20 hover:border-destructive/20 transition-colors">
-                        <div className="text-xs font-medium text-destructive mb-1 uppercase tracking-wide">
-                            Frame 3 sach
-                        </div>
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-bold text-destructive">
-                                {profile.frame_price_3?.toFixed(2) || "0.00"}
-                            </span>
-                            <span className="text-sm text-destructive font-medium">
-                                EGP
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="group/price bg-gradient-to-br from-secondary/20 to-muted rounded-xl p-4 border border-secondary/20 hover:border-secondary/20 transition-colors">
-                        <div className="text-xs font-medium text-success mb-1 uppercase tracking-wide flex items-center gap-1">
-                            <DollarSign className="h-3 w-3" />
-                            Net Price
-                        </div>
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-bold text-success">
-                                {(profile.net_price_panda || profile.mosquito_price_fixed || profile.net_price || 0)?.toFixed(2) || "0.00"}
-                            </span>
-                            <span className="text-sm text-success font-medium">
-                                EGP
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="group/price bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 border border-primary/20 hover:border-primary/30 transition-colors">
-                        <div className="text-xs font-medium text-primary mb-1 uppercase tracking-wide">
-                            Sach Price
-                        </div>
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-bold text-primary">
-                                {profile.sach_price?.toFixed(2) || "0.00"}
-                            </span>
-                            <span className="text-sm text-primary font-medium">
-                                EGP
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Additional Info */}
-                <div className="bg-muted rounded-xl p-4 mb-6 space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground font-medium flex items-center gap-2">
-                            <Package className="h-4 w-4" />
-                            Glass Price(single):
-                        </span>
-                        <span className="font-bold text-foreground">
-                            {profile.glass_price_single || "0.00"} EGP
-                        </span>
-                        
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground font-medium flex items-center gap-2">
-                            <Package className="h-4 w-4" />
-                            Glass Price(double):
-                        </span>
-                        <span className="font-bold text-foreground">
-                            {profile.glass_price_double || "0.00"} EGP
-                        </span>
-                        
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground font-medium flex items-center gap-2">
-                            <Percent className="h-4 w-4" />
-                            Profit Rate:
-                        </span>
-                        <span className="font-bold text-success bg-success/10 px-2 py-1 rounded-lg">
-                            {(profile.base_profit_rate * 100 || 0).toFixed(1)}%
-                        </span>
                     </div>
                     
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-2">
-                    {showSelection && onProfileSelect && (
-                        <button
-                            onClick={() => onProfileSelect(profile)}
-                            className={`flex-1 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                                isSelected
-                                    ? "bg-secondary hover:bg-secondary/90 text-primary-foreground shadow-lg shadow-emerald-200 focus:ring-secondary"
-                                    : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 focus:ring-primary"
-                            }`}
-                        >
-                            {isSelected ? "Selected ✓" : "Select Profile"}
-                        </button>
-                    )}
-
-                    {canManageProfiles && (
-                        <>
-                            <button
-                                onClick={() => onEdit?.(profile)}
-                                className="flex items-center justify-center gap-2 px-4 py-3 bg-card hover:bg-destructive/5 text-destructive rounded-xl border border-destructive/20 hover:border-destructive/30 font-medium text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                            >
-                                <Edit className="h-4 w-4" />
-                                Edit
-                            </button>
-
-                            <button
-                                onClick={() =>
-                                    profile.id && onDelete?.(profile.id)
-                                }
-                                className="flex items-center justify-center gap-2 px-4 py-3 bg-card hover:bg-destructive/5 text-destructive rounded-xl border border-destructive/20 hover:border-destructive/30 font-medium text-sm transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                            >
-                                <Trash2 className="h-4 w-4" />
-                                Delete
-                            </button>
-                        </>
-                    )}
+                    <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            isSelected
+                                ? "bg-[#A72036]/10 text-[#A72036]"
+                                : "bg-gray-100 text-gray-600"
+                        }`}>
+                            {profile.system_type?.replace("_", " ").toUpperCase()}
+                        </span>
+                        
+                        {isSelected && (
+                            <div className="w-6 h-6 bg-[#A72036] rounded-full flex items-center justify-center">
+                                <CheckCircle className="h-4 w-4 text-white" />
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
+
+            {/* Collapsible Content */}
+            <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+                <CollapsibleTrigger asChild>
+                    <button 
+                        onClick={handleActionClick}
+                        className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-150 flex items-center justify-between"
+                    >
+                        <span className="text-sm font-medium text-gray-700">
+                            Pricing Details
+                        </span>
+                        <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
+                            isExpanded ? "rotate-180" : ""
+                        }`} />
+                    </button>
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent className="overflow-hidden">
+                    <div className="px-4 pb-4 space-y-4">
+                        {/* Pricing Grid */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-gray-50 rounded-lg p-3">
+                                <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                                    Frame 2,4 sach
+                                </div>
+                                <div className="text-lg font-semibold text-gray-900">
+                                    {profile.frame_price?.toFixed(2) || "0.00"} EGP
+                                </div>
+                            </div>
+                            
+                            <div className="bg-gray-50 rounded-lg p-3">
+                                <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                                    Frame 3 sach
+                                </div>
+                                <div className="text-lg font-semibold text-gray-900">
+                                    {profile.frame_price_3?.toFixed(2) || "0.00"} EGP
+                                </div>
+                            </div>
+                            
+                            <div className="bg-gray-50 rounded-lg p-3">
+                                <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                                    Net Price
+                                </div>
+                                <div className="text-lg font-semibold text-gray-900">
+                                    {(profile.net_price_panda || profile.mosquito_price_fixed || profile.net_price || 0)?.toFixed(2) || "0.00"} EGP
+                                </div>
+                            </div>
+                            
+                            <div className="bg-gray-50 rounded-lg p-3">
+                                <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                                    Sach Price
+                                </div>
+                                <div className="text-lg font-semibold text-gray-900">
+                                    {profile.sach_price?.toFixed(2) || "0.00"} EGP
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Additional Info */}
+                        <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Glass Price (Single)</span>
+                                <span className="font-medium text-gray-900">
+                                    {profile.glass_price_single || "0.00"} EGP
+                                </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Glass Price (Double)</span>
+                                <span className="font-medium text-gray-900">
+                                    {profile.glass_price_double || "0.00"} EGP
+                                </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Profit Rate</span>
+                                <span className="font-medium text-gray-900  text-success">
+                                    {(profile.base_profit_rate * 100 || 0).toFixed(1)}%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </CollapsibleContent>
+            </Collapsible>
+
+            {/* Action Buttons */}
+            {canManageProfiles && (
+                <div className={`p-4 border-t ${
+                    isSelected ? "border-[#A72036]/20" : "border-gray-100"
+                }`}>
+                    <div className="flex gap-2 justify-end">
+                        <button
+                            onClick={(e) => {
+                                handleActionClick(e);
+                                onEdit?.(profile);
+                            }}
+                            className="px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-150"
+                        >
+                            <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                handleActionClick(e);
+                                profile.id && onDelete?.(profile.id);
+                            }}
+                            className="px-3 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-150"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
