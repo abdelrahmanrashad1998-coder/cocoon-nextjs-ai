@@ -41,14 +41,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   // Fetch user profile from Firestore
-  const fetchUserProfile = async (uid: string) => {
+  const fetchUserProfile = async (uid: string): Promise<boolean> => {
     try {
       const userDoc = await getDoc(doc(db, 'users', uid))
       if (userDoc.exists()) {
-        setUserProfile(userDoc.data() as UserProfile)
+        const profileData = userDoc.data() as UserProfile
+        setUserProfile(profileData)
+        
+        // Update last login after successfully fetching profile
+        try {
+          await updateDoc(doc(db, 'users', uid), {
+            lastLogin: new Date().toISOString()
+          })
+        } catch (updateError) {
+          console.error('Error updating last login:', updateError)
+        }
+        return true
+      } else {
+        // Document doesn't exist yet, this is normal for new users
+        console.log('User document not found yet, will retry on next auth state change')
+        return false
       }
     } catch (error) {
       console.error('Error fetching user profile:', error)
+      return false
     }
   }
 
@@ -56,14 +72,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user)
       if (user) {
-        await fetchUserProfile(user.uid)
-        // Update last login
-        try {
-          await updateDoc(doc(db, 'users', user.uid), {
-            lastLogin: new Date().toISOString()
-          })
-        } catch (error) {
-          console.error('Error updating last login:', error)
+        const profileFound = await fetchUserProfile(user.uid)
+        
+        // If profile is not found, retry once after a short delay
+        // This handles cases where the document creation is still in progress
+        if (!profileFound) {
+          setTimeout(async () => {
+            await fetchUserProfile(user.uid)
+          }, 500)
         }
       } else {
         setUserProfile(null)
@@ -84,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const signInPromise = signInWithEmailAndPassword(auth, email, password)
       const userCredential = await Promise.race([signInPromise, timeoutPromise]) as UserCredential
       
-      await fetchUserProfile(userCredential.user.uid)
+      // Profile will be fetched automatically by onAuthStateChanged
     } catch (error: unknown) {
       let errorMessage = 'An error occurred during sign in'
       

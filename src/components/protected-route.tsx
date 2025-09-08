@@ -57,7 +57,7 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
           <CardHeader className="space-y-1">
             <div className="flex justify-center mb-4">
               <Image
-                src="https://img1.wsimg.com/isteam/ip/b11b2784-66bc-4ac4-9b05-6ba6d416d22d/Untitled%20design%20(1).jpg"
+                src="/images/logo.jpg"
                 alt="Cocoon Logo"
                 width={64}
                 height={64}
