@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useCallback, useEffect, useRef } from "react";
 import {
     QuoteItem,

@@ -630,7 +630,7 @@ export function QuoteItemEditor({
                                     <TableCell className="text-right text-sm text-muted-foreground">
                                         {pricing.windowMeters?.toFixed(2)}m ×{" "}
                                         {formatCurrency(
-                                            item.profile?.sach_price || (item.profile as any)?.leaf_price || 0
+                                            item.profile?.sach_price || (item.profile as { leaf_price?: number })?.leaf_price || 0
                                         )}
                                         /m
                                     </TableCell>
@@ -960,7 +960,7 @@ export function QuoteItemEditor({
                                     <TableCell className="text-right text-sm text-muted-foreground">
                                         {pricing.totalSachLength.toFixed(2)}m ×{" "}
                                         {formatCurrency(
-                                            item.profile?.sach_price || (item.profile as any)?.leaf_price || 0
+                                            item.profile?.sach_price || (item.profile as { leaf_price?: number })?.leaf_price || 0
                                         )}
                                         /m
                                     </TableCell>

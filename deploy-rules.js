@@ -5,7 +5,7 @@
  * Run with: node deploy-rules.js
  */
 
-const { execSync } = require("child_process");
+import { execSync } from "child_process";
 
 console.log("🚀 Deploying Firebase security rules...");
 
@@ -18,7 +18,7 @@ try {
 
     console.log("✅ Firebase security rules deployed successfully!");
     console.log("🔧 Your colorOptions collection should now be accessible.");
-} catch (error) {
+} catch {
     console.error("❌ Firebase CLI not found or deployment failed.");
     console.log("");
     console.log("📋 Manual Deployment Instructions:");

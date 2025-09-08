@@ -295,12 +295,6 @@ export default function QuotesPage() {
         }, 0);
     };
 
-    const getProjectType = (quote: QuoteData) => {
-        if (quote.items.length === 1) {
-            return quote.items[0].type.replace('_', ' ').toUpperCase();
-        }
-        return `${quote.items.length} Items`;
-    };
 
     const getStatusCounts = () => {
         const counts = quotes.reduce((acc, quote) => {
@@ -432,7 +426,6 @@ export default function QuotesPage() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Customer</TableHead>
-                                    <TableHead>Project Type</TableHead>
                                     <TableHead>Total Price</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>Created</TableHead>
@@ -443,7 +436,6 @@ export default function QuotesPage() {
                             <TableBody>
                                 {filteredQuotes.map((quote) => {
                                     const totalPrice = calculateTotalPrice(quote);
-                                    const projectType = getProjectType(quote);
 
                                     return (
                                         <TableRow key={quote.id}>
@@ -453,7 +445,6 @@ export default function QuotesPage() {
                                                     <div className="text-sm text-muted-foreground">{quote.name}</div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>{projectType}</TableCell>
                                             <TableCell>{totalPrice.toLocaleString()} EGP</TableCell>
                                             <TableCell>{getStatusBadge(quote.status)}</TableCell>
                                             <TableCell>
