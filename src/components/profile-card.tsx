@@ -238,6 +238,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                 >
                     <div className="flex gap-2 justify-end">
                         <button
+                            title="edit"
                             onClick={(e) => {
                                 handleActionClick(e);
                                 onEdit?.(profile);
@@ -247,6 +248,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                             <Edit className="h-4 w-4" />
                         </button>
                         <button
+                            title="delete"
                             onClick={(e) => {
                                 handleActionClick(e);
                                 profile.id && onDelete?.(profile.id);
