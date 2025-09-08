@@ -113,7 +113,6 @@ export const schema = z.object({
   status: z.string(),
   target: z.string(),
   limit: z.string(),
-  reviewer: z.string(),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
   totalValue: z.number().optional(),
@@ -183,16 +182,49 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row }) => (
-      <Badge variant="outline" className="text-muted-foreground px-1.5">
-        {row.original.status === "Done" ? (
-          <IconCircleCheckFilled className="fill-green-500 dark:fill-green-400" />
-        ) : (
-          <IconLoader />
-        )}
-        {row.original.status}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const status = row.original.status
+      let badgeVariant: "default" | "secondary" | "destructive" | "outline" = "outline"
+      let badgeClassName = "px-1.5"
+      let iconColor = ""
+
+      if (status === "Done" || status === "Completed") {
+        badgeVariant = "default"
+        badgeClassName += " bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+        iconColor = "fill-green-500 dark:fill-green-400"
+      } else if (status === "Approved") {
+        badgeVariant = "default"
+        badgeClassName += " bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
+        iconColor = "fill-emerald-500 dark:fill-emerald-400"
+      } else if (status === "In Production") {
+        badgeVariant = "default"
+        badgeClassName += " bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800"
+        iconColor = "text-purple-500 dark:text-purple-400"
+      } else if (status === "In Progress") {
+        badgeVariant = "default"
+        badgeClassName += " bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800"
+        iconColor = "text-blue-500 dark:text-blue-400"
+      } else if (status === "Not Started") {
+        badgeVariant = "default"
+        badgeClassName += " bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-800"
+        iconColor = "text-gray-500 dark:text-gray-400"
+      } else {
+        badgeVariant = "outline"
+        badgeClassName += " text-muted-foreground"
+        iconColor = "text-muted-foreground"
+      }
+
+      return (
+        <Badge variant={badgeVariant} className={badgeClassName}>
+          {status === "Done" || status === "Completed" || status === "Approved" ? (
+            <IconCircleCheckFilled className={`${iconColor} mr-1`} />
+          ) : (
+            <IconLoader className={`${iconColor} mr-1`} />
+          )}
+          {status}
+        </Badge>
+      )
+    },
   },
   {
     accessorKey: "target",
@@ -243,39 +275,6 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
         />
       </form>
     ),
-  },
-  {
-    accessorKey: "reviewer",
-    header: "Project Manager",
-    cell: ({ row }) => {
-      const isAssigned = row.original.reviewer !== "Assign reviewer"
-
-      if (isAssigned) {
-        return row.original.reviewer
-      }
-
-      return (
-        <>
-          <Label htmlFor={`${row.original.id}-reviewer`} className="sr-only">
-            Project Manager
-          </Label>
-          <Select>
-            <SelectTrigger
-              className="w-38 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
-              size="sm"
-              id={`${row.original.id}-reviewer`}
-            >
-              <SelectValue placeholder="Assign manager" />
-            </SelectTrigger>
-            <SelectContent align="end">
-              <SelectItem value="Ahmed Hassan">Ahmed Hassan</SelectItem>
-              <SelectItem value="Mohamed Ali">Mohamed Ali</SelectItem>
-              <SelectItem value="Fatma Ibrahim">Fatma Ibrahim</SelectItem>
-            </SelectContent>
-          </Select>
-        </>
-      )
-    },
   },
   {
     id: "actions",
@@ -413,8 +412,6 @@ export function DataTable({
           <SelectContent>
             <SelectItem value="outline">Active Projects</SelectItem>
             <SelectItem value="past-performance">Completed Projects</SelectItem>
-            <SelectItem value="key-personnel">Project Managers</SelectItem>
-            <SelectItem value="focus-documents">Project Reports</SelectItem>
           </SelectContent>
         </Select>
         <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
@@ -422,10 +419,6 @@ export function DataTable({
           <TabsTrigger value="past-performance">
             Completed Projects <Badge variant="secondary">25</Badge>
           </TabsTrigger>
-          <TabsTrigger value="key-personnel">
-            Project Managers <Badge variant="secondary">3</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="focus-documents">Project Reports</TabsTrigger>
         </TabsList>
         <div className="flex items-center gap-2">
           <DropdownMenu>
@@ -461,10 +454,6 @@ export function DataTable({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm">
-            <IconPlus />
-            <span className="hidden lg:inline">Add Project</span>
-          </Button>
         </div>
       </div>
       <TabsContent
@@ -602,15 +591,6 @@ export function DataTable({
       </TabsContent>
       <TabsContent
         value="past-performance"
-        className="flex flex-col px-4 lg:px-6"
-      >
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-      <TabsContent value="key-personnel" className="flex flex-col px-4 lg:px-6">
-        <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
-      <TabsContent
-        value="focus-documents"
         className="flex flex-col px-4 lg:px-6"
       >
         <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
@@ -760,19 +740,6 @@ function TableCellViewer({ item }: { item: z.infer<typeof schema> }) {
                 <Label htmlFor="limit">Actual Days</Label>
                 <Input id="limit" defaultValue={item.limit} />
               </div>
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="reviewer">Project Manager</Label>
-              <Select defaultValue={item.reviewer}>
-                <SelectTrigger id="reviewer" className="w-full">
-                  <SelectValue placeholder="Select a manager" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Ahmed Hassan">Ahmed Hassan</SelectItem>
-                  <SelectItem value="Mohamed Ali">Mohamed Ali</SelectItem>
-                  <SelectItem value="Fatma Ibrahim">Fatma Ibrahim</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </form>
         </div>
