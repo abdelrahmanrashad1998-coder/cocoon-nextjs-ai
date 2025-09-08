@@ -17,7 +17,7 @@ export default function HelpPage() {
           <CardHeader>
             <CardTitle>Help Center</CardTitle>
             <CardDescription>
-              Get help with using the Cocoon Aluminum Works application
+              Get help with using the Cocoon Company For Aluminum Works application
             </CardDescription>
           </CardHeader>
           <CardContent>

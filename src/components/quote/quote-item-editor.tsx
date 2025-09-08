@@ -1669,43 +1669,43 @@ export function QuoteItemEditor({
                                         {/* Curtain Wall Results */}
                                         {item.designData && (
                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                                                <div className="text-center p-3 bg-red-50 rounded-lg">
-                                                    <div className="text-lg font-bold text-red-600">
+                                                <div className="text-center p-3 bg-destructive/5 rounded-lg">
+                                                    <div className="text-lg font-bold text-destructive">
                                                         {item.designData?.frameMeters?.toFixed(
                                                             2
                                                         ) || "0.00"}
                                                     </div>
-                                                    <div className="text-sm text-gray-600">
+                                                    <div className="text-sm text-muted-foreground">
                                                         Frame Meters
                                                     </div>
                                                 </div>
-                                                <div className="text-center p-3 bg-red-50 rounded-lg">
-                                                    <div className="text-lg font-bold text-red-600">
+                                                <div className="text-center p-3 bg-destructive/5 rounded-lg">
+                                                    <div className="text-lg font-bold text-destructive">
                                                         {item.designData?.windowMeters?.toFixed(
                                                             2
                                                         ) || "0.00"}
                                                     </div>
-                                                    <div className="text-sm text-gray-600">
+                                                    <div className="text-sm text-muted-foreground">
                                                         Sach Meters
                                                     </div>
                                                 </div>
-                                                <div className="text-center p-3 bg-purple-50 rounded-lg">
-                                                    <div className="text-lg font-bold text-purple-600">
+                                                <div className="text-center p-3 bg-special/5 rounded-lg">
+                                                    <div className="text-lg font-bold text-special">
                                                         {item.designData?.glassArea?.toFixed(
                                                             2
                                                         ) || "0.00"}{" "}
                                                         m²
                                                     </div>
-                                                    <div className="text-sm text-gray-600">
+                                                    <div className="text-sm text-muted-foreground">
                                                         Glass Area
                                                     </div>
                                                 </div>
-                                                <div className="text-center p-3 bg-orange-50 rounded-lg">
-                                                    <div className="text-lg font-bold text-orange-600">
+                                                <div className="text-center p-3 bg-warning/5 rounded-lg">
+                                                    <div className="text-lg font-bold text-warning">
                                                         {item.designData
                                                             ?.cornerCount || 0}
                                                     </div>
-                                                    <div className="text-sm text-gray-600">
+                                                    <div className="text-sm text-muted-foreground">
                                                         Corners
                                                     </div>
                                                 </div>
@@ -1736,23 +1736,23 @@ export function QuoteItemEditor({
                                 </div>
 
                                 {item.profile ? (
-                                    <Card className="border-red-200 bg-red-50">
+                                    <Card className="border-destructive/20 bg-destructive/5">
                                         <CardContent className="pt-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <h4 className="font-semibold text-red-800">
+                                                    <h4 className="font-semibold text-destructive">
                                                         {item.profile.name}
                                                     </h4>
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <Badge
                                                             variant="outline"
-                                                            className="text-red-700"
+                                                            className="text-destructive"
                                                         >
                                                             {item.profile.brand}
                                                         </Badge>
                                                         <Badge
                                                             variant="secondary"
-                                                            className="text-red-700"
+                                                            className="text-destructive"
                                                         >
                                                             {item.profile.code}
                                                         </Badge>
@@ -1776,7 +1776,7 @@ export function QuoteItemEditor({
                                                     <span className="font-medium">
                                                         Frame Price:
                                                     </span>
-                                                    <span className="text-red-600 ml-2">
+                                                    <span className="text-destructive ml-2">
                                                         EGP
                                                         {
                                                             item.profile
@@ -1788,7 +1788,7 @@ export function QuoteItemEditor({
                                                     <span className="font-medium">
                                                         Sach Price:
                                                     </span>
-                                                    <span className="text-red-600 ml-2">
+                                                    <span className="text-destructive ml-2">
                                                         EGP
                                                         {
                                                             item.profile
@@ -1800,7 +1800,7 @@ export function QuoteItemEditor({
                                                     <span className="font-medium">
                                                         Glass (Double):
                                                     </span>
-                                                    <span className="text-red-600 ml-2">
+                                                    <span className="text-destructive ml-2">
                                                         EGP{" "}
                                                         {
                                                             item.profile
@@ -1812,7 +1812,7 @@ export function QuoteItemEditor({
                                                     <span className="font-medium">
                                                         Profit Rate:
                                                     </span>
-                                                    <span className="text-orange-600 ml-2">
+                                                    <span className="text-warning ml-2">
                                                         {item.profile
                                                             .base_profit_rate *
                                                             100}
@@ -1823,12 +1823,12 @@ export function QuoteItemEditor({
                                         </CardContent>
                                     </Card>
                                 ) : (
-                                    <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
-                                        <Database className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                                        <p className="text-gray-600">
+                                    <div className="text-center py-6 border-2 border-dashed border-border rounded-lg">
+                                        <Database className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                                        <p className="text-muted-foreground">
                                             No profile selected
                                         </p>
-                                        <p className="text-sm text-gray-500">
+                                        <p className="text-sm text-muted-foreground">
                                             Click &quot;Select Profile&quot; to
                                             choose an aluminium profile
                                         </p>
@@ -1920,12 +1920,12 @@ export function QuoteItemEditor({
 
                                 {/* Show effective color (item-specific or global) */}
                                 {item.color || globalColor ? (
-                                    <Card className="border-blue-200 bg-blue-50">
+                                    <Card className="border-info/20 bg-info/5">
                                         <CardContent className="pt-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <div className="flex items-center gap-2 mb-2">
-                                                        <h4 className="font-semibold text-blue-800">
+                                                        <h4 className="font-semibold text-info">
                                                             {
                                                                 (
                                                                     item.color ||
@@ -1952,7 +1952,7 @@ export function QuoteItemEditor({
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <Badge
                                                             variant="outline"
-                                                            className="text-blue-700"
+                                                            className="text-info"
                                                         >
                                                             {
                                                                 (
@@ -1963,7 +1963,7 @@ export function QuoteItemEditor({
                                                         </Badge>
                                                         <Badge
                                                             variant="secondary"
-                                                            className="text-blue-700"
+                                                            className="text-info"
                                                         >
                                                             {
                                                                 (
@@ -1993,7 +1993,7 @@ export function QuoteItemEditor({
                                                 <span className="font-medium">
                                                     Finish:
                                                 </span>{" "}
-                                                <span className="text-blue-600 ml-2">
+                                                <span className="text-info ml-2">
                                                     {
                                                         (
                                                             item.color ||
@@ -2005,12 +2005,12 @@ export function QuoteItemEditor({
                                         </CardContent>
                                     </Card>
                                 ) : (
-                                    <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
-                                        <Palette className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                                        <p className="text-gray-600">
+                                    <div className="text-center py-6 border-2 border-dashed border-border rounded-lg">
+                                        <Palette className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                                        <p className="text-muted-foreground">
                                             No color selected
                                         </p>
-                                        <p className="text-sm text-gray-500">
+                                        <p className="text-sm text-muted-foreground">
                                             Click &quot;Select Color&quot; to
                                             choose a color option
                                         </p>
@@ -2034,7 +2034,7 @@ export function QuoteItemEditor({
                                         Generate SVG
                                     </Button>
                                 </div>
-                                <div className="border rounded-lg p-4 bg-white">
+                                <div className="border rounded-lg p-4 bg-card">
                                     <div className="text-xs text-muted-foreground mb-2 text-center">
                                         {item.type === "curtain_wall"
                                             ? "Curtain Wall Layout"
@@ -2123,8 +2123,8 @@ export function QuoteItemEditor({
 
             {/* Profile Manager Modal */}
             {showProfileManager && (
-                <div className="fixed inset-0 bg-white border-gray-600 border bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-[1400px] w-full max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-card border-border border bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-card rounded-lg p-6 max-w-[1400px] w-full max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-semibold">
                                 Select Aluminium Profile
@@ -2151,8 +2151,8 @@ export function QuoteItemEditor({
 
             {/* Color Manager Modal */}
             {showColorManager && (
-                <div className="fixed inset-0 bg-white border-gray-600 border bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-[1400px] w-full max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-card border-border border bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-card rounded-lg p-6 max-w-[1400px] w-full max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-semibold">
                                 Select Color Option

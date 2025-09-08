@@ -503,7 +503,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
             {authLoading && (
                 <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                    <p className="mt-2 text-gray-600">
+                    <p className="mt-2 text-muted-foreground">
                         Checking authentication...
                     </p>
                 </div>
@@ -512,11 +512,11 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
             {/* Not Authenticated */}
             {!authLoading && !user && (
                 <div className="text-center py-8">
-                    <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
                         Authentication Required
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-muted-foreground">
                         Please log in to access the Color Manager.
                     </p>
                 </div>
@@ -563,9 +563,9 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
 
                     {/* Status Messages */}
                     {error && (
-                        <Card className="border-red-200 bg-red-50">
+                        <Card className="border-destructive/20 bg-destructive/5">
                             <CardContent className="pt-6">
-                                <div className="flex items-center gap-2 text-red-600">
+                                <div className="flex items-center gap-2 text-destructive">
                                     <AlertCircle className="h-4 w-4" />
                                     {error}
                                 </div>
@@ -576,9 +576,9 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
 
                     {/* loaded colors message */}
                     {/* {success && (
-                        <Card className="border-green-200 bg-green-50">
+                        <Card className="border-success/20 bg-success/5">
                             <CardContent className="pt-6">
-                                <div className="flex items-center gap-2 text-green-600">
+                                <div className="flex items-center gap-2 text-success">
                                     <CheckCircle className="h-4 w-4" />
                                     {success}
                                 </div>
@@ -606,17 +606,17 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                             className="space-y-6"
                         >
                             {/* Search and Filter */}
-                            <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-purple-50">
+                            <Card className="border-0 shadow-sm bg-gradient-to-r from-primary/5 to-special/5">
                                 <CardHeader className="pb-4">
-                                    <CardTitle className="flex items-center gap-2 text-gray-800">
-                                        <Search className="h-5 w-5 text-blue-600" />
+                                    <CardTitle className="flex items-center gap-2 text-foreground">
+                                        <Search className="h-5 w-5 text-primary" />
                                         Search & Filter Colors
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-gray-700">
+                                            <Label className="text-sm font-medium text-muted-foreground">
                                                 Search Colors
                                             </Label>
                                             <Input
@@ -627,18 +627,18 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                         e.target.value
                                                     )
                                                 }
-                                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                                                className="border-border focus:border-primary focus:ring-primary"
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-gray-700">
+                                            <Label className="text-sm font-medium text-muted-foreground">
                                                 Filter by Brand
                                             </Label>
                                             <Select
                                                 value={brandFilter}
                                                 onValueChange={setBrandFilter}
                                             >
-                                                <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                                                <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                                                     <SelectValue placeholder="All brands" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -666,9 +666,9 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
 
                             {/* Colors List */}
                             <Card className="border-0 shadow-sm">
-                                <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b">
+                                <CardHeader className="bg-gradient-to-r from-primary/5 to-special/5 border-b">
                                     <CardTitle className="flex items-center justify-between">
-                                        <span className="text-gray-800">
+                                        <span className="text-foreground">
                                             Available Colors
                                         </span>
                                         <Badge
@@ -686,13 +686,13 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                     {loading ? (
                                         <div className="text-center py-8">
                                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                                            <p className="mt-2 text-gray-600">
+                                            <p className="mt-2 text-muted-foreground">
                                                 Loading colors...
                                             </p>
                                         </div>
                                     ) : filteredColors.length === 0 ? (
                                         <div className="text-center py-8">
-                                            <p className="text-gray-600">
+                                            <p className="text-muted-foreground">
                                                 No colors found
                                             </p>
                                         </div>
@@ -705,7 +705,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                         className={`cursor-pointer transition-all hover:shadow-md ${
                                                             selectedAvailableColor?.code ===
                                                             color.code
-                                                                ? "ring-2 ring-blue-500 bg-blue-50"
+                                                                ? "ring-2 ring-primary bg-primary/5"
                                                                 : ""
                                                         }`}
                                                         onClick={() => {
@@ -718,15 +718,15 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                     >
                                                         <CardContent className="p-4">
                                                             <div className="flex items-center justify-between mb-2">
-                                                                <h4 className="font-semibold text-gray-800">
+                                                                <h4 className="font-semibold text-foreground">
                                                                     {color.code}
                                                                 </h4>
                                                                 <div className="flex items-center gap-2">
                                                                     {showSelection && (
-                                                                        <div className="w-4 h-4 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                                                                        <div className="w-4 h-4 rounded-full border-2 border-border flex items-center justify-center">
                                                                             {selectedAvailableColor?.code ===
                                                                                 color.code && (
-                                                                                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                                                                                <div className="w-2 h-2 rounded-full bg-primary/50"></div>
                                                                             )}
                                                                         </div>
                                                                     )}
@@ -737,20 +737,20 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                                                     e.stopPropagation();
                                                                                     handleEditColor(color);
                                                                                 }}
-                                                                                className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                                                                className="p-1 hover:bg-muted rounded transition-colors"
                                                                                 title="Edit color"
                                                                             >
-                                                                                <Edit className="h-3 w-3 text-gray-600" />
+                                                                                <Edit className="h-3 w-3 text-muted-foreground" />
                                                                             </button>
                                                                             <button
                                                                                 onClick={(e) => {
                                                                                     e.stopPropagation();
                                                                                     if (color.id) deleteColor(color.id);
                                                                                 }}
-                                                                                className="p-1 hover:bg-red-100 rounded transition-colors"
+                                                                                className="p-1 hover:bg-destructive/10 rounded transition-colors"
                                                                                 title="Delete color"
                                                                             >
-                                                                                <Trash2 className="h-3 w-3 text-red-600" />
+                                                                                <Trash2 className="h-3 w-3 text-destructive" />
                                                                             </button>
                                                                         </div>
                                                                     )}
@@ -760,7 +760,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                                 <div className="flex items-center gap-2">
                                                                     <Badge
                                                                         variant="outline"
-                                                                        className="text-blue-700"
+                                                                        className="text-primary"
                                                                     >
                                                                         {
                                                                             color.brand
@@ -771,7 +771,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                                     <span className="font-medium">
                                                                         Color:
                                                                     </span>{" "}
-                                                                    <span className="text-gray-600">
+                                                                    <span className="text-muted-foreground">
                                                                         {
                                                                             color.color
                                                                         }
@@ -781,7 +781,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                                     <span className="font-medium">
                                                                         Finish:
                                                                     </span>{" "}
-                                                                    <span className="text-gray-600">
+                                                                    <span className="text-muted-foreground">
                                                                         {
                                                                             color.finish
                                                                         }
@@ -813,12 +813,12 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                     </CardHeader>
                                     <CardContent className="space-y-6">
                                         {/* CSV Import Section */}
-                                        <div className="border border-blue-200 rounded-lg p-6 bg-blue-50">
-                                            <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                                        <div className="border border-primary/20 rounded-lg p-6 bg-primary/5">
+                                            <h3 className="text-lg font-semibold text-primary mb-3 flex items-center gap-2">
                                                 <Upload className="h-5 w-5" />
                                                 Import Color Options
                                             </h3>
-                                            <p className="text-blue-700 mb-4">
+                                            <p className="text-primary mb-4">
                                                 Upload a CSV file with your color data. The file should include columns: code, brand, color, finish.
                                             </p>
                                             
@@ -826,7 +826,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                 <Button
                                                     onClick={downloadColorSampleCSV}
                                                     variant="outline"
-                                                    className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                                                    className="border-primary/30 text-primary hover:bg-primary/10"
                                                 >
                                                     <Download className="mr-2 h-4 w-4" />
                                                     Download Sample CSV
@@ -845,7 +845,7 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                             console.error("File input ref not found");
                                                         }
                                                     }}
-                                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
                                                 >
                                                     <Upload className="mr-2 h-4 w-4" />
                                                     Choose CSV File
@@ -866,8 +866,8 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                             </div>
                                             
                                             {/* Alternative file input for testing
-                                            <div className="mt-4 p-4 border border-gray-300 rounded-lg bg-gray-50">
-                                                <p className="text-sm text-gray-600 mb-2">Alternative file input (for testing):</p>
+                                            <div className="mt-4 p-4 border border-border rounded-lg bg-muted">
+                                                <p className="text-sm text-muted-foreground mb-2">Alternative file input (for testing):</p>
                                                 <input
                                                     type="file"
                                                     accept=".csv"
@@ -875,34 +875,34 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                                         console.log("Alternative file input changed:", e.target.files);
                                                         handleColorCSVImport(e);
                                                     }}
-                                                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                                    className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/5 file:text-primary hover:file:bg-primary/10"
                                                 />
                                             </div> */}
 
                                             {/* CSV Format Instructions */}
-                                            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                                <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                                            <div className="border border-border rounded-lg p-4 bg-muted">
+                                                <h4 className="text-sm font-semibold text-foreground mb-2">
                                                     CSV Format Requirements
                                                 </h4>
-                                                <div className="text-sm text-gray-700 mb-3">
+                                                <div className="text-sm text-muted-foreground mb-3">
                                                     Your CSV file must have the following columns (in any order):
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-2 text-sm">
                                                     <div className="flex items-center gap-2">
                                                         <Badge variant="outline" className="text-xs">code</Badge>
-                                                        <span className="text-gray-600">Color code (e.g., RAL-9005)</span>
+                                                        <span className="text-muted-foreground">Color code (e.g., RAL-9005)</span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <Badge variant="outline" className="text-xs">brand</Badge>
-                                                        <span className="text-gray-600">Brand name (e.g., Cocoon)</span>
+                                                        <span className="text-muted-foreground">Brand name (e.g., Cocoon)</span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <Badge variant="outline" className="text-xs">color</Badge>
-                                                        <span className="text-gray-600">Color name (e.g., Black)</span>
+                                                        <span className="text-muted-foreground">Color name (e.g., Black)</span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <Badge variant="outline" className="text-xs">finish</Badge>
-                                                        <span className="text-gray-600">Finish type (e.g., Matte)</span>
+                                                        <span className="text-muted-foreground">Finish type (e.g., Matte)</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -912,14 +912,14 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
                                         {csvImportStatus && (
                                             <Card className={`border-2 ${
                                                 csvImportStatus.type === "success" 
-                                                    ? "border-green-200 bg-green-50" 
-                                                    : "border-red-200 bg-red-50"
+                                                    ? "border-success/20 bg-success/5" 
+                                                    : "border-destructive/20 bg-destructive/5"
                                             }`}>
                                                 <CardContent className="pt-6">
                                                     <div className={`flex items-center gap-2 ${
                                                         csvImportStatus.type === "success" 
-                                                            ? "text-green-600" 
-                                                            : "text-red-600"
+                                                            ? "text-success" 
+                                                            : "text-destructive"
                                                     }`}>
                                                         {csvImportStatus.type === "success" ? (
                                                             <CheckCircle className="h-4 w-4" />
@@ -941,8 +941,8 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
 
             {/* Create Color Modal */}
             {showCreateModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                <div className="fixed inset-0 bg-background/50 flex items-center justify-center z-50">
+                    <div className="bg-card rounded-lg p-6 max-w-md w-full">
                         <h3 className="text-lg font-semibold mb-4">
                             Create New Color
                         </h3>
@@ -1025,8 +1025,8 @@ RAL-1020,Cocoon,Olive Yellow,Satin`;
 
             {/* Edit Color Modal */}
             {showEditModal && editingColor && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                <div className="fixed inset-0 bg-background/50 flex items-center justify-center z-50">
+                    <div className="bg-card rounded-lg p-6 max-w-md w-full">
                         <h3 className="text-lg font-semibold mb-4">
                             Edit Color
                         </h3>

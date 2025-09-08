@@ -984,7 +984,7 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
             {authLoading && (
                 <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                    <p className="mt-2 text-gray-600">
+                    <p className="mt-2 text-muted-foreground">
                         Checking authentication...
                     </p>
                 </div>
@@ -993,11 +993,11 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
             {/* Not Authenticated */}
             {!authLoading && !user && (
                 <div className="text-center py-8">
-                    <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
                         Authentication Required
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-muted-foreground">
                         Please log in to access the Aluminium Profile Manager.
                     </p>
                 </div>
@@ -1044,9 +1044,9 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                     {/* Status Messages */}
                     {error && (
-                        <Card className="border-red-200 bg-red-50">
+                        <Card className="border-destructive/20 bg-destructive/5">
                             <CardContent className="pt-6">
-                                <div className="flex items-center gap-2 text-red-600">
+                                <div className="flex items-center gap-2 text-destructive">
                                     <AlertCircle className="h-4 w-4" />
                                     {error}
                                 </div>
@@ -1055,9 +1055,9 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                     )}
                     {/* Loaded x Profiles message */}
                     {/* {success && (
-                        <Card className="border-red-200 bg-red-50">
+                        <Card className="border-destructive/20 bg-destructive/5">
                             <CardContent className="pt-6">
-                                <div className="flex items-center gap-2 text-red-600">
+                                <div className="flex items-center gap-2 text-destructive">
                                     <CheckCircle className="h-4 w-4" />
                                     {success}
                                 </div>
@@ -1087,17 +1087,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                             className="space-y-6"
                         >
                             {/* Search and Filter */}
-                            <Card className="border-0 shadow-sm bg-gradient-to-r from-gray-50 to-red-50">
+                            <Card className="border-0 shadow-sm bg-gradient-to-r from-muted to-destructive/5">
                                 <CardHeader className="pb-4">
-                                    <CardTitle className="flex items-center gap-2 text-gray-800">
-                                        <Search className="h-5 w-5 text-red-600" />
+                                    <CardTitle className="flex items-center gap-2 text-foreground">
+                                        <Search className="h-5 w-5 text-destructive" />
                                         Search & Filter Profiles
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-gray-700">
+                                            <Label className="text-sm font-medium text-muted-foreground">
                                                 Search Profiles
                                             </Label>
                                             <Input
@@ -1108,18 +1108,18 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                                         e.target.value
                                                     )
                                                 }
-                                                className="border-gray-300 focus:border-red-500 focus:ring-red-500"
+                                                className="border-border focus:border-primary focus:ring-primary"
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-gray-700">
+                                            <Label className="text-sm font-medium text-muted-foreground">
                                                 Filter by Brand
                                             </Label>
                                             <Select
                                                 value={brandFilter}
                                                 onValueChange={setBrandFilter}
                                             >
-                                                <SelectTrigger className="border-gray-300 focus:border-red-500 focus:ring-red-500">
+                                                <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                                                     <SelectValue placeholder="All brands" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -1142,7 +1142,7 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                             </Select>
                                         </div>
                                         <div className="space-y-2">
-                                            <Label className="text-sm font-medium text-gray-700">
+                                            <Label className="text-sm font-medium text-muted-foreground">
                                                 Filter by System Type
                                             </Label>
                                             <Select
@@ -1151,7 +1151,7 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                                     setSystemTypeFilter
                                                 }
                                             >
-                                                <SelectTrigger className="border-gray-300 focus:border-red-500 focus:ring-red-500">
+                                                <SelectTrigger className="border-border focus:border-primary focus:ring-primary">
                                                     <SelectValue placeholder="All system types" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -1186,9 +1186,9 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* Profiles List */}
                             <Card className="border-0 shadow-sm">
-                                <CardHeader className="bg-gradient-to-r from-gray-50 to-red-50 border-b">
+                                <CardHeader className="bg-gradient-to-r from-muted to-destructive/5 border-b">
                                     <CardTitle className="flex items-center justify-between">
-                                        <span className="text-gray-800">
+                                        <span className="text-foreground">
                                             Available Profiles
                                         </span>
                                         <Badge
@@ -1206,13 +1206,13 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                     {loading ? (
                                         <div className="text-center py-8">
                                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                                            <p className="mt-2 text-gray-600">
+                                            <p className="mt-2 text-muted-foreground">
                                                 Loading profiles...
                                             </p>
                                         </div>
                                     ) : filteredProfiles.length === 0 ? (
                                         <div className="text-center py-8">
-                                            <p className="text-gray-600">
+                                            <p className="text-muted-foreground">
                                                 No profiles found
                                             </p>
                                         </div>
@@ -1279,13 +1279,13 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                     <CardContent className="space-y-6">
 
                                          {/* Import Instructions */}
-                                         <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-                                            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                                         <div className="border border-border rounded-lg p-6 bg-muted">
+                                            <h3 className="text-lg font-semibold text-foreground mb-3">
                                                 Import Instructions
                                             </h3>
-                                            <div className="space-y-2 text-gray-700">
+                                            <div className="space-y-2 text-muted-foreground">
                                                 <div className="flex items-start gap-2">
-                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                    <span className="bg-destructive/50 text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                                         1
                                                     </span>
                                                     <span>
@@ -1295,7 +1295,7 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                                     </span>
                                                 </div>
                                                 <div className="flex items-start gap-2">
-                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                    <span className="bg-destructive/50 text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                                         2
                                                     </span>
                                                     <span>
@@ -1305,7 +1305,7 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                                     </span>
                                                 </div>
                                                 <div className="flex items-start gap-2">
-                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                    <span className="bg-destructive/50 text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                                         3
                                                     </span>
                                                     <span>
@@ -1314,7 +1314,7 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                                     </span>
                                                 </div>
                                                 <div className="flex items-start gap-2">
-                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                    <span className="bg-destructive/50 text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                                         4
                                                     </span>
                                                     <span>
@@ -1324,7 +1324,7 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                                     </span>
                                                 </div>
                                                 <div className="flex items-start gap-2">
-                                                    <span className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                                                    <span className="bg-destructive/50 text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                                                         5
                                                     </span>
                                                     <span>
@@ -1337,12 +1337,12 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         </div>
 
                                         {/* CSV Import Section */}
-                                        <div className="border border-red-200 rounded-lg p-6 bg-red-50">
-                                            <h3 className="text-lg font-semibold text-red-900 mb-3 flex items-center gap-2">
+                                        <div className="border border-destructive/20 rounded-lg p-6 bg-destructive/5">
+                                            <h3 className="text-lg font-semibold text-destructive mb-3 flex items-center gap-2">
                                                 <Download className="h-5 w-5" />
                                                 Import from CSV File
                                             </h3>
-                                            <p className="text-red-700 mb-4">
+                                            <p className="text-destructive mb-4">
                                                 Upload a CSV file with your
                                                 aluminum profile data. The file
                                                 should include columns like:
@@ -1361,7 +1361,7 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                                             )
                                                             ?.click()
                                                     }
-                                                    className="bg-red-600 hover:bg-red-700"
+                                                    className="bg-primary hover:bg-primary/90"
                                                 >
                                                     <Download className="h-4 w-4 mr-2" />
                                                     Choose CSV File
@@ -1390,8 +1390,8 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                                     className={`p-4 rounded-lg ${
                                                         csvImportStatus.type ===
                                                         "success"
-                                                            ? "bg-red-100 border border-red-300 text-red-800"
-                                                            : "bg-red-100 border border-red-300 text-red-800"
+                                                            ? "bg-destructive/10 border border-destructive/30 text-destructive"
+                                                            : "bg-destructive/10 border border-destructive/30 text-destructive"
                                                     }`}
                                                 >
                                                     <div className="flex items-center gap-2">
@@ -1427,8 +1427,8 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
             {/* Create Profile Modal */}
             {showCreateModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-background/50 flex items-center justify-center z-50">
+                    <div className="bg-card rounded-lg p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
                         <h3 className="text-lg font-semibold mb-4">
                             Create New Profile
                         </h3>
@@ -1839,8 +1839,8 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
             {/* Edit Profile Modal */}
             {showEditModal && editingProfile && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-background/50 flex items-center justify-center z-50">
+                    <div className="bg-card rounded-lg p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto">
                         <h3 className="text-lg font-semibold mb-4">
                             Edit Profile
                         </h3>

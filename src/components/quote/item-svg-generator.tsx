@@ -36,7 +36,7 @@ export function ItemSvgGenerator({
     }, [svgContent, onSvgUpdate]);
 
     return (
-        <div className="border rounded-lg p-2 bg-white">
+        <div className="border rounded-lg p-2 bg-card">
             <div className="text-xs text-muted-foreground mb-2 text-center">
                 {item.type === "curtain_wall"
                     ? "Curtain Wall Layout"

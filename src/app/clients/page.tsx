@@ -142,8 +142,8 @@ export default function ClientsPage() {
             <DashboardLayout>
                 <div className="flex items-center justify-center h-64">
                     <div className="text-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
-                        <p className="text-gray-600">Loading clients...</p>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                        <p className="text-muted-foreground">Loading clients...</p>
                     </div>
                 </div>
             </DashboardLayout>
@@ -159,8 +159,8 @@ export default function ClientsPage() {
                         <h1 className="text-3xl font-bold">Client Management</h1>
                     </div>
                     <div className="text-right">
-                        <div className="text-2xl font-bold text-gray-900">{clients.length}</div>
-                        <div className="text-sm text-gray-600">Total Clients</div>
+                        <div className="text-2xl font-bold text-foreground">{clients.length}</div>
+                        <div className="text-sm text-muted-foreground">Total Clients</div>
                     </div>
                 </div>
 
@@ -178,7 +178,7 @@ export default function ClientsPage() {
                         </CardHeader>
                         <CardContent>
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                                 <Input
                                     placeholder="Search clients..."
                                     value={searchTerm}
@@ -200,11 +200,11 @@ export default function ClientsPage() {
                         <CardContent>
                             {filteredClients.length === 0 ? (
                                 <div className="text-center py-12">
-                                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                    <h3 className="text-lg font-medium text-foreground mb-2">
                                         {searchTerm ? "No clients found" : "No clients yet"}
                                     </h3>
-                                    <p className="text-gray-600">
+                                    <p className="text-muted-foreground">
                                         {searchTerm 
                                             ? "Try adjusting your search criteria"
                                             : "Clients will appear here once you create quotes with contact information"
@@ -229,17 +229,17 @@ export default function ClientsPage() {
                                                 <TableRow key={index}>
                                                     <TableCell>
                                                         <div className="space-y-1">
-                                                            <div className="font-semibold text-gray-900">
+                                                            <div className="font-semibold text-foreground">
                                                                 {client.name || "Unnamed Client"}
                                                             </div>
                                                             {client.location && (
-                                                                <div className="flex items-center gap-1 text-sm text-gray-600">
+                                                                <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                                                     <MapPin className="h-3 w-3" />
                                                                     {client.location}
                                                                 </div>
                                                             )}
                                                             {client.notes && (
-                                                                <div className="text-xs text-gray-500 max-w-xs truncate">
+                                                                <div className="text-xs text-muted-foreground max-w-xs truncate">
                                                                     {client.notes}
                                                                 </div>
                                                             )}
@@ -249,14 +249,14 @@ export default function ClientsPage() {
                                                         <div className="space-y-1">
                                                             {client.email && (
                                                                 <div className="flex items-center gap-1 text-sm">
-                                                                    <Mail className="h-3 w-3 text-gray-400" />
-                                                                    <span className="text-gray-600">{client.email}</span>
+                                                                    <Mail className="h-3 w-3 text-muted-foreground" />
+                                                                    <span className="text-muted-foreground">{client.email}</span>
                                                                 </div>
                                                             )}
                                                             {client.phone && (
                                                                 <div className="flex items-center gap-1 text-sm">
-                                                                    <Phone className="h-3 w-3 text-gray-400" />
-                                                                    <span className="text-gray-600">{client.phone}</span>
+                                                                    <Phone className="h-3 w-3 text-muted-foreground" />
+                                                                    <span className="text-muted-foreground">{client.phone}</span>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -270,12 +270,12 @@ export default function ClientsPage() {
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <div className="font-semibold text-green-600">
+                                                        <div className="font-semibold text-success">
                                                             {formatCurrency(client.totalValue)}
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <div className="flex items-center gap-1 text-sm text-gray-600">
+                                                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                                             <Calendar className="h-3 w-3" />
                                                             {formatDate(client.lastQuoteDate)}
                                                         </div>
@@ -315,32 +315,32 @@ export default function ClientsPage() {
                                                                             <CardContent className="space-y-4">
                                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                                     <div>
-                                                                                        <label className="text-sm font-medium text-gray-600">Name</label>
+                                                                                        <label className="text-sm font-medium text-muted-foreground">Name</label>
                                                                                         <p className="text-lg font-semibold">{client.name || "Not provided"}</p>
                                                                                     </div>
                                                                                     <div>
-                                                                                        <label className="text-sm font-medium text-gray-600">Location</label>
+                                                                                        <label className="text-sm font-medium text-muted-foreground">Location</label>
                                                                                         <p className="text-lg">{client.location || "Not provided"}</p>
                                                                                     </div>
                                                                                     <div>
-                                                                                        <label className="text-sm font-medium text-gray-600">Email</label>
+                                                                                        <label className="text-sm font-medium text-muted-foreground">Email</label>
                                                                                         <p className="text-lg flex items-center gap-2">
-                                                                                            <Mail className="h-4 w-4 text-gray-400" />
+                                                                                            <Mail className="h-4 w-4 text-muted-foreground" />
                                                                                             {client.email || "Not provided"}
                                                                                         </p>
                                                                                     </div>
                                                                                     <div>
-                                                                                        <label className="text-sm font-medium text-gray-600">Phone</label>
+                                                                                        <label className="text-sm font-medium text-muted-foreground">Phone</label>
                                                                                         <p className="text-lg flex items-center gap-2">
-                                                                                            <Phone className="h-4 w-4 text-gray-400" />
+                                                                                            <Phone className="h-4 w-4 text-muted-foreground" />
                                                                                             {client.phone || "Not provided"}
                                                                                         </p>
                                                                                     </div>
                                                                                 </div>
                                                                                 {client.notes && (
                                                                                     <div>
-                                                                                        <label className="text-sm font-medium text-gray-600">Notes</label>
-                                                                                        <p className="text-lg bg-gray-50 p-3 rounded-md">{client.notes}</p>
+                                                                                        <label className="text-sm font-medium text-muted-foreground">Notes</label>
+                                                                                        <p className="text-lg bg-muted p-3 rounded-md">{client.notes}</p>
                                                                                     </div>
                                                                                 )}
                                                                             </CardContent>
@@ -356,17 +356,17 @@ export default function ClientsPage() {
                                                                             </CardHeader>
                                                                             <CardContent>
                                                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                                                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                                                                                        <div className="text-2xl font-bold text-blue-600">{client.quoteCount}</div>
-                                                                                        <div className="text-sm text-gray-600">Total Quotes</div>
+                                                                                    <div className="text-center p-4 bg-info/5 rounded-lg">
+                                                                                        <div className="text-2xl font-bold text-info">{client.quoteCount}</div>
+                                                                                        <div className="text-sm text-muted-foreground">Total Quotes</div>
                                                                                     </div>
-                                                                                    <div className="text-center p-4 bg-green-50 rounded-lg">
-                                                                                        <div className="text-2xl font-bold text-green-600">{formatCurrency(client.totalValue)}</div>
-                                                                                        <div className="text-sm text-gray-600">Total Value</div>
+                                                                                    <div className="text-center p-4 bg-success/5 rounded-lg">
+                                                                                        <div className="text-2xl font-bold text-success">{formatCurrency(client.totalValue)}</div>
+                                                                                        <div className="text-sm text-muted-foreground">Total Value</div>
                                                                                     </div>
-                                                                                    <div className="text-center p-4 bg-purple-50 rounded-lg">
-                                                                                        <div className="text-2xl font-bold text-purple-600">{formatDate(client.lastQuoteDate)}</div>
-                                                                                        <div className="text-sm text-gray-600">Last Quote</div>
+                                                                                    <div className="text-center p-4 bg-special/5 rounded-lg">
+                                                                                        <div className="text-2xl font-bold text-special">{formatDate(client.lastQuoteDate)}</div>
+                                                                                        <div className="text-sm text-muted-foreground">Last Quote</div>
                                                                                     </div>
                                                                                 </div>
                                                                             </CardContent>
@@ -386,19 +386,19 @@ export default function ClientsPage() {
                                                                             <CardContent>
                                                                                 <div className="space-y-3">
                                                                                     {client.quotes.map((quote, index) => (
-                                                                                        <div key={index} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                                                                                        <div key={index} className="border rounded-lg p-4 hover:bg-muted transition-colors">
                                                                                             <div className="flex items-center justify-between mb-2">
                                                                                                 <div>
                                                                                                     <h4 className="font-semibold text-lg">{quote.name}</h4>
-                                                                                                    <p className="text-sm text-gray-600">ID: {quote.id}</p>
+                                                                                                    <p className="text-sm text-muted-foreground">ID: {quote.id}</p>
                                                                                                 </div>
                                                                                                 <div className="text-right">
-                                                                                                    <div className="text-lg font-bold text-green-600">
+                                                                                                    <div className="text-lg font-bold text-success">
                                                                                                         {formatCurrency(quote.items.reduce((sum, item) => 
                                                                                                             sum + calculateItemPricing(item).totalPrice, 0
                                                                                                         ))}
                                                                                                     </div>
-                                                                                                    <div className="text-sm text-gray-600">
+                                                                                                    <div className="text-sm text-muted-foreground">
                                                                                                         {formatDate(quote.createdAt)}
                                                                                                     </div>
                                                                                                 </div>
@@ -420,7 +420,7 @@ export default function ClientsPage() {
                                                                                                 </div>
                                                                                             </div>
                                                                                             {quote.settings.customNotes && (
-                                                                                                <div className="mt-2 p-2 bg-yellow-50 rounded text-sm">
+                                                                                                <div className="mt-2 p-2 bg-warning/5 rounded text-sm">
                                                                                                     <span className="font-medium">Notes:</span> {quote.settings.customNotes}
                                                                                                 </div>
                                                                                             )}
@@ -447,41 +447,41 @@ export default function ClientsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium text-gray-600">
+                                <CardTitle className="text-sm font-medium text-muted-foreground">
                                     Total Clients
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-gray-900">{clients.length}</div>
-                                <p className="text-xs text-gray-600">Unique clients with quotes</p>
+                                <div className="text-2xl font-bold text-foreground">{clients.length}</div>
+                                <p className="text-xs text-muted-foreground">Unique clients with quotes</p>
                             </CardContent>
                         </Card>
                         
                         <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium text-gray-600">
+                                <CardTitle className="text-sm font-medium text-muted-foreground">
                                     Total Quotes
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-gray-900">
+                                <div className="text-2xl font-bold text-foreground">
                                     {clients.reduce((sum, client) => sum + client.quoteCount, 0)}
                                 </div>
-                                <p className="text-xs text-gray-600">Across all clients</p>
+                                <p className="text-xs text-muted-foreground">Across all clients</p>
                             </CardContent>
                         </Card>
                         
                         <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium text-gray-600">
+                                <CardTitle className="text-sm font-medium text-muted-foreground">
                                     Total Value
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-green-600">
+                                <div className="text-2xl font-bold text-success">
                                     {formatCurrency(clients.reduce((sum, client) => sum + client.totalValue, 0))}
                                 </div>
-                                <p className="text-xs text-gray-600">Combined quote value</p>
+                                <p className="text-xs text-muted-foreground">Combined quote value</p>
                             </CardContent>
                         </Card>
                     </div>

@@ -196,24 +196,24 @@ const columns: ColumnDef<z.infer<typeof schema>>[] = [
 
       if (status === "Done" || status === "Completed") {
         badgeVariant = "default"
-        badgeClassName += " bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+        badgeClassName += " bg-success/10 text-success-foreground border-success/20 dark:bg-success/20 dark:text-success dark:border-success/80"
         iconColor = "fill-green-500 dark:fill-green-400"
       } else if (status === "Approved") {
         badgeVariant = "default"
-        badgeClassName += " bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
+        badgeClassName += " bg-success/10 text-success-foreground border-success/20 dark:bg-success/20 dark:text-success dark:border-success/80"
         iconColor = "fill-emerald-500 dark:fill-emerald-400"
       } else if (status === "In Production") {
         badgeVariant = "default"
-        badgeClassName += " bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800"
-        iconColor = "text-purple-500 dark:text-purple-400"
+        badgeClassName += " bg-special/10 text-special-foreground border-special/20 dark:bg-special/20 dark:text-special dark:border-special/80"
+        iconColor = "text-special dark:text-special"
       } else if (status === "In Progress") {
         badgeVariant = "default"
-        badgeClassName += " bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800"
-        iconColor = "text-blue-500 dark:text-blue-400"
+        badgeClassName += " bg-info/10 text-info-foreground border-info/20 dark:bg-info/20 dark:text-info dark:border-info/80"
+        iconColor = "text-info dark:text-info"
       } else if (status === "Not Started") {
         badgeVariant = "default"
-        badgeClassName += " bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-800"
-        iconColor = "text-gray-500 dark:text-gray-400"
+        badgeClassName += " bg-muted text-muted-foreground border-border dark:bg-muted dark:text-muted-foreground dark:border-border"
+        iconColor = "text-muted-foreground dark:text-muted-foreground"
       } else {
         badgeVariant = "outline"
         badgeClassName += " text-muted-foreground"

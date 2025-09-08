@@ -348,37 +348,37 @@ export default function QuotesPage() {
                     </Card>
                     <Card>
                         <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-blue-600">{statusCounts.draft}</div>
+                            <div className="text-2xl font-bold text-info">{statusCounts.draft}</div>
                             <p className="text-xs text-muted-foreground">Draft</p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-yellow-600">{statusCounts.pending_review}</div>
+                            <div className="text-2xl font-bold text-warning">{statusCounts.pending_review}</div>
                             <p className="text-xs text-muted-foreground">Pending</p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-green-600">{statusCounts.approved}</div>
+                            <div className="text-2xl font-bold text-success">{statusCounts.approved}</div>
                             <p className="text-xs text-muted-foreground">Approved</p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-red-600">{statusCounts.rejected}</div>
+                            <div className="text-2xl font-bold text-destructive">{statusCounts.rejected}</div>
                             <p className="text-xs text-muted-foreground">Rejected</p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-orange-600">{statusCounts.in_production}</div>
+                            <div className="text-2xl font-bold text-warning">{statusCounts.in_production}</div>
                             <p className="text-xs text-muted-foreground">Production</p>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="p-4">
-                            <div className="text-2xl font-bold text-purple-600">{statusCounts.completed}</div>
+                            <div className="text-2xl font-bold text-special">{statusCounts.completed}</div>
                             <p className="text-xs text-muted-foreground">Completed</p>
                         </CardContent>
                     </Card>
@@ -507,7 +507,7 @@ export default function QuotesPage() {
                                                         <SelectTrigger className="w-32 h-8">
                                                             <SelectValue />
                                                             {updatingStatus === quote.id && (
-                                                                <div className="ml-2 h-3 w-3 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600"></div>
+                                                                <div className="ml-2 h-3 w-3 animate-spin rounded-full border-2 border-border border-t-gray-600"></div>
                                                             )}
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -623,7 +623,7 @@ export default function QuotesPage() {
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex-1">
                                                         <div className="flex items-center gap-2 mb-2">
-                                                            <History className="h-4 w-4 text-blue-500" />
+                                                            <History className="h-4 w-4 text-info" />
                                                             <span className="font-medium">
                                                                 {entry.changeDescription || `Version ${historyQuote.history!.length - index}`}
                                                             </span>

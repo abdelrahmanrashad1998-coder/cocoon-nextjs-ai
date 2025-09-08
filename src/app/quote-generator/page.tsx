@@ -223,9 +223,9 @@ function QuoteGeneratorContent() {
                 </div>
 
                 {error && (
-                    <Card className="mb-6 border-red-200 bg-red-50">
+                    <Card className="mb-6 border-destructive/20 bg-destructive/5">
                         <CardContent className="pt-6">
-                            <p className="text-red-600">{error}</p>
+                            <p className="text-destructive">{error}</p>
                         </CardContent>
                     </Card>
                 )}
@@ -498,11 +498,11 @@ function QuoteGeneratorContent() {
                                 </div>
 
                                 {quoteData.globalColor ? (
-                                    <Card className="border-blue-200 bg-blue-50">
+                                    <Card className="border-info/20 bg-info/5">
                                         <CardContent className="pt-4">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <h4 className="font-semibold text-blue-800">
+                                                    <h4 className="font-semibold text-info">
                                                         {
                                                             quoteData
                                                                 .globalColor
@@ -512,7 +512,7 @@ function QuoteGeneratorContent() {
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <Badge
                                                             variant="outline"
-                                                            className="text-blue-700"
+                                                            className="text-info"
                                                         >
                                                             {
                                                                 quoteData
@@ -522,7 +522,7 @@ function QuoteGeneratorContent() {
                                                         </Badge>
                                                         <Badge
                                                             variant="secondary"
-                                                            className="text-blue-700"
+                                                            className="text-info"
                                                         >
                                                             {
                                                                 quoteData
@@ -548,7 +548,7 @@ function QuoteGeneratorContent() {
                                                 <span className="font-medium">
                                                     Finish:
                                                 </span>{" "}
-                                                <span className="text-blue-600 ml-2">
+                                                <span className="text-info ml-2">
                                                     {
                                                         quoteData.globalColor
                                                             .finish
@@ -558,12 +558,12 @@ function QuoteGeneratorContent() {
                                         </CardContent>
                                     </Card>
                                 ) : (
-                                    <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-lg">
-                                        <Palette className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                                        <p className="text-gray-600">
+                                    <div className="text-center py-6 border-2 border-dashed border-border rounded-lg">
+                                        <Palette className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                                        <p className="text-muted-foreground">
                                             No global color selected
                                         </p>
-                                        <p className="text-sm text-gray-500">
+                                        <p className="text-sm text-muted-foreground">
                                             Select a color to apply to all items
                                             by default
                                         </p>
@@ -595,8 +595,8 @@ function QuoteGeneratorContent() {
 
             {/* Global Color Manager Modal */}
             {showGlobalColorManager && (
-                <div className="fixed inset-0 bg-white border-gray-600 border bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-[1400px] w-full max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-card border-border border bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-card rounded-lg p-6 max-w-[1400px] w-full max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-semibold">
                                 Select Global Color
@@ -619,8 +619,8 @@ function QuoteGeneratorContent() {
 
             {/* Quote History Modal */}
             {showHistory && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 bg-background/50 flex items-center justify-center z-50">
+                    <div className="bg-card rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-semibold">
                                 Quote History
@@ -651,7 +651,7 @@ function QuoteGeneratorContent() {
                                             <div className="flex items-center justify-between">
                                                 <div className="flex-1">
                                                         <div className="flex items-center gap-2 mb-2">
-                                                            <History className="h-4 w-4 text-blue-500" />
+                                                            <History className="h-4 w-4 text-info" />
                                                             <span className="font-medium">
                                                                 {entry.changeDescription || `Version ${quoteData.history!.length - index}`}
                                                             </span>

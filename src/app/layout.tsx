@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "Cocoon Aluminum Works",
+    title: "Cocoon Company For Aluminum Works",
     description: "Professional aluminum works and fabrication services",
 };
 

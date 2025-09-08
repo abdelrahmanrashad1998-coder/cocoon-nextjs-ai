@@ -37,15 +37,15 @@ export function SiteHeader() {
     const getRoleBadgeColor = (role: string) => {
         switch (role) {
             case "admin":
-                return "bg-red-100 text-red-800";
+                return "bg-destructive/10 text-destructive-foreground";
             case "manager":
-                return "bg-blue-100 text-blue-800";
+                return "bg-info/10 text-info-foreground";
             case "user":
-                return "bg-green-100 text-green-800";
+                return "bg-success/10 text-success-foreground";
             case "pending":
-                return "bg-yellow-100 text-yellow-800";
+                return "bg-warning/10 text-warning-foreground";
             default:
-                return "bg-gray-100 text-gray-800";
+                return "bg-muted text-muted-foreground";
         }
     };
 
@@ -64,7 +64,7 @@ export function SiteHeader() {
                     className="text-base font-medium"
                     style={{ fontFamily: '"TacticSans-Reg", sans-serif' }}
                 >
-                    Cocoon Aluminum Works
+                    Cocoon Company For Aluminum Works
                 </h1>
                 <div className="ml-auto flex items-center gap-2">
                     {user && userProfile && (

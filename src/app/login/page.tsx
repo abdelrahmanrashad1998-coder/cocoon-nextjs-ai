@@ -84,8 +84,8 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white flex items-center justify-center p-4">
-            <Card className="w-full max-w-md bg-white border-2 border-[#A72036] shadow-2xl shadow-red-50">
+        <div className="min-h-screen bg-card flex items-center justify-center p-4">
+            <Card className="w-full max-w-md bg-card border-2 border-[#A72036] shadow-2xl shadow-red-50">
                 <CardHeader className="text-center pb-8">
                     <div className="text-5xl font-bold text-[#A72036] mb-12 mt-8 tracking-wide flex items-center justify-center">
                         <Image
@@ -99,7 +99,7 @@ export default function LoginPage() {
                     </div>
                     <div className="w-16 h-1 bg-[#A72036] mx-auto "></div>
                     <CardTitle
-                        className={`text-2xl text-gray-800 font-semibold transition-all duration-300 ease-in-out ${
+                        className={`text-2xl text-foreground font-semibold transition-all duration-300 ease-in-out ${
                             isAnimating
                                 ? "opacity-0 transform scale-95"
                                 : "opacity-100 transform scale-100"
@@ -108,7 +108,7 @@ export default function LoginPage() {
                         {isLogin ? "Welcome Back" : "Create Account"}
                     </CardTitle>
                     <CardDescription
-                        className={`text-gray-600 mt-2 transition-all duration-300 ease-in-out ${
+                        className={`text-muted-foreground mt-2 transition-all duration-300 ease-in-out ${
                             isAnimating
                                 ? "opacity-0 transform scale-95"
                                 : "opacity-100 transform scale-100"
@@ -133,7 +133,7 @@ export default function LoginPage() {
                         >
                             <Label
                                 htmlFor="displayName"
-                                className="text-gray-700 font-medium"
+                                className="text-muted-foreground font-medium"
                             >
                                 Display Name
                             </Label>
@@ -147,13 +147,13 @@ export default function LoginPage() {
                                     })
                                 }
                                 required={!isLogin}
-                                className="border-gray-400 focus:border-[#A72036] h-12 bg-white"
+                                className="border-border focus:border-primary h-12 bg-card"
                             />
                         </div>
                         <div className="space-y-2">
                             <Label
                                 htmlFor="email"
-                                className="text-gray-700 font-medium"
+                                className="text-muted-foreground font-medium"
                             >
                                 Email
                             </Label>
@@ -168,13 +168,13 @@ export default function LoginPage() {
                                     })
                                 }
                                 required
-                                className="border-gray-400 focus:border-[#A72036] h-12 bg-white"
+                                className="border-border focus:border-primary h-12 bg-card"
                             />
                         </div>
                         <div className="space-y-2">
                             <Label
                                 htmlFor="password"
-                                className="text-gray-700 font-medium"
+                                className="text-muted-foreground font-medium"
                             >
                                 Password
                             </Label>
@@ -189,7 +189,7 @@ export default function LoginPage() {
                                     })
                                 }
                                 required
-                                className="border-gray-400 focus:border-[#A72036] h-12 bg-white"
+                                className="border-border focus:border-primary h-12 bg-card"
                             />
                         </div>
                         <div
@@ -201,7 +201,7 @@ export default function LoginPage() {
                         >
                             <Label
                                 htmlFor="confirmPassword"
-                                className="text-gray-700 font-medium"
+                                className="text-muted-foreground font-medium"
                             >
                                 Confirm Password
                             </Label>
@@ -216,17 +216,17 @@ export default function LoginPage() {
                                     })
                                 }
                                 required={!isLogin}
-                                className="border-gray-400 focus:border-[#A72036] h-12 bg-white"
+                                className="border-border focus:border-primary h-12 bg-card"
                             />
                         </div>
                         {error && (
-                            <div className="bg-red-50 border border-red-200 text-[#A72036] text-sm text-center py-3 px-4 rounded-md">
+                            <div className="bg-destructive/5 border-destructive/20 text-primary text-sm text-center py-3 px-4 rounded-md">
                                 {error}
                             </div>
                         )}
                         <Button
                             type="submit"
-                            className="w-full bg-[#A72036] hover:bg-red-700 text-white h-12 font-semibold transition-all duration-200 shadow-lg hover:shadow-xl hover:cursor-pointer"
+                            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 font-semibold transition-all duration-200 shadow-lg hover:shadow-xl hover:cursor-pointer"
                             disabled={loading}
                         >
                             <span
@@ -244,7 +244,7 @@ export default function LoginPage() {
                             </span>
                         </Button>
                     </form>
-                    <div className="text-center mt-6 pt-6 border-t border-gray-100">
+                    <div className="text-center mt-6 pt-6 border-t border-border">
                         <div
                             className={`transition-all duration-300 ease-in-out ${
                                 isAnimating

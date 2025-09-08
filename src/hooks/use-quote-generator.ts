@@ -791,7 +791,7 @@ export const useQuoteGenerator = () => {
           <html lang="en">
           <head>
             <meta charset="UTF-8" />
-            <title>Cocoon Aluminum Works - Quotation</title>
+            <title>Cocoon Company For Aluminum Works - Quotation</title>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
             <style>
               * {
@@ -1284,7 +1284,7 @@ export const useQuoteGenerator = () => {
                 <div class="logo-section">
                   <img src="https://img1.wsimg.com/isteam/ip/b11b2784-66bc-4ac4-9b05-6ba6d416d22d/Untitled%20design%20(1).jpg" alt="Cocoon Logo" class="logo" />
                   <div class="company-info">
-                    <h1 class="company-name">Cocoon Aluminum Works</h1>
+                    <h1 class="company-name">Cocoon Company For Aluminum Works</h1>
                     <p class="company-tagline">Premium Aluminum Solutions & Installation</p>
                   </div>
                 </div>

@@ -339,7 +339,7 @@ export function QuotePreview({
                 <div className="flex justify-center gap-4">
                     <Button
                         onClick={() => onExport("pdf")}
-                        className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-2 px-6 py-3"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2 px-6 py-3"
                     >
                         <Download className="h-5 w-5" />
                         Export PDF
@@ -468,7 +468,7 @@ export function QuotePreview({
                                     <TableCell>
                                         <div className="flex justify-center">
                                             <div
-                                                className="border rounded bg-white p-1"
+                                                className="border rounded bg-card p-1"
                                                 dangerouslySetInnerHTML={{
                                                     __html: generateItemSvg(
                                                         item

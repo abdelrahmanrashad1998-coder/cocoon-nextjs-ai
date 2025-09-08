@@ -137,7 +137,7 @@ export default function AdminPage() {
                         </TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>
-                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                          <Badge variant="secondary" className="bg-warning/10 text-warning-foreground">
                             <Clock className="w-3 h-3 mr-1" />
                             Pending
                           </Badge>
@@ -150,7 +150,7 @@ export default function AdminPage() {
                             <Button
                               size="sm"
                               onClick={() => approveUser(user.id)}
-                              className="bg-green-600 hover:bg-green-700"
+                              className="bg-success hover:bg-success/90"
                             >
                               <Check className="w-4 h-4 mr-1" />
                               Approve
@@ -159,7 +159,7 @@ export default function AdminPage() {
                               size="sm"
                               variant="outline"
                               onClick={() => rejectUser(user.id)}
-                              className="border-red-200 text-red-600 hover:bg-red-50"
+                              className="border-destructive/20 text-destructive hover:bg-destructive/5"
                             >
                               <X className="w-4 h-4 mr-1" />
                               Reject
