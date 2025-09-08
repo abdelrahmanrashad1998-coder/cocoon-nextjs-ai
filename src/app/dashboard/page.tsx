@@ -9,6 +9,8 @@ import { DashboardService, ProjectData } from "@/lib/dashboard-service"
 
 export default function Page() {
   const [projects, setProjects] = useState<ProjectData[]>([])
+  const [activeProjects, setActiveProjects] = useState<ProjectData[]>([])
+  const [completedProjects, setCompletedProjects] = useState<ProjectData[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -16,6 +18,23 @@ export default function Page() {
       try {
         const data = await DashboardService.getDashboardData()
         setProjects(data.projects)
+        
+        // Filter projects by status - need to filter at the quote level before conversion
+        const quotes = await DashboardService.fetchQuotes()
+        
+        // Filter active projects (draft, pending_review, approved, in_production)
+        const activeQuotes = quotes.filter(quote => 
+          ["draft", "pending_review", "approved", "in_production"].includes(quote.status || "draft")
+        )
+        const activeProjectsData = DashboardService.convertQuotesToProjects(activeQuotes)
+        setActiveProjects(activeProjectsData)
+        
+        // Filter completed projects
+        const completedQuotes = quotes.filter(quote => 
+          quote.status === "completed"
+        )
+        const completedProjectsData = DashboardService.convertQuotesToProjects(completedQuotes)
+        setCompletedProjects(completedProjectsData)
       } catch (error) {
         console.error("Failed to load dashboard data:", error)
       } finally {
@@ -42,7 +61,7 @@ export default function Page() {
       <div className="px-4 lg:px-6">
         <ChartAreaInteractive />
       </div>
-      <DataTable data={projects} />
+      <DataTable data={projects} activeData={activeProjects} completedData={completedProjects} />
     </DashboardLayout>
   )
 }
