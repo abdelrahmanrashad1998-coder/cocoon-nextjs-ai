@@ -11,7 +11,10 @@ import {
 } from "@/types/quote";
 import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
-import { calculateItemPricing, calculateQuoteTotals } from "@/lib/pricing-calculator";
+import {
+    calculateItemPricing,
+    calculateQuoteTotals,
+} from "@/lib/pricing-calculator";
 
 export const useQuoteGenerator = () => {
     const [quoteData, setQuoteData] = useState<QuoteData>({
@@ -142,109 +145,129 @@ export const useQuoteGenerator = () => {
     }, []);
 
     // Auto-save functionality
-    const autoSaveQuote = useCallback(async (isManualSave = false) => {
-        if (!autoSaveEnabled || loading) return;
+    const autoSaveQuote = useCallback(
+        async (isManualSave = false) => {
+            if (!autoSaveEnabled || loading) return;
 
-        try {
-            // Check if quote has meaningful data to save
-            const hasData = quoteData.contactInfo.name?.trim() || quoteData.items.length > 0;
-            if (!hasData) return;
+            try {
+                // Check if quote has meaningful data to save
+                const hasData =
+                    quoteData.contactInfo.name?.trim() ||
+                    quoteData.items.length > 0;
+                if (!hasData) return;
 
-            // Check if data has changed since last save
-            const currentDataString = JSON.stringify(quoteData);
-            const lastDataString = lastQuoteDataRef.current ? JSON.stringify(lastQuoteDataRef.current) : null;
-            
-            if (currentDataString === lastDataString && !isManualSave) return;
+                // Check if data has changed since last save
+                const currentDataString = JSON.stringify(quoteData);
+                const lastDataString = lastQuoteDataRef.current
+                    ? JSON.stringify(lastQuoteDataRef.current)
+                    : null;
 
-            console.log("Auto-saving quote...");
-            
-            // Create history entry for both manual and auto saves
-            const historyEntry: QuoteHistoryEntry = {
-                id: `history-${Date.now()}`,
-                timestamp: new Date().toISOString(),
-                data: { ...quoteData },
-                changeDescription: isManualSave ? "Manual save" : "Auto-save",
-                savedBy: "Current User",
-            };
+                if (currentDataString === lastDataString && !isManualSave)
+                    return;
 
-            const quoteDataToSave = {
-                ...quoteData,
-                updatedAt: new Date().toISOString(),
-                lastAutoSaved: new Date().toISOString(),
-                history: [...(quoteData.history || []), historyEntry].slice(-10), // Keep only last 10 history entries
-            };
+                console.log("Auto-saving quote...");
 
-            // Handle production start date tracking
-            if (
-                quoteDataToSave.status === "in_production" &&
-                !quoteDataToSave.productionStartDate
-            ) {
-                quoteDataToSave.productionStartDate = new Date().toISOString();
-            }
+                // Create history entry for both manual and auto saves
+                const historyEntry: QuoteHistoryEntry = {
+                    id: `history-${Date.now()}`,
+                    timestamp: new Date().toISOString(),
+                    data: { ...quoteData },
+                    changeDescription: isManualSave
+                        ? "Manual save"
+                        : "Auto-save",
+                    savedBy: "Current User",
+                };
 
-            // Save to Firebase
-            const { getAuth } = await import("firebase/auth");
-            const auth = getAuth();
-            const user = auth.currentUser;
+                const quoteDataToSave = {
+                    ...quoteData,
+                    updatedAt: new Date().toISOString(),
+                    lastAutoSaved: new Date().toISOString(),
+                    history: [...(quoteData.history || []), historyEntry].slice(
+                        -10
+                    ), // Keep only last 10 history entries
+                };
 
-            if (!user) {
-                console.warn("User not authenticated for auto-save");
-                return;
-            }
-
-            const sanitizedQuoteName = quoteData.name
-                .replace(/[^a-zA-Z0-9]/g, "_")
-                .replace(/^_+|_+$/g, "")
-                .substring(0, 150);
-
-            // Ensure the ID matches the document ID
-            quoteDataToSave.id = sanitizedQuoteName;
-
-            const sanitizeForFirestore = (obj: unknown): unknown => {
-                if (obj === null || obj === undefined) {
-                    return null;
+                // Handle production start date tracking
+                if (
+                    quoteDataToSave.status === "in_production" &&
+                    !quoteDataToSave.productionStartDate
+                ) {
+                    quoteDataToSave.productionStartDate =
+                        new Date().toISOString();
                 }
-                if (typeof obj === "object" && !Array.isArray(obj) && obj !== null) {
-                    const sanitized: Record<string, unknown> = {};
-                    for (const key in obj) {
-                        if (obj.hasOwnProperty(key)) {
-                            sanitized[key] = sanitizeForFirestore((obj as Record<string, unknown>)[key]);
-                        }
+
+                // Save to Firebase
+                const { getAuth } = await import("firebase/auth");
+                const auth = getAuth();
+                const user = auth.currentUser;
+
+                if (!user) {
+                    console.warn("User not authenticated for auto-save");
+                    return;
+                }
+
+                const sanitizedQuoteName = quoteData.name
+                    .replace(/[^a-zA-Z0-9]/g, "_")
+                    .replace(/^_+|_+$/g, "")
+                    .substring(0, 150);
+
+                // Ensure the ID matches the document ID
+                quoteDataToSave.id = sanitizedQuoteName;
+
+                const sanitizeForFirestore = (obj: unknown): unknown => {
+                    if (obj === null || obj === undefined) {
+                        return null;
                     }
-                    return sanitized;
+                    if (
+                        typeof obj === "object" &&
+                        !Array.isArray(obj) &&
+                        obj !== null
+                    ) {
+                        const sanitized: Record<string, unknown> = {};
+                        for (const key in obj) {
+                            if (obj.hasOwnProperty(key)) {
+                                sanitized[key] = sanitizeForFirestore(
+                                    (obj as Record<string, unknown>)[key]
+                                );
+                            }
+                        }
+                        return sanitized;
+                    }
+                    if (Array.isArray(obj)) {
+                        return obj.map(sanitizeForFirestore);
+                    }
+                    return obj;
+                };
+
+                const sanitizedQuoteData =
+                    sanitizeForFirestore(quoteDataToSave);
+                const { setDoc, doc } = await import("firebase/firestore");
+                const docRef = doc(db, "quotes", sanitizedQuoteName);
+                await setDoc(docRef, sanitizedQuoteData);
+
+                // Update local state
+                lastQuoteDataRef.current = { ...quoteDataToSave };
+                setLastSaved(new Date().toISOString());
+
+                // Always update the quote data with history for both manual and auto saves
+                setQuoteData(quoteDataToSave);
+
+                console.log("Auto-save completed successfully");
+
+                // Show toast notification for auto-save (only for auto-saves, not manual saves)
+                if (!isManualSave) {
+                    const { toast } = await import("sonner");
+                    toast.success("Quote auto-saved", {
+                        description: `Saved at ${new Date().toLocaleTimeString()}`,
+                        duration: 2000,
+                    });
                 }
-                if (Array.isArray(obj)) {
-                    return obj.map(sanitizeForFirestore);
-                }
-                return obj;
-            };
-
-            const sanitizedQuoteData = sanitizeForFirestore(quoteDataToSave);
-            const { setDoc, doc } = await import("firebase/firestore");
-            const docRef = doc(db, "quotes", sanitizedQuoteName);
-            await setDoc(docRef, sanitizedQuoteData);
-
-            // Update local state
-            lastQuoteDataRef.current = { ...quoteDataToSave };
-            setLastSaved(new Date().toISOString());
-            
-            // Always update the quote data with history for both manual and auto saves
-            setQuoteData(quoteDataToSave);
-
-            console.log("Auto-save completed successfully");
-            
-            // Show toast notification for auto-save (only for auto-saves, not manual saves)
-            if (!isManualSave) {
-                const { toast } = await import("sonner");
-                toast.success("Quote auto-saved", {
-                    description: `Saved at ${new Date().toLocaleTimeString()}`,
-                    duration: 2000,
-                });
+            } catch (error) {
+                console.error("Auto-save failed:", error);
             }
-        } catch (error) {
-            console.error("Auto-save failed:", error);
-        }
-    }, [quoteData, autoSaveEnabled, loading]);
+        },
+        [quoteData, autoSaveEnabled, loading]
+    );
 
     // Set up auto-save interval
     useEffect(() => {
@@ -271,29 +294,35 @@ export const useQuoteGenerator = () => {
     }, []);
 
     // History management functions
-    const addToHistory = useCallback((changeDescription: string) => {
-        const historyEntry: QuoteHistoryEntry = {
-            id: `history-${Date.now()}`,
-            timestamp: new Date().toISOString(),
-            data: { ...quoteData },
-            changeDescription,
-            savedBy: "Current User",
-        };
+    const addToHistory = useCallback(
+        (changeDescription: string) => {
+            const historyEntry: QuoteHistoryEntry = {
+                id: `history-${Date.now()}`,
+                timestamp: new Date().toISOString(),
+                data: { ...quoteData },
+                changeDescription,
+                savedBy: "Current User",
+            };
 
-        setQuoteData(prev => ({
-            ...prev,
-            history: [...(prev.history || []), historyEntry].slice(-10), // Keep only last 10 entries
-        }));
-    }, [quoteData]);
+            setQuoteData((prev) => ({
+                ...prev,
+                history: [...(prev.history || []), historyEntry].slice(-10), // Keep only last 10 entries
+            }));
+        },
+        [quoteData]
+    );
 
-    const restoreFromHistory = useCallback((historyEntry: QuoteHistoryEntry) => {
-        setQuoteData(historyEntry.data);
-        setLastSaved(historyEntry.timestamp);
-        lastQuoteDataRef.current = historyEntry.data;
-    }, []);
+    const restoreFromHistory = useCallback(
+        (historyEntry: QuoteHistoryEntry) => {
+            setQuoteData(historyEntry.data);
+            setLastSaved(historyEntry.timestamp);
+            lastQuoteDataRef.current = historyEntry.data;
+        },
+        []
+    );
 
     const clearHistory = useCallback(() => {
-        setQuoteData(prev => ({
+        setQuoteData((prev) => ({
             ...prev,
             history: [],
         }));
@@ -301,18 +330,22 @@ export const useQuoteGenerator = () => {
 
     const calculateTotals = useCallback((): QuoteTotals => {
         // Calculate pricing for all items
-        const pricedItems = quoteData.items.map(item => calculateItemPricing(item));
-        
+        const pricedItems = quoteData.items.map((item) =>
+            calculateItemPricing(item)
+        );
+
         // Calculate totals using the proper pricing calculator
         const totals = calculateQuoteTotals(pricedItems);
-        
+
         // Apply discount to the total after profit
-        const discountAmount = (totals.totalAfter * quoteData.settings.discountPercentage) / 100;
+        const discountAmount =
+            (totals.totalAfter * quoteData.settings.discountPercentage) / 100;
         const discountedTotal = totals.totalAfter - discountAmount;
-        
+
         // Recalculate profit percentage after discount
         const adjustedProfit = totals.totalProfit - discountAmount;
-        const adjustedProfitPercentage = discountedTotal > 0 ? (adjustedProfit / discountedTotal) * 100 : 0;
+        const adjustedProfitPercentage =
+            discountedTotal > 0 ? (adjustedProfit / discountedTotal) * 100 : 0;
 
         return {
             totalM2: totals.totalM2,
@@ -320,7 +353,8 @@ export const useQuoteGenerator = () => {
             totalAfter: discountedTotal,
             totalProfit: adjustedProfit,
             totalProfitPercentage: adjustedProfitPercentage,
-            totalM2Price: totals.totalM2 > 0 ? discountedTotal / totals.totalM2 : 0,
+            totalM2Price:
+                totals.totalM2 > 0 ? discountedTotal / totals.totalM2 : 0,
             downPayment: discountedTotal * 0.8,
             supplyPayment: discountedTotal * 0.1,
             completePayment: discountedTotal * 0.1,
@@ -337,10 +371,10 @@ export const useQuoteGenerator = () => {
         setLoading(true);
         try {
             console.log("Starting manual save quote process...");
-            
+
             // Use the auto-save function with manual flag
             await autoSaveQuote(true);
-            
+
             console.log("Manual save completed successfully");
         } catch (err) {
             console.error("Save quote error:", err);
@@ -638,17 +672,32 @@ export const useQuoteGenerator = () => {
                                 // Add V shape for window panels, labels for fixed and door panels
                                 if (panel.type === "window") {
                                     // Add V shape for window panels
-                                    const panelCenterX = panelX + panelWidth / 2;
-                                    const panelCenterY = panelY + panelHeight / 2;
-                                    const vSize = Math.min(panelWidth, panelHeight) * 0.6;
-                                    
-                                    svgElements += `<path d="M ${panelCenterX - vSize/2} ${panelCenterY - vSize/2} 
-                                          L ${panelCenterX} ${panelCenterY + vSize/2} 
-                                          L ${panelCenterX + vSize/2} ${panelCenterY - vSize/2}" 
+                                    const panelCenterX =
+                                        panelX + panelWidth / 2;
+                                    const panelCenterY =
+                                        panelY + panelHeight / 2;
+                                    const vSize =
+                                        Math.min(panelWidth, panelHeight) * 0.6;
+
+                                    svgElements += `<path d="M ${
+                                        panelCenterX - vSize / 2
+                                    } ${panelCenterY - vSize / 2} 
+                                          L ${panelCenterX} ${
+                                        panelCenterY + vSize / 2
+                                    } 
+                                          L ${panelCenterX + vSize / 2} ${
+                                        panelCenterY - vSize / 2
+                                    }" 
                                           stroke="#FFD700" stroke-width="1" fill="none"/>`;
-                                } else if (panel.type === "door" || panel.type === "structure") {
+                                } else if (
+                                    panel.type === "door" ||
+                                    panel.type === "structure"
+                                ) {
                                     // Add labels for door and fixed panels
-                                    const label = panel.type === "structure" ? "Fixed" : "Door";
+                                    const label =
+                                        panel.type === "structure"
+                                            ? "Fixed"
+                                            : "Door";
                                     svgElements += `<text x="${
                                         panelX + panelWidth / 2
                                     }" y="${
@@ -690,13 +739,15 @@ export const useQuoteGenerator = () => {
 
                         let svgElements = "";
                         const glassInset = 3;
-                        
+
                         // Draw main frame and glass panel (skip for hinged items as they have individual sash panels)
                         if (system !== "hinged") {
                             svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWidth}" height="${scaledHeight}" fill="none" stroke="#374151" stroke-width="1" rx="1"/>`;
-                            svgElements += `<rect x="${offsetX + glassInset}" y="${
-                                offsetY + glassInset
-                            }" width="${scaledWidth - glassInset * 2}" height="${
+                            svgElements += `<rect x="${
+                                offsetX + glassInset
+                            }" y="${offsetY + glassInset}" width="${
+                                scaledWidth - glassInset * 2
+                            }" height="${
                                 scaledHeight - glassInset * 2
                             }" fill="#87CEEB" stroke="#666" stroke-width="0.5" opacity="0.7"/>`;
                         }
@@ -730,26 +781,42 @@ export const useQuoteGenerator = () => {
                             // Draw individual sash panels for hinged items - stacked vertically
                             const sashHeight = scaledHeight / leaves;
                             const sashInset = 1; // Inset for each sash panel
-                            
+
                             for (let i = 0; i < leaves; i++) {
                                 const sashY = offsetY + i * sashHeight;
                                 const sashPanelHeight = sashHeight - sashInset;
-                                
+
                                 // Check if this is the top panel and should be fixed
                                 const isTopPanel = i === 0;
-                                const isFixedUpperPanel = isTopPanel && leaves === 2 && type === "window" && item.upperPanelType === "fixed";
-                                
+                                const isFixedUpperPanel =
+                                    isTopPanel &&
+                                    leaves === 2 &&
+                                    type === "window" &&
+                                    item.upperPanelType === "fixed";
+
                                 // Draw individual sash panel
-                                svgElements += `<rect x="${offsetX + sashInset/2}" y="${sashY + sashInset/2}" 
-                                      width="${scaledWidth - sashInset}" height="${sashPanelHeight}"
+                                svgElements += `<rect x="${
+                                    offsetX + sashInset / 2
+                                }" y="${sashY + sashInset / 2}" 
+                                      width="${
+                                          scaledWidth - sashInset
+                                      }" height="${sashPanelHeight}"
                                       fill="none" stroke="#666" stroke-width="0.5" rx="0.5"/>`;
-                                
+
                                 // Draw glass panel within each sash
                                 const glassInsetSash = 1.5;
-                                svgElements += `<rect x="${offsetX + sashInset/2 + glassInsetSash}" y="${sashY + sashInset/2 + glassInsetSash}"
-                                      width="${scaledWidth - sashInset - glassInsetSash * 2}" height="${sashPanelHeight - glassInsetSash * 2}"
+                                svgElements += `<rect x="${
+                                    offsetX + sashInset / 2 + glassInsetSash
+                                }" y="${sashY + sashInset / 2 + glassInsetSash}"
+                                      width="${
+                                          scaledWidth -
+                                          sashInset -
+                                          glassInsetSash * 2
+                                      }" height="${
+                                    sashPanelHeight - glassInsetSash * 2
+                                }"
                                       fill="#87CEEB" stroke="#666" stroke-width="0.3" opacity="0.7"/>`;
-                                
+
                                 // Draw hinges only for hinged panels (not for fixed upper panel)
                                 if (!isFixedUpperPanel) {
                                     const hingeY = sashY + sashHeight / 2;
@@ -757,30 +824,50 @@ export const useQuoteGenerator = () => {
                                         offsetX + scaledWidth
                                     }" cy="${hingeY}" r="1" fill="#666"/>`;
                                 }
-                                
+
                                 // Add V shape for hinged panels or "Fixed" label for fixed upper panel
                                 if (type === "door" || type === "window") {
-                                    const glassX = offsetX + sashInset/2 + glassInsetSash;
-                                    const glassY = sashY + sashInset/2 + glassInsetSash;
-                                    const glassWidth = scaledWidth - sashInset - glassInsetSash * 2;
-                                    const glassHeight = sashPanelHeight - glassInsetSash * 2;
-                                    
+                                    const glassX =
+                                        offsetX +
+                                        sashInset / 2 +
+                                        glassInsetSash;
+                                    const glassY =
+                                        sashY + sashInset / 2 + glassInsetSash;
+                                    const glassWidth =
+                                        scaledWidth -
+                                        sashInset -
+                                        glassInsetSash * 2;
+                                    const glassHeight =
+                                        sashPanelHeight - glassInsetSash * 2;
+
                                     if (isFixedUpperPanel) {
                                         // Add "Fixed" label for fixed upper panel
-                                        const glassCenterX = glassX + glassWidth / 2;
-                                        const glassCenterY = glassY + glassHeight / 2;
+                                        const glassCenterX =
+                                            glassX + glassWidth / 2;
+                                        const glassCenterY =
+                                            glassY + glassHeight / 2;
                                         svgElements += `<text x="${glassCenterX}" y="${glassCenterY}"
                                               text-anchor="middle" dominant-baseline="middle" font-size="3" fill="#333" font-weight="bold">Fixed</text>`;
                                     } else {
                                         // Add V shape for hinged panels
-                                        const glassCenterX = glassX + glassWidth / 2;
-                                        const glassCenterY = glassY + glassHeight / 2;
-                                        const vSize = Math.min(glassWidth, glassHeight) * 0.9;
-                                        
+                                        const glassCenterX =
+                                            glassX + glassWidth / 2;
+                                        const glassCenterY =
+                                            glassY + glassHeight / 2;
+                                        const vSize =
+                                            Math.min(glassWidth, glassHeight) *
+                                            0.9;
+
                                         // Draw inverted V shape (from top corners to bottom middle) within glass bounds
-                                        svgElements += `<path d="M ${glassCenterX - vSize/2} ${glassCenterY - vSize/2} 
-                                              L ${glassCenterX} ${glassCenterY + vSize/2} 
-                                              L ${glassCenterX + vSize/2} ${glassCenterY - vSize/2}" 
+                                        svgElements += `<path d="M ${
+                                            glassCenterX - vSize / 2
+                                        } ${glassCenterY - vSize / 2} 
+                                              L ${glassCenterX} ${
+                                            glassCenterY + vSize / 2
+                                        } 
+                                              L ${glassCenterX + vSize / 2} ${
+                                            glassCenterY - vSize / 2
+                                        }" 
                                               stroke="#FFD700" stroke-width="0.8" fill="none"/>`;
                                     }
                                 }
@@ -878,8 +965,8 @@ export const useQuoteGenerator = () => {
               }
               
               .logo {
-                width: 60px;
-                height: 60px;
+                width: 120px;
+                height: 120px;
                 border-radius: 8px;
                 object-fit: cover;
               }
@@ -1086,9 +1173,15 @@ export const useQuoteGenerator = () => {
                 margin-bottom: 32px;
               }
               
-              .totals-grid {
+              .totals-grid-2 {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
+                gap: 24px;
+                margin-bottom: 24px;
+              }
+                .totals-grid-3 {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
                 gap: 24px;
                 margin-bottom: 24px;
               }
@@ -1256,6 +1349,12 @@ export const useQuoteGenerator = () => {
               .footer-section strong {
                 color: white;
               }
+                .show-discount{
+                    display:block;
+                }
+                .hide-discount{
+                    display:none;
+                }
               
               @media print {
                 body { 
@@ -1296,6 +1395,7 @@ export const useQuoteGenerator = () => {
                   box-shadow: none;
                   border: 1px solid #e2e8f0;
                 }
+                
               }
             </style>
           </head>
@@ -1325,7 +1425,12 @@ export const useQuoteGenerator = () => {
                       "en-GB"
                   )}</span></p>
                   <p><span class="detail-label">Valid Until:</span> <span class="detail-value">${new Date(
-                      Date.now() + quoteData.settings.expirationDays * 24 * 60 * 60 * 1000
+                      Date.now() +
+                          quoteData.settings.expirationDays *
+                              24 *
+                              60 *
+                              60 *
+                              1000
                   ).toLocaleDateString("en-GB")}</span></p>
                 </div>
                 
@@ -1348,6 +1453,7 @@ export const useQuoteGenerator = () => {
                 <table class="items-table">
                   <thead>
                     <tr>
+                    <th>#</th>
                       <th>Item Description</th>
                       <th>Preview</th>
                       <th>Width (m)</th>
@@ -1356,7 +1462,11 @@ export const useQuoteGenerator = () => {
                       <th>Area (m²)</th>
                       <th>Specifications</th>
                       <th>System</th>
-                      ${quoteData.settings.pricingType === "detailed" ? '<th>Price (EGP)</th>' : ''}
+                      ${
+                          quoteData.settings.pricingType === "detailed"
+                              ? "<th>Price (EGP)</th>"
+                              : ""
+                      }
                     </tr>
                   </thead>
                   <tbody>
@@ -1402,7 +1512,10 @@ export const useQuoteGenerator = () => {
                                 specs +=
                                     '<span class="spec-tag tag-arch">Arch Trave</span>';
                             }
-                            if (item.additionalCost && item.additionalCost > 0) {
+                            if (
+                                item.additionalCost &&
+                                item.additionalCost > 0
+                            ) {
                                 specs +=
                                     '<span class="spec-tag" style="background: linear-gradient(135deg, #9f7aea, #b794f6); color: white;">Additional Cost</span>';
                             }
@@ -1415,6 +1528,7 @@ export const useQuoteGenerator = () => {
 
                             return `
                         <tr>
+                        <td>${index + 1}</td>
                           <td class="item-name">${itemName}</td>
                           <td class="preview-cell">${svgPreview}</td>
                           <td class="dimension-value">${item.width.toFixed(
@@ -1429,7 +1543,11 @@ export const useQuoteGenerator = () => {
                           <td><div class="system-badge">${
                               item.system
                           }</div></td>
-                          ${quoteData.settings.pricingType === "detailed" ? `<td class="price-value">${itemPrice.toLocaleString()} EGP</td>` : ''}
+                          ${
+                              quoteData.settings.pricingType === "detailed"
+                                  ? `<td class="price-value">${itemPrice.toLocaleString()} EGP</td>`
+                                  : ""
+                          }
                         </tr>
                       `;
                         })
@@ -1439,7 +1557,9 @@ export const useQuoteGenerator = () => {
               </div>
 
               <div class="totals-section">
-                <div class="totals-grid">
+                <div class="totals-grid-${
+                    quoteData.settings.discountPercentage > 0 ? "3" : "2"
+                }">
                   <div class="total-card">
                     <div class="total-label">Total Project Value</div>
                     <div class="total-value">${Math.round(
@@ -1451,6 +1571,16 @@ export const useQuoteGenerator = () => {
                     <div class="total-value">${totals.totalArea.toFixed(
                         2
                     )} m²</div>
+                  </div>
+                  <div class="total-card ${
+                      quoteData.settings.discountPercentage > 0
+                          ? "show-discount"
+                          : "hide-discount"
+                  } ">
+                    <div class="">Total Discount</div>
+                    <div class="total-value">${quoteData.settings.discountPercentage.toFixed(
+                        2
+                    )} %</div>
                   </div>
                 </div>
 
