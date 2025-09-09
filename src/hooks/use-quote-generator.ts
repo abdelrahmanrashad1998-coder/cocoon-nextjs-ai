@@ -792,16 +792,20 @@ export const useQuoteGenerator = () => {
           <head>
             <meta charset="UTF-8" />
             <title>Cocoon Company For Aluminum Works - Quotation</title>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+            <link
+              href="https://db.onlinewebfonts.com/c/28c0ba929947563500b21da15a88c6fe?family=TacticSans-Reg"
+              rel="stylesheet"
+            />
             <style>
               * {
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
+                font-family: "TacticSans-Reg", sans-serif;
               }
               
               body {
-                font-family: 'Inter', Arial, sans-serif;
+                font-family: "TacticSans-Reg", sans-serif;
                 line-height: 1.6;
                 color: #1a202c;
                 background: #ffffff;
@@ -809,103 +813,78 @@ export const useQuoteGenerator = () => {
               }
               
               .container {
-                max-width: 1000px;
+                max-width: 1200px;
                 margin: 0 auto;
-                padding: 40px;
+                padding: 24px;
+                background: #ffffff;
               }
               
               .header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-bottom: 40px;
-                padding: 30px 0;
-                border-bottom: 3px solid #e53e3e;
-                position: relative;
+                text-align: center;
+                margin-bottom: 32px;
+                padding: 24px;
+                background: #ffffff;
+                color: #1a202c;
+                border-radius: 12px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
               }
               
-              .header::after {
-                content: '';
-                position: absolute;
-                bottom: -3px;
-                left: 0;
-                width: 100px;
-                height: 3px;
-                background: linear-gradient(90deg, #e53e3e, #ff6b6b);
-              }
               
               .logo-section {
                 display: flex;
                 align-items: center;
-                gap: 20px;
+                justify-content: center;
+                gap: 16px;
+                margin-bottom: 16px;
               }
               
               .logo {
-                width: 80px;
-                height: 80px;
-                border-radius: 12px;
+                width: 60px;
+                height: 60px;
+                border-radius: 8px;
                 object-fit: cover;
-                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
               }
               
               .company-info {
-                flex: 1;
+                text-align: left;
               }
               
               .company-name {
-                font-size: 24px;
-                font-weight: 700;
-                color: #1a202c;
+                font-size: 20px;
+                font-weight: 600;
                 margin-bottom: 4px;
-                letter-spacing: -0.5px;
+                color: #A72036;
               }
               
               .company-tagline {
                 font-size: 14px;
-                color: #718096;
+                color: #64748b;
                 font-weight: 400;
               }
               
-              .quote-badge {
-                background: linear-gradient(135deg, #e53e3e, #ff6b6b);
-                color: white;
-                padding: 12px 24px;
-                border-radius: 25px;
-                font-weight: 600;
-                font-size: 16px;
-                box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
-              }
               
               .quote-details {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                gap: 30px;
-                margin-bottom: 40px;
+                gap: 24px;
+                margin-bottom: 32px;
               }
               
               .detail-card {
-                background: linear-gradient(135deg, #f7fafc, #edf2f7);
+                background: linear-gradient(to-t, rgba(167, 32, 54, 0.05), #ffffff);
                 padding: 24px;
-                border-radius: 16px;
+                border-radius: 12px;
                 border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
                 position: relative;
                 overflow: hidden;
-              }
-              
-              .detail-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 4px;
-                background: linear-gradient(90deg, #e53e3e, #ff6b6b);
               }
               
               .detail-card h3 {
                 font-size: 16px;
                 font-weight: 600;
-                color: #2d3748;
+                color: #1a202c;
                 margin-bottom: 16px;
                 display: flex;
                 align-items: center;
@@ -921,7 +900,7 @@ export const useQuoteGenerator = () => {
               
               .detail-label {
                 font-weight: 500;
-                color: #4a5568;
+                color: #64748b;
                 font-size: 13px;
               }
               
@@ -931,16 +910,16 @@ export const useQuoteGenerator = () => {
               }
               
               .items-section {
-                margin-bottom: 40px;
+                margin-bottom: 32px;
               }
               
               .section-title {
                 font-size: 20px;
                 font-weight: 600;
                 color: #1a202c;
-                margin-bottom: 20px;
+                margin-bottom: 24px;
                 padding-bottom: 8px;
-                border-bottom: 2px solid #e2e8f0;
+                border-bottom: 1px solid #e2e8f0;
                 display: flex;
                 align-items: center;
                 gap: 10px;
@@ -953,16 +932,16 @@ export const useQuoteGenerator = () => {
                 background: #ffffff;
                 border-radius: 12px;
                 overflow: hidden;
-                box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                 border: 1px solid #e2e8f0;
               }
               
               .items-table thead {
-                background: linear-gradient(135deg, #1a202c, #2d3748);
+                background: #A72036;
               }
               
               .items-table th {
-                padding: 16px 12px;
+                padding: 12px;
                 color: white;
                 font-weight: 600;
                 font-size: 12px;
@@ -972,14 +951,14 @@ export const useQuoteGenerator = () => {
               }
               
               .items-table td {
-                padding: 16px 12px;
+                padding: 12px;
                 border-bottom: 1px solid #e2e8f0;
                 vertical-align: middle;
                 font-size: 13px;
               }
               
               .items-table tbody tr:hover {
-                background-color: #f7fafc;
+                background-color: #f8fafc;
               }
               
               .items-table tbody tr:last-child td {
@@ -993,7 +972,7 @@ export const useQuoteGenerator = () => {
               
               .dimension-value {
                 font-weight: 500;
-                color: #4a5568;
+                color: #64748b;
               }
               
               .specs-container {
@@ -1005,47 +984,48 @@ export const useQuoteGenerator = () => {
               
               .spec-tag {
                 display: inline-block;
-                padding: 4px 8px;
+                padding: 2px 8px;
                 border-radius: 6px;
                 font-size: 10px;
                 font-weight: 500;
                 text-align: center;
                 line-height: 1.2;
+                border: 1px solid transparent;
               }
               
               .glass-double {
-                background: linear-gradient(135deg, #3182ce, #63b3ed);
+                background: #0ea5e9;
                 color: white;
               }
               
               .glass-single {
-                background: linear-gradient(135deg, #718096, #a0aec0);
+                background: #64748b;
                 color: white;
               }
               
               .tag-net {
-                background: linear-gradient(135deg, #38a169, #68d391);
+                background: #22c55e;
                 color: white;
               }
               
               .tag-arch {
-                background: linear-gradient(135deg, #d69e2e, #f6e05e);
+                background: #f59e0b;
                 color: #1a202c;
               }
               
               .system-badge {
-                background: linear-gradient(135deg, #805ad5, #b794f6);
+                background: #8b5cf6;
                 color: white;
-                padding: 6px 12px;
-                border-radius: 8px;
+                padding: 4px 8px;
+                border-radius: 6px;
                 font-weight: 500;
                 font-size: 11px;
                 text-align: center;
               }
               
               .price-value {
-                font-weight: 700;
-                color: #e53e3e;
+                font-weight: 600;
+                color: #A72036;
                 font-size: 14px;
                 text-align: right;
               }
@@ -1065,62 +1045,52 @@ export const useQuoteGenerator = () => {
               }
               
               .totals-section {
-                margin-bottom: 30px;
+                margin-bottom: 32px;
               }
               
               .totals-grid {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                gap: 20px;
-                margin-bottom: 30px;
+                gap: 24px;
+                margin-bottom: 24px;
               }
               
               .total-card {
-                background: linear-gradient(135deg, #1a202c, #2d3748);
-                color: white;
+                background: linear-gradient(to-t, rgba(167, 32, 54, 0.05), #ffffff);
+                color: #1a202c;
                 padding: 24px;
-                border-radius: 16px;
+                border-radius: 12px;
                 text-align: center;
-                position: relative;
-                overflow: hidden;
-              }
-              
-              .total-card::before {
-                content: '';
-                position: absolute;
-                top: -50%;
-                right: -50%;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-                transform: rotate(45deg);
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
               }
               
               .total-label {
                 font-size: 14px;
                 font-weight: 500;
-                opacity: 0.8;
+                color: #64748b;
                 margin-bottom: 8px;
               }
               
               .total-value {
                 font-size: 24px;
-                font-weight: 700;
-                color: #ff6b6b;
+                font-weight: 600;
+                color: #A72036;
               }
               
               .payment-schedule {
-                background: linear-gradient(135deg, #f7fafc, #edf2f7);
+                background: linear-gradient(to-t, rgba(167, 32, 54, 0.05), #ffffff);
                 padding: 24px;
-                border-radius: 16px;
+                border-radius: 12px;
                 border: 1px solid #e2e8f0;
-                margin-bottom: 30px;
+                margin-bottom: 24px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
               }
               
               .payment-grid {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
-                gap: 20px;
+                gap: 16px;
                 margin-top: 16px;
               }
               
@@ -1128,20 +1098,15 @@ export const useQuoteGenerator = () => {
                 text-align: center;
                 padding: 16px;
                 background: white;
-                border-radius: 12px;
-                border: 2px solid #e2e8f0;
-                transition: all 0.3s ease;
-              }
-              
-              .payment-item:hover {
-                border-color: #e53e3e;
-                transform: translateY(-2px);
+                border-radius: 8px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
               }
               
               .payment-label {
                 font-size: 12px;
                 font-weight: 500;
-                color: #4a5568;
+                color: #64748b;
                 margin-bottom: 8px;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
@@ -1149,23 +1114,24 @@ export const useQuoteGenerator = () => {
               
               .payment-amount {
                 font-size: 18px;
-                font-weight: 700;
+                font-weight: 600;
                 color: #1a202c;
               }
               
               .validity-section {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                gap: 20px;
-                margin-bottom: 30px;
+                gap: 16px;
+                margin-bottom: 24px;
               }
               
               .validity-card {
-                background: linear-gradient(135deg, #e53e3e, #ff6b6b);
+                background: #A72036;
                 color: white;
-                padding: 20px;
-                border-radius: 12px;
+                padding: 16px;
+                border-radius: 8px;
                 text-align: center;
+                box-shadow: 0 1px 3px rgba(167, 32, 54, 0.2);
               }
               
               .validity-label {
@@ -1176,21 +1142,22 @@ export const useQuoteGenerator = () => {
               
               .validity-value {
                 font-size: 20px;
-                font-weight: 700;
+                font-weight: 600;
               }
               
               .notes-section {
-                background: linear-gradient(135deg, #fff8e1, #ffecb3);
+                background: linear-gradient(to-t, rgba(167, 32, 54, 0.05), #ffffff);
                 padding: 24px;
-                border-radius: 16px;
-                border-left: 5px solid #ffa726;
-                margin-bottom: 40px;
+                border-radius: 12px;
+                border-left: 4px solid #A72036;
+                margin-bottom: 32px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
               }
               
               .notes-title {
                 font-size: 16px;
                 font-weight: 600;
-                color: #ef6c00;
+                color: #A72036;
                 margin-bottom: 12px;
                 display: flex;
                 align-items: center;
@@ -1198,19 +1165,20 @@ export const useQuoteGenerator = () => {
               }
               
               .notes-content {
-                color: #5d4037;
+                color: #1a202c;
                 line-height: 1.7;
               }
               
               .footer {
-                margin-top: 50px;
-                padding: 30px;
-                background: linear-gradient(135deg, #1a202c, #2d3748);
+                margin-top: 32px;
+                padding: 24px;
+                background: #A72036;
                 color: white;
-                border-radius: 16px;
+                border-radius: 12px;
                 text-align: center;
                 position: relative;
                 overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
               }
               
               .footer::before {
@@ -1220,36 +1188,35 @@ export const useQuoteGenerator = () => {
                 left: 0;
                 right: 0;
                 height: 4px;
-                background: linear-gradient(90deg, #e53e3e, #ff6b6b, #e53e3e);
+                background: #A72036;
               }
               
               .footer-title {
-                font-size: 20px;
-                font-weight: 700;
+                font-size: 18px;
+                font-weight: 600;
                 margin-bottom: 16px;
-                color: #ff6b6b;
+                color: white;
               }
               
               .footer-content {
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-                margin-top: 20px;
+                gap: 16px;
+                margin-top: 16px;
               }
               
-              .footer-section  {
-              display:flex;
-              flex-direction:column;
-              justify-content: start;
-    
-    align-items: flex-start;
+              .footer-section {
+                display: flex;
+                flex-direction: column;
+                justify-content: start;
+                align-items: flex-start;
                 margin-bottom: 8px;
                 font-size: 13px;
                 opacity: 0.9;
               }
               
               .footer-section strong {
-                color: #ff6b6b;
+                color: white;
               }
               
               @media print {
@@ -1258,15 +1225,15 @@ export const useQuoteGenerator = () => {
                   font-size: 12px;
                 }
                 .container {
-                  padding: 20px;
+                  padding: 16px;
                   max-width: none;
                 }
                 .no-print { 
                   display: none; 
                 }
                 .header {
-                  margin-bottom: 30px;
-                  padding: 20px 0;
+                  margin-bottom: 24px;
+                  padding: 16px;
                 }
                 .quote-details,
                 .totals-grid,
@@ -1274,6 +1241,22 @@ export const useQuoteGenerator = () => {
                 .validity-section,
                 .footer-content {
                   page-break-inside: avoid;
+                }
+                .items-table {
+                  font-size: 11px;
+                }
+                .items-table th,
+                .items-table td {
+                  padding: 8px 6px;
+                }
+                .detail-card,
+                .total-card,
+                .payment-schedule,
+                .validity-card,
+                .notes-section,
+                .footer {
+                  box-shadow: none;
+                  border: 1px solid #e2e8f0;
                 }
               }
             </style>
@@ -1553,8 +1536,12 @@ export const useQuoteGenerator = () => {
             <html>
             <head>
               <title>Quote - ${quoteData.id}</title>
+              <link
+                href="https://db.onlinewebfonts.com/c/28c0ba929947563500b21da15a88c6fe?family=TacticSans-Reg"
+                rel="stylesheet"
+              />
               <style>
-                body { font-family: 'Inter', Arial, sans-serif; margin: 20px; line-height: 1.6; }
+                body { font-family: "TacticSans-Reg", sans-serif; margin: 20px; line-height: 1.6; }
                 .header { text-align: center; margin-bottom: 30px; padding: 20px; border-bottom: 3px solid #e53e3e; }
                 .header h1 { color: #1a202c; margin-bottom: 10px; }
                 .section { margin-bottom: 25px; }
