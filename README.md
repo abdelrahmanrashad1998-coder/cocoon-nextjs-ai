@@ -1,162 +1,73 @@
-# Cocoon Next.js Application
+# 🏗️ Cocoon Aluminum Works - Quote Management System
 
-A modern, full-stack web application for managing aluminium profiles and generating quotes for curtain wall systems.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black)](https://nextjs.org/) [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
 
-## 🚀 Features
+> A comprehensive web-based platform designed to streamline the management of aluminum profiles and the generation of professional quotes for curtain wall systems.
 
-### Core Functionality
-- **Profile Management**: Comprehensive aluminium profile database with search and filtering
-- **Quote Generation**: Advanced quote generator with profile selection and pricing calculation
-- **User Authentication**: Secure Firebase-based authentication system
-- **Dashboard Analytics**: Real-time data visualization and reporting
-- **Responsive Design**: Mobile-first approach with modern UI components
+## 📋 Table of Contents
 
-### Profile Selection System
-- **Search & Filter**: Find profiles by name, code, brand, or system type
-- **Visual Selection**: Click-to-select interface with profile cards
-- **Pricing Integration**: Automatic price calculation based on selected profiles
-- **System Type Filtering**: Filter profiles by curtain wall system type
+-   [Overview](#overview)
+-   [Core Capabilities](#core-capabilities)
+    -   [Profile Management Excellence](#profile-management-excellence)
+    -   [Intelligent Quote Generation](#intelligent-quote-generation)
+    -   [Visual Design Interface](#visual-design-interface)
+    -   [Comprehensive Analytics and Reporting](#comprehensive-analytics-and-reporting)
+    -   [Secure and Scalable Architecture](#secure-and-scalable-architecture)
+    -   [Export and Integration Features](#export-and-integration-features)
+-   [Key Benefits](#key-benefits)
+-   [Target Audience](#target-audience)
 
-### Quote Generator Features
-- **Multi-Item Quotes**: Add multiple items to a single quote
-- **Profile Integration**: Select aluminium profiles for each quote item
-- **Real-time Pricing**: Automatic cost calculation with material and labor costs
-- **Export Functionality**: Export quotes to PDF format
-- **Settings Management**: Customizable pricing and calculation parameters
+## Overview
 
-## 🛠️ Tech Stack
+Cocoon Aluminum Works is a modern, full-stack web application that empowers businesses in the aluminum and construction industry to efficiently handle their profile databases, create detailed quotes, and manage client relationships through an intuitive, user-friendly interface. Built with cutting-edge technologies, this platform transforms complex curtain wall projects into clear, professional proposals.
 
-- **Framework**: Next.js 15.5.2 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS with shadcn/ui components
-- **Authentication**: Firebase Authentication
-- **Database**: Firestore (Firebase)
-- **Build Tool**: Turbopack
-- **Package Manager**: npm
+## Core Capabilities
 
-## 📦 Installation
+### Profile Management Excellence
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd cocoon-nextjs
-   ```
+The platform offers a robust profile management system that serves as the foundation for all quote generation activities. Users can maintain an extensive database of aluminum profiles, complete with detailed specifications, pricing information, and visual representations. Advanced search and filtering capabilities allow quick access to specific profiles by name, code, brand, or system type, ensuring that the right materials are selected for each project.
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+### Intelligent Quote Generation
 
-3. **Set up environment variables**
-   Create a `.env.local` file in the root directory:
-   ```env
-   NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
-   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
-   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
-   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
-   NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
-   ```
+At the heart of the application lies a sophisticated quote generator that transforms complex curtain wall projects into clear, professional proposals. The system supports multi-item quotes, enabling users to build comprehensive proposals that include various components such as frames, panels, and accessories. Real-time pricing calculations automatically factor in material costs, labor requirements, and customizable parameters, providing instant cost estimates that update as selections are made.
 
-4. **Run the development server**
-   ```bash
-   npm run dev
-   ```
+### Visual Design Interface
 
-5. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+The curtain wall designer component provides a visual approach to quote creation, allowing users to design curtain wall systems through an interactive interface. This feature bridges the gap between technical specifications and client visualization, making it easier to communicate design concepts and ensure accuracy in quotations.
 
-## 🏗️ Project Structure
+### Comprehensive Analytics and Reporting
 
-```
-src/
-├── app/                    # Next.js App Router pages
-│   ├── admin/             # Admin dashboard
-│   ├── analytics/         # Analytics and reporting
-│   ├── dashboard/         # Main dashboard
-│   ├── login/             # Authentication
-│   ├── profile-manager/   # Profile management
-│   ├── quote-generator/   # Quote generation
-│   ├── quotes/            # Quote management
-│   └── settings/          # Application settings
-├── components/            # Reusable UI components
-│   ├── profile/           # Profile-related components
-│   ├── quote/             # Quote-related components
-│   └── ui/                # Base UI components (shadcn/ui)
-├── hooks/                 # Custom React hooks
-├── lib/                   # Utility libraries
-│   ├── auth-context.tsx   # Authentication context
-│   ├── firebase.ts        # Firebase configuration
-│   └── pricing-calculator.ts # Pricing calculations
-└── types/                 # TypeScript type definitions
-```
+Built-in dashboard analytics provide valuable insights into business performance, quote trends, and client data. Real-time data visualization helps users track key metrics, identify opportunities, and make informed decisions to optimize their operations.
 
-## 🔧 Key Components
+### Secure and Scalable Architecture
 
-### Profile Management
-- **ProfileManager**: Full-featured profile management interface
-- **ProfileSelector**: Dedicated component for profile selection in quotes
+The application is built on a secure foundation using Firebase for authentication and data storage, ensuring that sensitive business information remains protected. The responsive design adapts seamlessly to various devices, allowing users to access the platform from desktops, tablets, and mobile devices without compromising functionality.
 
-### Quote System
-- **QuoteItemEditor**: Individual quote item editor with profile selection
-- **QuotePreview**: Real-time quote preview with pricing
-- **CurtainWallDesigner**: Visual curtain wall design interface
+### Export and Integration Features
 
-### Authentication
-- **ProtectedRoute**: Route protection component
-- **AuthContext**: Global authentication state management
+Professional quote export capabilities generate PDF documents that can be shared directly with clients or integrated into existing business workflows. The system's modular design supports future integrations with other business tools and ERP systems.
 
-## 🎯 Usage
+## Key Benefits
 
-### Profile Selection in Quote Generator
-1. Navigate to the Quote Generator page
-2. Add a new quote item
-3. Click "Select Profile" in the Profile Information section
-4. Use the search and filter options to find the desired profile
-5. Click on a profile card to select it
-6. The profile information and pricing will be automatically applied
+-   **Efficiency**: Streamline quote creation and profile management processes
+-   **Accuracy**: Real-time pricing and automated calculations reduce errors
+-   **Professionalism**: Generate polished quotes that enhance client trust
+-   **Scalability**: Handle growing databases and increasing quote volumes
+-   **Accessibility**: Work from any device with a responsive design
+-   **Security**: Protect sensitive business data with enterprise-grade security
 
-### Creating Quotes
-1. Start with the Quote Generator
-2. Add items with specific dimensions and glass types
-3. Select appropriate aluminium profiles for each item
-4. Review the real-time pricing calculations
-5. Export the final quote as needed
+## Target Audience
 
-## 🔒 Environment Variables
+This platform is designed for:
 
-Make sure to set up your Firebase project and add the required environment variables:
-
-- `NEXT_PUBLIC_FIREBASE_API_KEY`
-- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
-- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
-- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
-- `NEXT_PUBLIC_FIREBASE_APP_ID`
-
-## 📝 Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
-
-For support and questions, please open an issue in the repository or contact the development team.
+-   Aluminum fabrication companies
+-   Construction firms specializing in curtain walls
+-   Architectural firms requiring precise quoting
+-   Manufacturers of aluminum profiles and systems
+-   Businesses looking to modernize their quoting processes
 
 ---
 
-**Built with ❤️ using Next.js, TypeScript, and Firebase**
+**Ready to transform your aluminum works business?** Cocoon Aluminum Works provides the tools you need to deliver professional quotes faster and more accurately than ever before.
+
+_Built with ❤️ using Next.js, TypeScript, and Firebase_
