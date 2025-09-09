@@ -1268,7 +1268,7 @@ export const useQuoteGenerator = () => {
                   <img src="https://img1.wsimg.com/isteam/ip/b11b2784-66bc-4ac4-9b05-6ba6d416d22d/Untitled%20design%20(1).jpg" alt="Cocoon Logo" class="logo" />
                   <div class="company-info">
                     <h1 class="company-name">Cocoon Company For Aluminum Works</h1>
-                    <p class="company-tagline">Premium Aluminum Solutions & Installation</p>
+                    <p class="company-tagline">The Quality You Deserve</p>
                   </div>
                 </div>
                 
@@ -1287,7 +1287,7 @@ export const useQuoteGenerator = () => {
                       "en-GB"
                   )}</span></p>
                   <p><span class="detail-label">Valid Until:</span> <span class="detail-value">${new Date(
-                      Date.now() + 3 * 24 * 60 * 60 * 1000
+                      Date.now() + quoteData.settings.expirationDays * 24 * 60 * 60 * 1000
                   ).toLocaleDateString("en-GB")}</span></p>
                 </div>
                 
@@ -1439,18 +1439,6 @@ export const useQuoteGenerator = () => {
                   </div>
                 </div>
 
-                <div class="validity-section">
-                  <div class="validity-card">
-                    <div class="validity-label">Offer Valid For</div>
-                    <div class="validity-value">3 Days</div>
-                  </div>
-                  <div class="validity-card">
-                    <div class="validity-label">Project Duration</div>
-                    <div class="validity-value">${
-                        quoteData.settings.projectDuration
-                    } Days</div>
-                  </div>
-                </div>
               </div>
 
               ${
@@ -1474,13 +1462,12 @@ export const useQuoteGenerator = () => {
                     <p><strong>Address:</strong> 61 Seventh Neighborhood, Fourth District</p>
                     <p>El-Shaikh Zayed, Giza, Egypt</p>
                     <p><strong>Phone:</strong> +20 2 38501291</p>
-                    <p><strong>Mobile:</strong> +20 11 51717149</p>
+                    
                   </div>
                   <div class="footer-section">
                     <p><strong>Email:</strong> sales.department@cocoonaluminum.com</p>
                     <p><strong>Website:</strong> www.cocoonaluminum.com</p>
-                    <p><strong>Quality Assured:</strong> Premium Materials & Expert Installation</p>
-                    <p><strong>Warranty:</strong> Comprehensive Coverage Included</p>
+                    <p><strong>Mobile:</strong> +20 11 51717149</p>
                   </div>
                 </div>
               </footer>
