@@ -151,34 +151,30 @@ export function QuotePreview({
                         panelY = offsetY + (panel.top / 100) * scaledWallHeight;
                     }
 
+                    // All panels use the same blue color as hinged panels
                     let fillColor = "#87CEEB";
                     let strokeColor = "#666";
 
-                    switch (panel.type) {
-                        case "window":
-                            fillColor = "#87CEEB";
-                            strokeColor = "#3b82f6";
-                            break;
-                        case "door":
-                            fillColor = "#98FB98";
-                            strokeColor = "#f59e0b";
-                            break;
-                        case "structure":
-                            fillColor = "#D3D3D3";
-                            strokeColor = "#10b981";
-                            break;
+                    svgElements += `<rect x="${panelX}" y="${panelY}" width="${panelWidth}" height="${panelHeight}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1" opacity="0.7"/>`;
+
+                    // Add V shape for window panels, labels for fixed and door panels
+                    if (panel.type === "window") {
+                        // Add V shape for window panels
+                        const panelCenterX = panelX + panelWidth / 2;
+                        const panelCenterY = panelY + panelHeight / 2;
+                        const vSize = Math.min(panelWidth, panelHeight) * 0.6;
+                        
+                        svgElements += `<path d="M ${panelCenterX - vSize/2} ${panelCenterY - vSize/2} 
+                              L ${panelCenterX} ${panelCenterY + vSize/2} 
+                              L ${panelCenterX + vSize/2} ${panelCenterY - vSize/2}" 
+                              stroke="#FFD700" stroke-width="1" fill="none"/>`;
+                    } else if (panel.type === "door" || panel.type === "structure") {
+                        // Add labels for door and fixed panels
+                        const label = panel.type === "structure" ? "Fixed" : "Door";
+                        svgElements += `<text x="${panelX + panelWidth / 2}" y="${
+                            panelY + panelHeight / 2
+                        }" text-anchor="middle" dominant-baseline="middle" font-size="6" fill="#333" font-weight="bold">${label}</text>`;
                     }
-
-                    svgElements += `<rect x="${panelX}" y="${panelY}" width="${panelWidth}" height="${panelHeight}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1" opacity="0.8"/>`;
-
-                    const label =
-                        panel.type === "structure"
-                            ? "Fixed"
-                            : panel.type.charAt(0).toUpperCase() +
-                              panel.type.slice(1);
-                    svgElements += `<text x="${panelX + panelWidth / 2}" y="${
-                        panelY + panelHeight / 2
-                    }" text-anchor="middle" dominant-baseline="middle" font-size="6" fill="#333">${label}</text>`;
                 });
 
                 svgElements += `<text x="${offsetX + scaledWallWidth / 2}" y="${
@@ -208,14 +204,17 @@ export function QuotePreview({
             const offsetY = (100 - scaledHeight) / 2;
 
             let svgElements = "";
-            svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWidth}" height="${scaledHeight}" fill="none" stroke="#374151" stroke-width="1" rx="2"/>`;
-
             const glassInset = 4;
-            svgElements += `<rect x="${offsetX + glassInset}" y="${
-                offsetY + glassInset
-            }" width="${scaledWidth - glassInset * 2}" height="${
-                scaledHeight - glassInset * 2
-            }" fill="#87CEEB" stroke="#666" stroke-width="0.5" opacity="0.7"/>`;
+            
+            // Draw main frame and glass panel (skip for hinged items as they have individual sash panels)
+            if (system !== "hinged") {
+                svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWidth}" height="${scaledHeight}" fill="none" stroke="#374151" stroke-width="1" rx="2"/>`;
+                svgElements += `<rect x="${offsetX + glassInset}" y="${
+                    offsetY + glassInset
+                }" width="${scaledWidth - glassInset * 2}" height="${
+                    scaledHeight - glassInset * 2
+                }" fill="#87CEEB" stroke="#666" stroke-width="0.5" opacity="0.7"/>`;
+            }
 
             if (system === "Sliding") {
                 const panelWidth = (scaledWidth - glassInset * 2) / leaves;
@@ -241,24 +240,63 @@ export function QuotePreview({
                     }
                 }
             } else if (system === "hinged") {
-                const hingeSpacing = scaledHeight / (leaves + 1);
-                for (let i = 1; i <= leaves; i++) {
-                    const hingeY = offsetY + i * hingeSpacing;
-                    svgElements += `<circle cx="${offsetX}" cy="${hingeY}" r="2" fill="#666"/><circle cx="${
-                        offsetX + scaledWidth
-                    }" cy="${hingeY}" r="2" fill="#666"/>`;
-                }
-                if (type === "door") {
-                    const handleX =
-                        leaves === 1
-                            ? offsetX + scaledWidth - 10
-                            : offsetX + scaledWidth / 2;
-                    const handleY = offsetY + scaledHeight / 2;
-                    svgElements += `<circle cx="${handleX}" cy="${handleY}" r="2" fill="#FFD700"/><rect x="${
-                        handleX - 4
-                    }" y="${
-                        handleY - 1
-                    }" width="8" height="2" fill="#FFD700"/>`;
+                // Draw individual sash panels for hinged items - stacked vertically
+                const sashHeight = scaledHeight / leaves;
+                const sashInset = 2; // Inset for each sash panel
+                
+                for (let i = 0; i < leaves; i++) {
+                    const sashY = offsetY + i * sashHeight;
+                    const sashPanelHeight = sashHeight - sashInset;
+                    
+                    // Check if this is the top panel and should be fixed
+                    const isTopPanel = i === 0;
+                    const isFixedUpperPanel = isTopPanel && leaves === 2 && type === "window" && item.upperPanelType === "fixed";
+                    
+                    // Draw individual sash panel
+                    svgElements += `<rect x="${offsetX + sashInset/2}" y="${sashY + sashInset/2}" 
+                          width="${scaledWidth - sashInset}" height="${sashPanelHeight}"
+                          fill="none" stroke="#666" stroke-width="1" rx="1"/>`;
+                    
+                    // Draw glass panel within each sash
+                    const glassInsetSash = 3;
+                    svgElements += `<rect x="${offsetX + sashInset/2 + glassInsetSash}" y="${sashY + sashInset/2 + glassInsetSash}"
+                          width="${scaledWidth - sashInset - glassInsetSash * 2}" height="${sashPanelHeight - glassInsetSash * 2}"
+                          fill="#87CEEB" stroke="#666" stroke-width="0.5" opacity="0.7"/>`;
+                    
+                    // Draw hinges only for hinged panels (not for fixed upper panel)
+                    if (!isFixedUpperPanel) {
+                        const hingeY = sashY + sashHeight / 2;
+                        svgElements += `<circle cx="${offsetX}" cy="${hingeY}" r="2" fill="#666"/><circle cx="${
+                            offsetX + scaledWidth
+                        }" cy="${hingeY}" r="2" fill="#666"/>`;
+                    }
+                    
+                    // Add V shape for hinged panels or "Fixed" label for fixed upper panel
+                    if (type === "door" || type === "window") {
+                        const glassX = offsetX + sashInset/2 + glassInsetSash;
+                        const glassY = sashY + sashInset/2 + glassInsetSash;
+                        const glassWidth = scaledWidth - sashInset - glassInsetSash * 2;
+                        const glassHeight = sashPanelHeight - glassInsetSash * 2;
+                        
+                        if (isFixedUpperPanel) {
+                            // Add "Fixed" label for fixed upper panel
+                            const glassCenterX = glassX + glassWidth / 2;
+                            const glassCenterY = glassY + glassHeight / 2;
+                            svgElements += `<text x="${glassCenterX}" y="${glassCenterY}"
+                                  text-anchor="middle" dominant-baseline="middle" font-size="6" fill="#333" font-weight="bold">Fixed</text>`;
+                        } else {
+                            // Add V shape for hinged panels
+                            const glassCenterX = glassX + glassWidth / 2;
+                            const glassCenterY = glassY + glassHeight / 2;
+                            const vSize = Math.min(glassWidth, glassHeight) * 0.9;
+                            
+                            // Draw inverted V shape (from top corners to bottom middle) within glass bounds
+                            svgElements += `<path d="M ${glassCenterX - vSize/2} ${glassCenterY - vSize/2} 
+                                  L ${glassCenterX} ${glassCenterY + vSize/2} 
+                                  L ${glassCenterX + vSize/2} ${glassCenterY - vSize/2}" 
+                                  stroke="#FFD700" stroke-width="2" fill="none"/>`;
+                        }
+                    }
                 }
             } else if (system === "fixed") {
                 svgElements += `<text x="${offsetX + scaledWidth / 2}" y="${

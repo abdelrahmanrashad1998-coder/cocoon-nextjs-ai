@@ -57,30 +57,37 @@ function generateNormalItemSvg(
 ): string {
     const { width: itemWidth, height: itemHeight, system, leaves, type } = item;
 
+    // For hinged items, swap dimensions to make them vertical
+    const isHinged = system === "hinged";
+    const effectiveItemWidth = isHinged ? itemHeight : itemWidth;
+    const effectiveItemHeight = isHinged ? itemWidth : itemHeight;
+
     // Scale dimensions to fit the SVG container
-    const scale = Math.min(width / itemWidth, height / itemHeight) * 0.8;
-    const scaledWidth = itemWidth * scale;
-    const scaledHeight = itemHeight * scale;
+    const scale = Math.min(width / effectiveItemWidth, height / effectiveItemHeight) * 0.8;
+    const scaledWidth = effectiveItemWidth * scale;
+    const scaledHeight = effectiveItemHeight * scale;
     const offsetX = (width - scaledWidth) / 2;
     const offsetY = (height - scaledHeight) / 2;
 
     let svgElements = "";
-
-    // Draw the main frame
-    svgElements += `
-        <rect x="${offsetX}" y="${offsetY}" width="${scaledWidth}" height="${scaledHeight}"
-              fill="none" stroke="#374151" stroke-width="2" rx="4"/>
-    `;
-
-    // Draw glass panel
     const glassInset = 8;
-    svgElements += `
-        <rect x="${offsetX + glassInset}" y="${offsetY + glassInset}"
-              width="${scaledWidth - glassInset * 2}" height="${
-        scaledHeight - glassInset * 2
-    }"
-              fill="#87CEEB" stroke="#666" stroke-width="1" opacity="0.7"/>
-    `;
+
+    // Draw the main frame (skip for hinged items as they have individual sash panels)
+    if (!isHinged) {
+        svgElements += `
+            <rect x="${offsetX}" y="${offsetY}" width="${scaledWidth}" height="${scaledHeight}"
+                  fill="none" stroke="#374151" stroke-width="2" rx="4"/>
+        `;
+
+        // Draw glass panel
+        svgElements += `
+            <rect x="${offsetX + glassInset}" y="${offsetY + glassInset}"
+                  width="${scaledWidth - glassInset * 2}" height="${
+            scaledHeight - glassInset * 2
+        }"
+                  fill="#87CEEB" stroke="#666" stroke-width="1" opacity="0.7"/>
+        `;
+    }
 
     // Add system-specific elements
     if (system === "Sliding") {
@@ -116,31 +123,49 @@ function generateNormalItemSvg(
             }
         }
     } else if (system === "hinged") {
-        // Draw hinged elements
-        const hingeSpacing = scaledHeight / (leaves + 1);
-        for (let i = 1; i <= leaves; i++) {
-            const hingeY = offsetY + i * hingeSpacing;
+        // Draw individual sash panels for hinged items
+        const sashWidth = scaledWidth / leaves;
+        const sashInset = 4; // Inset for each sash panel
+        
+        for (let i = 0; i < leaves; i++) {
+            const sashX = offsetX + i * sashWidth;
+            const sashPanelWidth = sashWidth - sashInset;
+            
+            // Draw individual sash panel
             svgElements += `
-                <circle cx="${offsetX}" cy="${hingeY}" r="3" fill="#666"/>
-                <circle cx="${
-                    offsetX + scaledWidth
-                }" cy="${hingeY}" r="3" fill="#666"/>
+                <rect x="${sashX + sashInset/2}" y="${offsetY + sashInset/2}" 
+                      width="${sashPanelWidth}" height="${scaledHeight - sashInset}"
+                      fill="none" stroke="#666" stroke-width="1.5" rx="2"/>
             `;
-        }
-
-        // Handle on the door
-        if (type === "door") {
-            const handleX =
-                leaves === 1
-                    ? offsetX + scaledWidth - 20
-                    : offsetX + scaledWidth / 2;
-            const handleY = offsetY + scaledHeight / 2;
+            
+            // Draw glass panel within each sash
+            const glassInset = 6;
             svgElements += `
-                <circle cx="${handleX}" cy="${handleY}" r="4" fill="#FFD700"/>
-                <rect x="${handleX - 8}" y="${
-                handleY - 2
-            }" width="16" height="4" fill="#FFD700"/>
+                <rect x="${sashX + sashInset/2 + glassInset}" y="${offsetY + sashInset/2 + glassInset}"
+                      width="${sashPanelWidth - glassInset * 2}" height="${scaledHeight - sashInset - glassInset * 2}"
+                      fill="#87CEEB" stroke="#666" stroke-width="1" opacity="0.7"/>
             `;
+            
+            // Draw hinges for each sash
+            const hingeX = sashX + sashWidth / 2;
+            svgElements += `
+                <circle cx="${hingeX}" cy="${offsetY}" r="3" fill="#666"/>
+                <circle cx="${hingeX}" cy="${
+                    offsetY + scaledHeight
+                }" r="3" fill="#666"/>
+            `;
+            
+            // Add handle to each sash panel for both doors and windows
+            if (type === "door" || type === "window") {
+                const handleX = sashX + sashWidth / 2;
+                const handleY = offsetY + scaledHeight - 20;
+                svgElements += `
+                    <circle cx="${handleX}" cy="${handleY}" r="3" fill="#FFD700"/>
+                    <rect x="${handleX - 1.5}" y="${
+                    handleY - 6
+                }" width="3" height="12" fill="#FFD700"/>
+                `;
+            }
         }
     } else if (system === "fixed") {
         // Fixed system - just the frame and glass, no moving parts
@@ -156,12 +181,12 @@ function generateNormalItemSvg(
     // Add dimensions
     svgElements += `
         <text x="${offsetX + scaledWidth / 2}" y="${offsetY - 5}"
-              text-anchor="middle" font-size="10" fill="#666">${itemWidth}m</text>
+              text-anchor="middle" font-size="10" fill="#666">${effectiveItemWidth}m</text>
         <text x="${offsetX - 5}" y="${offsetY + scaledHeight / 2}"
               text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#666"
               transform="rotate(-90, ${offsetX - 5}, ${
         offsetY + scaledHeight / 2
-    })">${itemHeight}m</text>
+    })">${effectiveItemHeight}m</text>
     `;
 
     return `
