@@ -1318,7 +1318,7 @@ export const useQuoteGenerator = () => {
                       <th>Area (m²)</th>
                       <th>Specifications</th>
                       <th>System</th>
-                      <th>Price (EGP)</th>
+                      ${quoteData.settings.pricingType === "detailed" ? '<th>Price (EGP)</th>' : ''}
                     </tr>
                   </thead>
                   <tbody>
@@ -1391,7 +1391,7 @@ export const useQuoteGenerator = () => {
                           <td><div class="system-badge">${
                               item.system
                           }</div></td>
-                          <td class="price-value">${itemPrice.toLocaleString()} EGP</td>
+                          ${quoteData.settings.pricingType === "detailed" ? `<td class="price-value">${itemPrice.toLocaleString()} EGP</td>` : ''}
                         </tr>
                       `;
                         })
