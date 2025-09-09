@@ -370,8 +370,8 @@ export function QuoteItemEditor({
                     }
 
                     // All panels use the same blue color as hinged panels
-                    let fillColor = "#87CEEB";
-                    let strokeColor = "#666";
+                    const fillColor = "#87CEEB";
+                    const strokeColor = "#666";
 
                     svgElements += `<rect x="${panelX}" y="${panelY}" width="${panelWidth}" height="${panelHeight}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1" opacity="0.7"/>`;
 

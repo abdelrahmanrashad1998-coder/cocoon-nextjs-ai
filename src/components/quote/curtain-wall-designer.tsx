@@ -26,8 +26,6 @@ import {
     Group,
     Ungroup,
     X,
-    RotateCcw,
-    Eye,
     Settings,
     Layers,
     Plus,

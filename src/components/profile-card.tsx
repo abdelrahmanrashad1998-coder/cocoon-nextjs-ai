@@ -4,7 +4,6 @@ import {
     Edit,
     Trash2,
     ChevronDown,
-    MoreHorizontal,
 } from "lucide-react";
 import { AluminiumProfile } from "./profile/profile-manager";
 import {
@@ -251,7 +250,9 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                             title="delete"
                             onClick={(e) => {
                                 handleActionClick(e);
-                                profile.id && onDelete?.(profile.id);
+                                if (profile.id) {
+                                    onDelete?.(profile.id);
+                                }
                             }}
                             className="px-3 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors duration-150"
                         >
