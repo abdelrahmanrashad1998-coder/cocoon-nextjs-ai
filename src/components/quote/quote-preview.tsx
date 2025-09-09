@@ -606,7 +606,7 @@ export function QuotePreview({
                                 Profit Margin
                             </div>
                             <div className="text-2xl font-bold text-primary">
-                                {totals.profitPercentage * 100}%
+                                {totals.profitPercentage.toFixed(2)}%
                             </div>
                         </div>
                     </div>

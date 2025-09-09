@@ -11,7 +11,7 @@ import {
 } from "@/types/quote";
 import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
-import { calculateItemPricing } from "@/lib/pricing-calculator";
+import { calculateItemPricing, calculateQuoteTotals } from "@/lib/pricing-calculator";
 
 export const useQuoteGenerator = () => {
     const [quoteData, setQuoteData] = useState<QuoteData>({
@@ -300,36 +300,36 @@ export const useQuoteGenerator = () => {
     }, []);
 
     const calculateTotals = useCallback((): QuoteTotals => {
-        const totalArea = quoteData.items.reduce(
-            (sum, item) => sum + item.width * item.height * item.quantity,
-            0
-        );
-        const totalPrice = quoteData.items.reduce(
-            (sum, item) => sum + calculateItemPricing(item).totalPrice,
-            0
-        );
-
-        // Apply discount
-        const discountAmount =
-            (totalPrice * quoteData.settings.discountPercentage) / 100;
-        const discountedTotal = totalPrice - discountAmount;
+        // Calculate pricing for all items
+        const pricedItems = quoteData.items.map(item => calculateItemPricing(item));
+        
+        // Calculate totals using the proper pricing calculator
+        const totals = calculateQuoteTotals(pricedItems);
+        
+        // Apply discount to the total after profit
+        const discountAmount = (totals.totalAfter * quoteData.settings.discountPercentage) / 100;
+        const discountedTotal = totals.totalAfter - discountAmount;
+        
+        // Recalculate profit percentage after discount
+        const adjustedProfit = totals.totalProfit - discountAmount;
+        const adjustedProfitPercentage = discountedTotal > 0 ? (adjustedProfit / discountedTotal) * 100 : 0;
 
         return {
-            totalM2: totalArea,
-            totalBefore: discountedTotal,
+            totalM2: totals.totalM2,
+            totalBefore: totals.totalBefore,
             totalAfter: discountedTotal,
-            totalProfit: 0, // Mock value
-            totalProfitPercentage: 0, // Mock value
-            totalM2Price: totalArea > 0 ? discountedTotal / totalArea : 0,
+            totalProfit: adjustedProfit,
+            totalProfitPercentage: adjustedProfitPercentage,
+            totalM2Price: totals.totalM2 > 0 ? discountedTotal / totals.totalM2 : 0,
             downPayment: discountedTotal * 0.8,
             supplyPayment: discountedTotal * 0.1,
             completePayment: discountedTotal * 0.1,
             // Legacy fields for compatibility
-            totalArea,
-            totalBeforeProfit: discountedTotal,
+            totalArea: totals.totalM2,
+            totalBeforeProfit: totals.totalBefore,
             totalPrice: discountedTotal,
-            m2Price: totalArea > 0 ? discountedTotal / totalArea : 0,
-            profitPercentage: 0, // Mock value
+            m2Price: totals.totalM2 > 0 ? discountedTotal / totals.totalM2 : 0,
+            profitPercentage: adjustedProfitPercentage,
         };
     }, [quoteData.items, quoteData.settings.discountPercentage]);
 
