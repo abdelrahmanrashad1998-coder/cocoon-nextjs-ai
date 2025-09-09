@@ -118,37 +118,37 @@ export function QuoteItemEditor({
             //    mergedId?: string;
             //    isSpanned?: boolean;
             //}>;
-        frameMeters: number;
-        windowMeters: number;
-        glassArea: number;
-        cornerCount: number;
+            frameMeters: number;
+            windowMeters: number;
+            glassArea: number;
+            cornerCount: number;
             totalCost?: number;
             materialBreakdown?: Record<string, number>;
             columns: number;
             rows: number;
             columnSizes: number[];
             rowSizes: number[];
-    }) => {
-        // Update the entire designData object at once to ensure proper state updates
-        onUpdate({
-            ...item,
-            designData: {
-                wallWidth: item.width || 0,
-                wallHeight: item.height || 0,
-                panels: design.panels,
-                frameMeters: design.frameMeters,
-                windowMeters: design.windowMeters,
-                glassArea: design.glassArea,
-                cornerCount: design.cornerCount,
+        }) => {
+            // Update the entire designData object at once to ensure proper state updates
+            onUpdate({
+                ...item,
+                designData: {
+                    wallWidth: item.width || 0,
+                    wallHeight: item.height || 0,
+                    panels: design.panels,
+                    frameMeters: design.frameMeters,
+                    windowMeters: design.windowMeters,
+                    glassArea: design.glassArea,
+                    cornerCount: design.cornerCount,
                     totalCost: design.totalCost,
                     materialBreakdown: design.materialBreakdown,
                     columns: design.columns,
                     rows: design.rows,
                     columnSizes: design.columnSizes,
                     rowSizes: design.rowSizes,
-                visualSvg: item.designData?.visualSvg,
-            },
-        });
+                    visualSvg: item.designData?.visualSvg,
+                },
+            });
         },
         [item, onUpdate]
     );
@@ -381,15 +381,25 @@ export function QuoteItemEditor({
                         const panelCenterX = panelX + panelWidth / 2;
                         const panelCenterY = panelY + panelHeight / 2;
                         const vSize = Math.min(panelWidth, panelHeight) * 0.6;
-                        
-                        svgElements += `<path d="M ${panelCenterX - vSize/2} ${panelCenterY - vSize/2} 
-                              L ${panelCenterX} ${panelCenterY + vSize/2} 
-                              L ${panelCenterX + vSize/2} ${panelCenterY - vSize/2}" 
+
+                        svgElements += `<path d="M ${
+                            panelCenterX - vSize / 2
+                        } ${panelCenterY - vSize / 2} 
+                              L ${panelCenterX} ${panelCenterY + vSize / 2} 
+                              L ${panelCenterX + vSize / 2} ${
+                            panelCenterY - vSize / 2
+                        }" 
                               stroke="#FFD700" stroke-width="2" fill="none"/>`;
-                    } else if (panel.type === "door" || panel.type === "structure") {
+                    } else if (
+                        panel.type === "door" ||
+                        panel.type === "structure"
+                    ) {
                         // Add labels for door and fixed panels
-                        const label = panel.type === "structure" ? "Fixed" : "Door";
-                        svgElements += `<text x="${panelX + panelWidth / 2}" y="${
+                        const label =
+                            panel.type === "structure" ? "Fixed" : "Door";
+                        svgElements += `<text x="${
+                            panelX + panelWidth / 2
+                        }" y="${
                             panelY + panelHeight / 2
                         }" text-anchor="middle" dominant-baseline="middle" font-size="8" fill="#333" font-weight="bold">${label}</text>`;
                     }
@@ -423,7 +433,7 @@ export function QuoteItemEditor({
 
             let svgElements = "";
             const glassInset = 8;
-            
+
             // Draw main frame and glass panel (skip for hinged items as they have individual sash panels)
             if (system !== "hinged") {
                 svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWidth}" height="${scaledHeight}" fill="none" stroke="#374151" stroke-width="2" rx="4"/>`;
@@ -448,39 +458,65 @@ export function QuoteItemEditor({
                     const handleY = offsetY + scaledHeight / 2;
                     const handleSize = 8;
                     if (i === 0 || i === leaves - 1) {
-                        svgElements += `<circle cx="${
-                            panelX + panelWidth / 2
-                        }" cy="${handleY}" r="${handleSize}" fill="#666"/><rect x="${
-                            panelX + panelWidth / 2 - handleSize / 2
-                        }" y="${
-                            handleY - 2
-                        }" width="${handleSize}" height="4" fill="#666"/>`;
+                        const cx = panelX + panelWidth / 2;
+                        const cy = handleY;
+                        if (i === 0) {
+                            // Right arrow for left panel
+                            svgElements += `<line x1="${
+                                cx - handleSize
+                            }" y1="${cy}" x2="${cx}" y2="${cy}" stroke="#666" stroke-width="2"/><polygon points="${cx},${
+                                cy - handleSize / 2
+                            } ${cx + handleSize},${cy} ${cx},${
+                                cy + handleSize / 2
+                            }" fill="#666"/>`;
+                        } else {
+                            // Left arrow for right panel
+                            svgElements += `<line x1="${cx}" y1="${cy}" x2="${
+                                cx + handleSize
+                            }" y2="${cy}" stroke="#666" stroke-width="2"/><polygon points="${cx},${
+                                cy - handleSize / 2
+                            } ${cx - handleSize},${cy} ${cx},${
+                                cy + handleSize / 2
+                            }" fill="#666"/>`;
+                        }
                     }
                 }
             } else if (system === "hinged") {
                 // Draw individual sash panels for hinged items - stacked vertically
                 const sashHeight = scaledHeight / leaves;
                 const sashInset = 4; // Inset for each sash panel
-                
+
                 for (let i = 0; i < leaves; i++) {
                     const sashY = offsetY + i * sashHeight;
                     const sashPanelHeight = sashHeight - sashInset;
-                    
+
                     // Check if this is the top panel and should be fixed
                     const isTopPanel = i === 0;
-                    const isFixedUpperPanel = isTopPanel && leaves === 2 && type === "window" && item.upperPanelType === "fixed";
-                    
+                    const isFixedUpperPanel =
+                        isTopPanel &&
+                        leaves === 2 &&
+                        type === "window" &&
+                        item.upperPanelType === "fixed";
+
                     // Draw individual sash panel
-                    svgElements += `<rect x="${offsetX + sashInset/2}" y="${sashY + sashInset/2}" 
-                          width="${scaledWidth - sashInset}" height="${sashPanelHeight}"
+                    svgElements += `<rect x="${offsetX + sashInset / 2}" y="${
+                        sashY + sashInset / 2
+                    }" 
+                          width="${
+                              scaledWidth - sashInset
+                          }" height="${sashPanelHeight}"
                           fill="none" stroke="#666" stroke-width="1.5" rx="2"/>`;
-                    
+
                     // Draw glass panel within each sash
                     const glassInsetSash = 6;
-                    svgElements += `<rect x="${offsetX + sashInset/2 + glassInsetSash}" y="${sashY + sashInset/2 + glassInsetSash}"
-                          width="${scaledWidth - sashInset - glassInsetSash * 2}" height="${sashPanelHeight - glassInsetSash * 2}"
+                    svgElements += `<rect x="${
+                        offsetX + sashInset / 2 + glassInsetSash
+                    }" y="${sashY + sashInset / 2 + glassInsetSash}"
+                          width="${
+                              scaledWidth - sashInset - glassInsetSash * 2
+                          }" height="${sashPanelHeight - glassInsetSash * 2}"
                           fill="#87CEEB" stroke="#666" stroke-width="1" opacity="0.7"/>`;
-                    
+
                     // Draw hinges only for hinged panels (not for fixed upper panel)
                     if (!isFixedUpperPanel) {
                         const hingeY = sashY + sashHeight / 2;
@@ -488,14 +524,16 @@ export function QuoteItemEditor({
                             offsetX + scaledWidth
                         }" cy="${hingeY}" r="3" fill="#666"/>`;
                     }
-                    
+
                     // Add V shape for hinged panels or "Fixed" label for fixed upper panel
                     if (type === "door" || type === "window") {
-                        const glassX = offsetX + sashInset/2 + glassInsetSash;
-                        const glassY = sashY + sashInset/2 + glassInsetSash;
-                        const glassWidth = scaledWidth - sashInset - glassInsetSash * 2;
-                        const glassHeight = sashPanelHeight - glassInsetSash * 2;
-                        
+                        const glassX = offsetX + sashInset / 2 + glassInsetSash;
+                        const glassY = sashY + sashInset / 2 + glassInsetSash;
+                        const glassWidth =
+                            scaledWidth - sashInset - glassInsetSash * 2;
+                        const glassHeight =
+                            sashPanelHeight - glassInsetSash * 2;
+
                         if (isFixedUpperPanel) {
                             // Add "Fixed" label for fixed upper panel
                             const glassCenterX = glassX + glassWidth / 2;
@@ -506,12 +544,17 @@ export function QuoteItemEditor({
                             // Add V shape for hinged panels
                             const glassCenterX = glassX + glassWidth / 2;
                             const glassCenterY = glassY + glassHeight / 2;
-                            const vSize = Math.min(glassWidth, glassHeight) * 0.9;
-                            
+                            const vSize =
+                                Math.min(glassWidth, glassHeight) * 0.9;
+
                             // Draw inverted V shape (from top corners to bottom middle) within glass bounds
-                            svgElements += `<path d="M ${glassCenterX - vSize/2} ${glassCenterY - vSize/2} 
-                                  L ${glassCenterX} ${glassCenterY + vSize/2} 
-                                  L ${glassCenterX + vSize/2} ${glassCenterY - vSize/2}" 
+                            svgElements += `<path d="M ${
+                                glassCenterX - vSize / 2
+                            } ${glassCenterY - vSize / 2} 
+                                  L ${glassCenterX} ${glassCenterY + vSize / 2} 
+                                  L ${glassCenterX + vSize / 2} ${
+                                glassCenterY - vSize / 2
+                            }" 
                                   stroke="#FFD700" stroke-width="3" fill="none"/>`;
                         }
                     }
@@ -1666,18 +1709,16 @@ export function QuoteItemEditor({
                                         </div> */}
 
                                         {/* Curtain Wall Designer */}
-                                        {(item.width || 0) >
-                                            0 &&
-                                            (item.height || 0) >
-                                                0 && item.type === "curtain_wall" && (
+                                        {(item.width || 0) > 0 &&
+                                            (item.height || 0) > 0 &&
+                                            item.type === "curtain_wall" && (
                                                 <div className="mt-6">
                                                     <CurtainWallDesigner
                                                         wallWidth={
                                                             item.width || 0
                                                         }
                                                         wallHeight={
-                                                            item.height ||
-                                                            0
+                                                            item.height || 0
                                                         }
                                                         initialDesignData={
                                                             item.designData
@@ -1708,8 +1749,8 @@ export function QuoteItemEditor({
                                                         ) =>
                                                             handleCurtainWallDesignChange(
                                                                 {
-                                                                ...design,
-                                                                // Provide default values for missing fields to match expected type
+                                                                    ...design,
+                                                                    // Provide default values for missing fields to match expected type
                                                                     frameMeters:
                                                                         design.frameMeters ??
                                                                         0,
@@ -1803,7 +1844,7 @@ export function QuoteItemEditor({
                                             Select Profile
                                         </Button>
                                     </div>
-                                    
+
                                     {/* Profile Information */}
                                     <div className="border rounded-lg p-4 bg-card">
                                         {item.profile ? (
@@ -1833,32 +1874,64 @@ export function QuoteItemEditor({
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </div>
-                                                
+
                                                 {/* Profile Details */}
                                                 <div className="space-y-2 text-xs">
                                                     <div className="flex justify-between">
-                                                        <span className="text-muted-foreground">System:</span>
-                                                        <span className="font-medium">{item.profile.system_type}</span>
+                                                        <span className="text-muted-foreground">
+                                                            System:
+                                                        </span>
+                                                        <span className="font-medium">
+                                                            {
+                                                                item.profile
+                                                                    .system_type
+                                                            }
+                                                        </span>
                                                     </div>
                                                     <div className="flex justify-between">
-                                                        <span className="text-muted-foreground">Brand:</span>
-                                                        <span className="font-medium">{item.profile.brand}</span>
+                                                        <span className="text-muted-foreground">
+                                                            Brand:
+                                                        </span>
+                                                        <span className="font-medium">
+                                                            {item.profile.brand}
+                                                        </span>
                                                     </div>
                                                     <div className="flex justify-between">
-                                                        <span className="text-muted-foreground">Frame Price:</span>
-                                                        <span className="font-medium text-success">{item.profile.frame_price} EGP</span>
+                                                        <span className="text-muted-foreground">
+                                                            Frame Price:
+                                                        </span>
+                                                        <span className="font-medium text-success">
+                                                            {
+                                                                item.profile
+                                                                    .frame_price
+                                                            }{" "}
+                                                            EGP
+                                                        </span>
                                                     </div>
                                                     <div className="flex justify-between">
-                                                        <span className="text-muted-foreground">KG Price:</span>
-                                                        <span className="font-medium text-success">{item.profile.kg_price} EGP/kg</span>
+                                                        <span className="text-muted-foreground">
+                                                            KG Price:
+                                                        </span>
+                                                        <span className="font-medium text-success">
+                                                            {
+                                                                item.profile
+                                                                    .kg_price
+                                                            }{" "}
+                                                            EGP/kg
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
                                         ) : (
                                             <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                                                 <Database className="h-8 w-8 mb-2" />
-                                                <span className="text-sm">No profile selected</span>
-                                                <span className="text-xs mt-1">Click &quotSelect Profile&quote to choose</span>
+                                                <span className="text-sm">
+                                                    No profile selected
+                                                </span>
+                                                <span className="text-xs mt-1">
+                                                    Click &quotSelect
+                                                    Profile&quote to choose
+                                                </span>
                                             </div>
                                         )}
                                     </div>
@@ -1895,8 +1968,9 @@ export function QuoteItemEditor({
                                                 />
                                             ) : (
                                                 <div className="text-center text-muted-foreground">
-                                                    Click &quot;Generate SVG&quot;
-                                                    to create the preview
+                                                    Click &quot;Generate
+                                                    SVG&quot; to create the
+                                                    preview
                                                 </div>
                                             )}
                                         </div>
@@ -1927,7 +2001,10 @@ export function QuoteItemEditor({
                                                     size="sm"
                                                     onClick={() => {
                                                         if (globalColor) {
-                                                            handleUpdate("color", globalColor);
+                                                            handleUpdate(
+                                                                "color",
+                                                                globalColor
+                                                            );
                                                         }
                                                     }}
                                                     className="flex items-center gap-2 bg-primary/10 hover:bg-primary/20 border-primary/30 text-primary"
@@ -1938,7 +2015,7 @@ export function QuoteItemEditor({
                                             )}
                                         </div>
                                     </div>
-                                    
+
                                     {/* Color Information */}
                                     <div className="border rounded-lg p-4 bg-card">
                                         {item.color || globalColor ? (
@@ -1946,13 +2023,23 @@ export function QuoteItemEditor({
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex flex-col gap-1">
                                                         <span className="font-medium text-info">
-                                                            {(item.color || globalColor)?.color}
+                                                            {
+                                                                (
+                                                                    item.color ||
+                                                                    globalColor
+                                                                )?.color
+                                                            }
                                                         </span>
                                                         <Badge
                                                             variant="secondary"
                                                             className="text-info w-fit"
                                                         >
-                                                            {(item.color || globalColor)?.code}
+                                                            {
+                                                                (
+                                                                    item.color ||
+                                                                    globalColor
+                                                                )?.code
+                                                            }
                                                         </Badge>
                                                     </div>
                                                     {item.color && (
@@ -1970,32 +2057,63 @@ export function QuoteItemEditor({
                                                         </Button>
                                                     )}
                                                 </div>
-                                                
+
                                                 {/* Color Details */}
                                                 <div className="space-y-2 text-xs">
                                                     <div className="flex justify-between">
-                                                        <span className="text-muted-foreground">Brand:</span>
-                                                        <span className="font-medium">{(item.color || globalColor)?.brand}</span>
+                                                        <span className="text-muted-foreground">
+                                                            Brand:
+                                                        </span>
+                                                        <span className="font-medium">
+                                                            {
+                                                                (
+                                                                    item.color ||
+                                                                    globalColor
+                                                                )?.brand
+                                                            }
+                                                        </span>
                                                     </div>
                                                     <div className="flex justify-between">
-                                                        <span className="text-muted-foreground">Finish:</span>
-                                                        <span className="font-medium">{(item.color || globalColor)?.finish}</span>
+                                                        <span className="text-muted-foreground">
+                                                            Finish:
+                                                        </span>
+                                                        <span className="font-medium">
+                                                            {
+                                                                (
+                                                                    item.color ||
+                                                                    globalColor
+                                                                )?.finish
+                                                            }
+                                                        </span>
                                                     </div>
                                                     <div className="flex justify-between">
-                                                        <span className="text-muted-foreground">Type:</span>
-                                                        <span className="font-medium">Powder Coating</span>
+                                                        <span className="text-muted-foreground">
+                                                            Type:
+                                                        </span>
+                                                        <span className="font-medium">
+                                                            Powder Coating
+                                                        </span>
                                                     </div>
                                                     <div className="flex justify-between">
-                                                        <span className="text-muted-foreground">Status:</span>
-                                                        <span className="font-medium text-success">Available</span>
+                                                        <span className="text-muted-foreground">
+                                                            Status:
+                                                        </span>
+                                                        <span className="font-medium text-success">
+                                                            Available
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
                                         ) : (
                                             <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                                                 <Palette className="h-8 w-8 mb-2" />
-                                                <span className="text-sm">No color selected</span>
-                                                <span className="text-xs mt-1">Click &quoteSelect Color&quote to choose</span>
+                                                <span className="text-sm">
+                                                    No color selected
+                                                </span>
+                                                <span className="text-xs mt-1">
+                                                    Click &quoteSelect
+                                                    Color&quote to choose
+                                                </span>
                                             </div>
                                         )}
                                     </div>
@@ -2044,8 +2162,6 @@ export function QuoteItemEditor({
                                     </div>
                                 </>
                             )}
-
-
 
                             {/* Item Summary */}
                             <div className="bg-muted p-4 rounded-lg">

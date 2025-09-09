@@ -89,55 +89,119 @@ export function QuotePreview({
                 panels.forEach((panel) => {
                     // Use cumulative positioning for non-uniform sizes (primary method)
                     let panelX, panelY, panelWidth, panelHeight;
-                    
+
                     if (panel.col !== undefined && panel.row !== undefined) {
                         // Calculate cumulative positions for columns
                         const totalWidth = wallWidth;
                         const totalHeight = wallHeight;
                         const cumulativeColumnPositions = [0];
                         const cumulativeRowPositions = [0];
-                        
+
                         // Build cumulative positions based on column/row sizes if available
-                        if (item.designData?.columnSizes && item.designData.columnSizes.length > 0) {
-                            for (let i = 0; i < item.designData.columnSizes.length; i++) {
-                                cumulativeColumnPositions.push(cumulativeColumnPositions[i] + item.designData.columnSizes[i]);
+                        if (
+                            item.designData?.columnSizes &&
+                            item.designData.columnSizes.length > 0
+                        ) {
+                            for (
+                                let i = 0;
+                                i < item.designData.columnSizes.length;
+                                i++
+                            ) {
+                                cumulativeColumnPositions.push(
+                                    cumulativeColumnPositions[i] +
+                                        item.designData.columnSizes[i]
+                                );
                             }
                         } else {
-                            const uniformColumnWidth = wallWidth / (item.designData?.columns || 4);
-                            for (let i = 0; i <= (item.designData?.columns || 4); i++) {
-                                cumulativeColumnPositions.push(i * uniformColumnWidth);
+                            const uniformColumnWidth =
+                                wallWidth / (item.designData?.columns || 4);
+                            for (
+                                let i = 0;
+                                i <= (item.designData?.columns || 4);
+                                i++
+                            ) {
+                                cumulativeColumnPositions.push(
+                                    i * uniformColumnWidth
+                                );
                             }
                         }
-                        
-                        if (item.designData?.rowSizes && item.designData.rowSizes.length > 0) {
-                            for (let i = 0; i < item.designData.rowSizes.length; i++) {
-                                cumulativeRowPositions.push(cumulativeRowPositions[i] + item.designData.rowSizes[i]);
+
+                        if (
+                            item.designData?.rowSizes &&
+                            item.designData.rowSizes.length > 0
+                        ) {
+                            for (
+                                let i = 0;
+                                i < item.designData.rowSizes.length;
+                                i++
+                            ) {
+                                cumulativeRowPositions.push(
+                                    cumulativeRowPositions[i] +
+                                        item.designData.rowSizes[i]
+                                );
                             }
                         } else {
-                            const uniformRowHeight = wallHeight / (item.designData?.rows || 3);
-                            for (let i = 0; i <= (item.designData?.rows || 3); i++) {
-                                cumulativeRowPositions.push(i * uniformRowHeight);
+                            const uniformRowHeight =
+                                wallHeight / (item.designData?.rows || 3);
+                            for (
+                                let i = 0;
+                                i <= (item.designData?.rows || 3);
+                                i++
+                            ) {
+                                cumulativeRowPositions.push(
+                                    i * uniformRowHeight
+                                );
                             }
                         }
-                        
-                        const col = Math.min(panel.col, cumulativeColumnPositions.length - 1);
-                        const row = Math.min(panel.row, cumulativeRowPositions.length - 1);
+
+                        const col = Math.min(
+                            panel.col,
+                            cumulativeColumnPositions.length - 1
+                        );
+                        const row = Math.min(
+                            panel.row,
+                            cumulativeRowPositions.length - 1
+                        );
                         const colSpan = panel.colSpan || 1;
                         const rowSpan = panel.rowSpan || 1;
-                        
+
                         // Calculate position based on cumulative positions
                         const leftMeters = cumulativeColumnPositions[col];
                         const topMeters = cumulativeRowPositions[row];
-                        const rightMeters = cumulativeColumnPositions[Math.min(col + colSpan, cumulativeColumnPositions.length - 1)];
-                        const bottomMeters = cumulativeRowPositions[Math.min(row + rowSpan, cumulativeRowPositions.length - 1)];
-                        
+                        const rightMeters =
+                            cumulativeColumnPositions[
+                                Math.min(
+                                    col + colSpan,
+                                    cumulativeColumnPositions.length - 1
+                                )
+                            ];
+                        const bottomMeters =
+                            cumulativeRowPositions[
+                                Math.min(
+                                    row + rowSpan,
+                                    cumulativeRowPositions.length - 1
+                                )
+                            ];
+
                         // Convert to SVG coordinates
-                        panelX = offsetX + (leftMeters / totalWidth) * scaledWallWidth;
-                        panelY = offsetY + (topMeters / totalHeight) * scaledWallHeight;
-                        panelWidth = ((rightMeters - leftMeters) / totalWidth) * scaledWallWidth;
-                        panelHeight = ((bottomMeters - topMeters) / totalHeight) * scaledWallHeight;
-                    } else if (panel.left !== undefined && panel.top !== undefined && 
-                        panel.width !== undefined && panel.height !== undefined) {
+                        panelX =
+                            offsetX +
+                            (leftMeters / totalWidth) * scaledWallWidth;
+                        panelY =
+                            offsetY +
+                            (topMeters / totalHeight) * scaledWallHeight;
+                        panelWidth =
+                            ((rightMeters - leftMeters) / totalWidth) *
+                            scaledWallWidth;
+                        panelHeight =
+                            ((bottomMeters - topMeters) / totalHeight) *
+                            scaledWallHeight;
+                    } else if (
+                        panel.left !== undefined &&
+                        panel.top !== undefined &&
+                        panel.width !== undefined &&
+                        panel.height !== undefined
+                    ) {
                         // Fallback to percentage-based positioning
                         panelX = offsetX + (panel.left / 100) * scaledWallWidth;
                         panelY = offsetY + (panel.top / 100) * scaledWallHeight;
@@ -145,8 +209,11 @@ export function QuotePreview({
                         panelHeight = (panel.height / 100) * scaledWallHeight;
                     } else {
                         // Final fallback to meter-based positioning
-                        panelWidth = (panel.widthMeters / wallWidth) * scaledWallWidth;
-                        panelHeight = (panel.heightMeters / wallHeight) * scaledWallHeight;
+                        panelWidth =
+                            (panel.widthMeters / wallWidth) * scaledWallWidth;
+                        panelHeight =
+                            (panel.heightMeters / wallHeight) *
+                            scaledWallHeight;
                         panelX = offsetX + (panel.left / 100) * scaledWallWidth;
                         panelY = offsetY + (panel.top / 100) * scaledWallHeight;
                     }
@@ -163,15 +230,25 @@ export function QuotePreview({
                         const panelCenterX = panelX + panelWidth / 2;
                         const panelCenterY = panelY + panelHeight / 2;
                         const vSize = Math.min(panelWidth, panelHeight) * 0.6;
-                        
-                        svgElements += `<path d="M ${panelCenterX - vSize/2} ${panelCenterY - vSize/2} 
-                              L ${panelCenterX} ${panelCenterY + vSize/2} 
-                              L ${panelCenterX + vSize/2} ${panelCenterY - vSize/2}" 
+
+                        svgElements += `<path d="M ${
+                            panelCenterX - vSize / 2
+                        } ${panelCenterY - vSize / 2} 
+                              L ${panelCenterX} ${panelCenterY + vSize / 2} 
+                              L ${panelCenterX + vSize / 2} ${
+                            panelCenterY - vSize / 2
+                        }" 
                               stroke="#FFD700" stroke-width="1" fill="none"/>`;
-                    } else if (panel.type === "door" || panel.type === "structure") {
+                    } else if (
+                        panel.type === "door" ||
+                        panel.type === "structure"
+                    ) {
                         // Add labels for door and fixed panels
-                        const label = panel.type === "structure" ? "Fixed" : "Door";
-                        svgElements += `<text x="${panelX + panelWidth / 2}" y="${
+                        const label =
+                            panel.type === "structure" ? "Fixed" : "Door";
+                        svgElements += `<text x="${
+                            panelX + panelWidth / 2
+                        }" y="${
                             panelY + panelHeight / 2
                         }" text-anchor="middle" dominant-baseline="middle" font-size="6" fill="#333" font-weight="bold">${label}</text>`;
                     }
@@ -205,7 +282,7 @@ export function QuotePreview({
 
             let svgElements = "";
             const glassInset = 4;
-            
+
             // Draw main frame and glass panel (skip for hinged items as they have individual sash panels)
             if (system !== "hinged") {
                 svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWidth}" height="${scaledHeight}" fill="none" stroke="#374151" stroke-width="1" rx="2"/>`;
@@ -229,40 +306,67 @@ export function QuotePreview({
                     }
                     const handleY = offsetY + scaledHeight / 2;
                     const handleSize = 4;
+
                     if (i === 0 || i === leaves - 1) {
-                        svgElements += `<circle cx="${
-                            panelX + panelWidth / 2
-                        }" cy="${handleY}" r="${handleSize}" fill="#666"/><rect x="${
-                            panelX + panelWidth / 2 - handleSize / 2
-                        }" y="${
-                            handleY - 1
-                        }" width="${handleSize}" height="2" fill="#666"/>`;
+                        const cx = panelX + panelWidth / 2;
+                        const cy = handleY;
+                        if (i === 0) {
+                            // Right arrow for left panel
+                            svgElements += `<line x1="${
+                                cx - handleSize
+                            }" y1="${cy}" x2="${cx}" y2="${cy}" stroke="#666" stroke-width="2"/><polygon points="${cx},${
+                                cy - handleSize / 2
+                            } ${cx + handleSize},${cy} ${cx},${
+                                cy + handleSize / 2
+                            }" fill="#666"/>`;
+                        } else {
+                            // Left arrow for right panel
+                            svgElements += `<line x1="${cx}" y1="${cy}" x2="${
+                                cx + handleSize
+                            }" y2="${cy}" stroke="#666" stroke-width="2"/><polygon points="${cx},${
+                                cy - handleSize / 2
+                            } ${cx - handleSize},${cy} ${cx},${
+                                cy + handleSize / 2
+                            }" fill="#666"/>`;
+                        }
                     }
                 }
             } else if (system === "hinged") {
                 // Draw individual sash panels for hinged items - stacked vertically
                 const sashHeight = scaledHeight / leaves;
                 const sashInset = 2; // Inset for each sash panel
-                
+
                 for (let i = 0; i < leaves; i++) {
                     const sashY = offsetY + i * sashHeight;
                     const sashPanelHeight = sashHeight - sashInset;
-                    
+
                     // Check if this is the top panel and should be fixed
                     const isTopPanel = i === 0;
-                    const isFixedUpperPanel = isTopPanel && leaves === 2 && type === "window" && item.upperPanelType === "fixed";
-                    
+                    const isFixedUpperPanel =
+                        isTopPanel &&
+                        leaves === 2 &&
+                        type === "window" &&
+                        item.upperPanelType === "fixed";
+
                     // Draw individual sash panel
-                    svgElements += `<rect x="${offsetX + sashInset/2}" y="${sashY + sashInset/2}" 
-                          width="${scaledWidth - sashInset}" height="${sashPanelHeight}"
+                    svgElements += `<rect x="${offsetX + sashInset / 2}" y="${
+                        sashY + sashInset / 2
+                    }" 
+                          width="${
+                              scaledWidth - sashInset
+                          }" height="${sashPanelHeight}"
                           fill="none" stroke="#666" stroke-width="1" rx="1"/>`;
-                    
+
                     // Draw glass panel within each sash
                     const glassInsetSash = 3;
-                    svgElements += `<rect x="${offsetX + sashInset/2 + glassInsetSash}" y="${sashY + sashInset/2 + glassInsetSash}"
-                          width="${scaledWidth - sashInset - glassInsetSash * 2}" height="${sashPanelHeight - glassInsetSash * 2}"
+                    svgElements += `<rect x="${
+                        offsetX + sashInset / 2 + glassInsetSash
+                    }" y="${sashY + sashInset / 2 + glassInsetSash}"
+                          width="${
+                              scaledWidth - sashInset - glassInsetSash * 2
+                          }" height="${sashPanelHeight - glassInsetSash * 2}"
                           fill="#87CEEB" stroke="#666" stroke-width="0.5" opacity="0.7"/>`;
-                    
+
                     // Draw hinges only for hinged panels (not for fixed upper panel)
                     if (!isFixedUpperPanel) {
                         const hingeY = sashY + sashHeight / 2;
@@ -270,14 +374,16 @@ export function QuotePreview({
                             offsetX + scaledWidth
                         }" cy="${hingeY}" r="2" fill="#666"/>`;
                     }
-                    
+
                     // Add V shape for hinged panels or "Fixed" label for fixed upper panel
                     if (type === "door" || type === "window") {
-                        const glassX = offsetX + sashInset/2 + glassInsetSash;
-                        const glassY = sashY + sashInset/2 + glassInsetSash;
-                        const glassWidth = scaledWidth - sashInset - glassInsetSash * 2;
-                        const glassHeight = sashPanelHeight - glassInsetSash * 2;
-                        
+                        const glassX = offsetX + sashInset / 2 + glassInsetSash;
+                        const glassY = sashY + sashInset / 2 + glassInsetSash;
+                        const glassWidth =
+                            scaledWidth - sashInset - glassInsetSash * 2;
+                        const glassHeight =
+                            sashPanelHeight - glassInsetSash * 2;
+
                         if (isFixedUpperPanel) {
                             // Add "Fixed" label for fixed upper panel
                             const glassCenterX = glassX + glassWidth / 2;
@@ -288,12 +394,17 @@ export function QuotePreview({
                             // Add V shape for hinged panels
                             const glassCenterX = glassX + glassWidth / 2;
                             const glassCenterY = glassY + glassHeight / 2;
-                            const vSize = Math.min(glassWidth, glassHeight) * 0.9;
-                            
+                            const vSize =
+                                Math.min(glassWidth, glassHeight) * 0.9;
+
                             // Draw inverted V shape (from top corners to bottom middle) within glass bounds
-                            svgElements += `<path d="M ${glassCenterX - vSize/2} ${glassCenterY - vSize/2} 
-                                  L ${glassCenterX} ${glassCenterY + vSize/2} 
-                                  L ${glassCenterX + vSize/2} ${glassCenterY - vSize/2}" 
+                            svgElements += `<path d="M ${
+                                glassCenterX - vSize / 2
+                            } ${glassCenterY - vSize / 2} 
+                                  L ${glassCenterX} ${glassCenterY + vSize / 2} 
+                                  L ${glassCenterX + vSize / 2} ${
+                                glassCenterY - vSize / 2
+                            }" 
                                   stroke="#FFD700" stroke-width="2" fill="none"/>`;
                         }
                     }

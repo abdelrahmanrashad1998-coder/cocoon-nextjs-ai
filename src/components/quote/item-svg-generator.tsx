@@ -22,11 +22,7 @@ export function ItemSvgGenerator({
         } else {
             return generateNormalItemSvg(item, width, height);
         }
-    }, [
-        item,
-        width,
-        height,
-    ]);
+    }, [item, width, height]);
 
     // Update the visualSvg field when SVG changes
     useEffect(() => {
@@ -63,7 +59,9 @@ function generateNormalItemSvg(
     const effectiveItemHeight = isHinged ? itemWidth : itemHeight;
 
     // Scale dimensions to fit the SVG container
-    const scale = Math.min(width / effectiveItemWidth, height / effectiveItemHeight) * 0.8;
+    const scale =
+        Math.min(width / effectiveItemWidth, height / effectiveItemHeight) *
+        0.8;
     const scaledWidth = effectiveItemWidth * scale;
     const scaledHeight = effectiveItemHeight * scale;
     const offsetX = (width - scaledWidth) / 2;
@@ -112,58 +110,80 @@ function generateNormalItemSvg(
             const handleSize = 8;
             if (i === 0 || i === leaves - 1) {
                 // Handles on first and last panels
-                svgElements += `
-                    <circle cx="${panelX + panelWidth / 2}" cy="${handleY}"
-                            r="${handleSize}" fill="#666"/>
-                    <rect x="${panelX + panelWidth / 2 - handleSize / 2}" y="${
-                    handleY - 2
-                }"
-                          width="${handleSize}" height="4" fill="#666"/>
-                `;
+                const cx = panelX + panelWidth / 2;
+                const cy = handleY;
+                if (i === 0) {
+                    // Right arrow for left panel
+                    svgElements += `
+                        <line x1="${
+                            cx - handleSize
+                        }" y1="${cy}" x2="${cx}" y2="${cy}" stroke="#666" stroke-width="2"/>
+                        <polygon points="${cx},${cy - handleSize / 2} ${
+                        cx + handleSize
+                    },${cy} ${cx},${cy + handleSize / 2}" fill="#666"/>
+                    `;
+                } else {
+                    // Left arrow for right panel
+                    svgElements += `
+                        <line x1="${cx}" y1="${cy}" x2="${
+                        cx + handleSize
+                    }" y2="${cy}" stroke="#666" stroke-width="2"/>
+                        <polygon points="${cx},${cy - handleSize / 2} ${
+                        cx - handleSize
+                    },${cy} ${cx},${cy + handleSize / 2}" fill="#666"/>
+                    `;
+                }
             }
         }
     } else if (system === "hinged") {
         // Draw individual sash panels for hinged items
         const sashWidth = scaledWidth / leaves;
         const sashInset = 4; // Inset for each sash panel
-        
+
         for (let i = 0; i < leaves; i++) {
             const sashX = offsetX + i * sashWidth;
             const sashPanelWidth = sashWidth - sashInset;
-            
+
             // Draw individual sash panel
             svgElements += `
-                <rect x="${sashX + sashInset/2}" y="${offsetY + sashInset/2}" 
-                      width="${sashPanelWidth}" height="${scaledHeight - sashInset}"
+                <rect x="${sashX + sashInset / 2}" y="${
+                offsetY + sashInset / 2
+            }" 
+                      width="${sashPanelWidth}" height="${
+                scaledHeight - sashInset
+            }"
                       fill="none" stroke="#666" stroke-width="1.5" rx="2"/>
             `;
-            
+
             // Draw glass panel within each sash
             const glassInset = 6;
             svgElements += `
-                <rect x="${sashX + sashInset/2 + glassInset}" y="${offsetY + sashInset/2 + glassInset}"
-                      width="${sashPanelWidth - glassInset * 2}" height="${scaledHeight - sashInset - glassInset * 2}"
+                <rect x="${sashX + sashInset / 2 + glassInset}" y="${
+                offsetY + sashInset / 2 + glassInset
+            }"
+                      width="${sashPanelWidth - glassInset * 2}" height="${
+                scaledHeight - sashInset - glassInset * 2
+            }"
                       fill="#87CEEB" stroke="#666" stroke-width="1" opacity="0.7"/>
             `;
-            
+
             // Draw hinges for each sash
             const hingeX = sashX + sashWidth / 2;
             svgElements += `
                 <circle cx="${hingeX}" cy="${offsetY}" r="3" fill="#666"/>
                 <circle cx="${hingeX}" cy="${
-                    offsetY + scaledHeight
-                }" r="3" fill="#666"/>
+                offsetY + scaledHeight
+            }" r="3" fill="#666"/>
             `;
-            
+
             // Add handle to each sash panel for both doors and windows
             if (type === "door" || type === "window") {
                 const handleX = sashX + sashWidth / 2;
                 const handleY = offsetY + scaledHeight - 20;
                 svgElements += `
-                    <circle cx="${handleX}" cy="${handleY}" r="3" fill="#FFD700"/>
-                    <rect x="${handleX - 1.5}" y="${
-                    handleY - 6
-                }" width="3" height="12" fill="#FFD700"/>
+                    <polygon points="${handleX - 3},${handleY - 3} ${
+                    handleX + 3
+                },${handleY} ${handleX - 3},${handleY + 3}" fill="#FFD700"/>
                 `;
             }
         }
@@ -269,14 +289,18 @@ function generateCurtainWallSvg(
     `;
 
     // Calculate cumulative positions for non-uniform column and row sizes
-    const totalWidth = columnSizes?.reduce((sum, size) => sum + size, 0) || wallWidth;
-    const totalHeight = rowSizes?.reduce((sum, size) => sum + size, 0) || wallHeight;
-    
+    const totalWidth =
+        columnSizes?.reduce((sum, size) => sum + size, 0) || wallWidth;
+    const totalHeight =
+        rowSizes?.reduce((sum, size) => sum + size, 0) || wallHeight;
+
     // Precompute cumulative positions for columns
     const cumulativeColumnPositions = [0];
     if (columnSizes && columnSizes.length > 0) {
         for (let i = 0; i < columnSizes.length; i++) {
-            cumulativeColumnPositions.push(cumulativeColumnPositions[i] + columnSizes[i]);
+            cumulativeColumnPositions.push(
+                cumulativeColumnPositions[i] + columnSizes[i]
+            );
         }
     } else {
         // Fallback to uniform columns
@@ -285,12 +309,14 @@ function generateCurtainWallSvg(
             cumulativeColumnPositions.push(i * uniformColumnWidth);
         }
     }
-    
+
     // Precompute cumulative positions for rows
     const cumulativeRowPositions = [0];
     if (rowSizes && rowSizes.length > 0) {
         for (let i = 0; i < rowSizes.length; i++) {
-            cumulativeRowPositions.push(cumulativeRowPositions[i] + rowSizes[i]);
+            cumulativeRowPositions.push(
+                cumulativeRowPositions[i] + rowSizes[i]
+            );
         }
     } else {
         // Fallback to uniform rows
@@ -329,22 +355,36 @@ function generateCurtainWallSvg(
 
         // Use cumulative positioning for non-uniform sizes (primary method)
         if (panel.col !== undefined && panel.row !== undefined) {
-            const col = Math.min(panel.col, cumulativeColumnPositions.length - 1);
+            const col = Math.min(
+                panel.col,
+                cumulativeColumnPositions.length - 1
+            );
             const row = Math.min(panel.row, cumulativeRowPositions.length - 1);
             const colSpan = panel.colSpan || 1;
             const rowSpan = panel.rowSpan || 1;
-            
+
             // Calculate position based on cumulative positions
             const leftMeters = cumulativeColumnPositions[col];
             const topMeters = cumulativeRowPositions[row];
-            const rightMeters = cumulativeColumnPositions[Math.min(col + colSpan, cumulativeColumnPositions.length - 1)];
-            const bottomMeters = cumulativeRowPositions[Math.min(row + rowSpan, cumulativeRowPositions.length - 1)];
-            
+            const rightMeters =
+                cumulativeColumnPositions[
+                    Math.min(
+                        col + colSpan,
+                        cumulativeColumnPositions.length - 1
+                    )
+                ];
+            const bottomMeters =
+                cumulativeRowPositions[
+                    Math.min(row + rowSpan, cumulativeRowPositions.length - 1)
+                ];
+
             // Convert to SVG coordinates
             panelX = offsetX + (leftMeters / totalWidth) * contentWidth;
             panelY = offsetY + (topMeters / totalHeight) * contentHeight;
-            panelWidth = ((rightMeters - leftMeters) / totalWidth) * contentWidth;
-            panelHeight = ((bottomMeters - topMeters) / totalHeight) * contentHeight;
+            panelWidth =
+                ((rightMeters - leftMeters) / totalWidth) * contentWidth;
+            panelHeight =
+                ((bottomMeters - topMeters) / totalHeight) * contentHeight;
         }
         // Use left/top percentages if available (fallback method)
         else if (
@@ -362,7 +402,7 @@ function generateCurtainWallSvg(
         else if (panel.widthMeters > 0 && panel.heightMeters > 0) {
             panelWidth = (panel.widthMeters / wallWidth) * contentWidth;
             panelHeight = (panel.heightMeters / wallHeight) * contentHeight;
-            
+
             // Fallback to grid-based positioning
             const gridCols = columns || 4;
             const gridRows = rows || 3;
