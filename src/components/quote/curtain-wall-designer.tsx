@@ -267,9 +267,23 @@ export function CurtainWallDesigner({
             // Calculate corners: internal and external corners between panels and around them
             let cornerCount = 0;
 
-            // Total corners = (columns + 1) × (rows + 1)
-            // This includes all intersection points of the grid system
+            // Start with total grid corners
             cornerCount = (currentColumns + 1) * (currentRows + 1);
+
+            // Reduce corners for merged panels
+            // When panels are merged, internal corners between merged panels are eliminated
+            currentPanels.forEach((panel) => {
+                if (panel.mergedId && panel.colSpan > 1) {
+                    // For horizontal merging (colSpan > 1), reduce internal vertical corners
+                    // Each merged panel eliminates (colSpan - 1) internal vertical corners
+                    cornerCount -= (panel.colSpan - 1);
+                }
+                if (panel.mergedId && panel.rowSpan > 1) {
+                    // For vertical merging (rowSpan > 1), reduce internal horizontal corners
+                    // Each merged panel eliminates (rowSpan - 1) internal horizontal corners
+                    cornerCount -= (panel.rowSpan - 1);
+                }
+            });
 
             // Calculate costs based on material and glass type
             const materialCosts = {
@@ -521,7 +535,7 @@ export function CurtainWallDesigner({
             setPanels(updatedPanels);
             // calculateDesign(updatedPanels, columns, rows); FUCK YOU
         }
-    }, [wallWidth, wallHeight, columnSizes, rowSizes, columns, rows, calculateDesign]);
+    }, [wallWidth, wallHeight, columnSizes, rowSizes, columns, rows]);
 
     // Handle custom column size changes
     const handleColumnSizeChange = (index: number, value: number) => {
@@ -1891,7 +1905,19 @@ export function CurtainWallDesigner({
                                         <div className="flex justify-between text-sm">
                                             <span>Corner Count:</span>
                                             <span className="font-medium">
-                                                {(columns + 1) * (rows + 1)}
+                                                {(() => {
+                                                    let cornerCount = (columns + 1) * (rows + 1);
+                                                    // Reduce corners for merged panels
+                                                    panels.forEach((panel) => {
+                                                        if (panel.mergedId && panel.colSpan > 1) {
+                                                            cornerCount -= (panel.colSpan - 1);
+                                                        }
+                                                        if (panel.mergedId && panel.rowSpan > 1) {
+                                                            cornerCount -= (panel.rowSpan - 1);
+                                                        }
+                                                    });
+                                                    return cornerCount;
+                                                })()}
                                             </span>
                                         </div>
                                         <Separator />
