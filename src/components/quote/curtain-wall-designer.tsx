@@ -215,7 +215,7 @@ export function CurtainWallDesigner({
             ],
         },
     ];
-
+   
     // Enhanced calculations with pricing
     const calculateDesign = useCallback(
         (
@@ -502,6 +502,26 @@ export function CurtainWallDesigner({
         // Show custom sizes when grid changes
         setShowCustomSizes(true);
     }, [rows, wallHeight]);
+
+    // Update panel dimensions when wall dimensions change
+    useEffect(() => {
+        if (panels.length > 0) {
+            // Update all panels with new dimensions based on current column/row sizes
+            const updatedPanels = panels.map((panel) => {
+                // Calculate new dimensions based on current column/row sizes
+                const newWidthMeters = columnSizes[panel.col] || wallWidth / columns;
+                const newHeightMeters = rowSizes[panel.row] || wallHeight / rows;
+                
+                return {
+                    ...panel,
+                    widthMeters: newWidthMeters,
+                    heightMeters: newHeightMeters,
+                };
+            });
+            setPanels(updatedPanels);
+            // calculateDesign(updatedPanels, columns, rows); FUCK YOU
+        }
+    }, [wallWidth, wallHeight, columnSizes, rowSizes, columns, rows, calculateDesign]);
 
     // Handle custom column size changes
     const handleColumnSizeChange = (index: number, value: number) => {
