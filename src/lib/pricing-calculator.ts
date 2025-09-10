@@ -18,13 +18,13 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
               frame_price_3: Number(raw.profile.frame_price_3 || 0),
               leaf_price: Number(raw.profile.sach_price || raw.profile.leaf_price || 0),
               accessories_2_leaves: Number(
-                  raw.profile.accessories_2_leaves || 0
+                  raw.profile.accessories_2_sach || raw.profile.accessories_2_leaves || 0
               ),
               accessories_3_leaves: Number(
-                  raw.profile.accessories_3_leaves || 0
+                  raw.profile.accessories_3_sach || raw.profile.accessories_3_leaves || 0
               ),
               accessories_4_leaves: Number(
-                  raw.profile.accessories_4_leaves || 0
+                  raw.profile.accessories_4_sach || raw.profile.accessories_4_leaves || 0
               ),
               glass_price_single: Number(raw.profile.glass_price_single || 0),
               glass_price_double: Number(raw.profile.glass_price_double || 0),

@@ -261,9 +261,9 @@ export default function ProfileManager({
                     frame_meters_input: data.frame_meters_input || 0,
                     windows_meters_input: data.windows_meters_input || 0,
                     frame_meters_3_leaves_input: data.frame_meters_3_leaves_input || 0,
-                    accessories_2_leaves: data.accessories_2_leaves || 0,
-                    accessories_3_leaves: data.accessories_3_leaves || 0,
-                    accessories_4_leaves: data.accessories_4_leaves || 0,
+                    accessories_2_leaves: data.accessories_2_sach || 0,
+                    accessories_3_leaves: data.accessories_3_sach || 0,
+                    accessories_4_leaves: data.accessories_4_sach || 0,
                     net_price: data.net_price || 0,
                     net_price_plisse: data.net_price_plisse || 0,
                 };

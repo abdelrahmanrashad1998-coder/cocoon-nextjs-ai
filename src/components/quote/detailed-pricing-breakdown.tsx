@@ -412,6 +412,9 @@ export function DetailedPricingBreakdown({
                             <TableRow>
                                 <TableHead>Component</TableHead>
                                 <TableHead className="text-right">
+                                    Calculation
+                                </TableHead>
+                                <TableHead className="text-right">
                                     Unit Cost
                                 </TableHead>
                                 <TableHead className="text-right">
@@ -426,12 +429,13 @@ export function DetailedPricingBreakdown({
                             <TableRow>
                                 <TableCell>Frame Cost</TableCell>
                                 <TableCell className="text-right">
-                                    {formatCurrency(
-                                        pricing.frameCost / item.quantity
-                                    )}
+                                    {pricing.frameMeters?.toFixed(2)}m × EGP {item.profile?.frame_price?.toLocaleString() || '0'}/m
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    {item.quantity}
+                                    EGP {((pricing.frameCost / item.quantity) / (pricing.frameMeters || 1)).toFixed(0)}/m
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {pricing.frameMeters?.toFixed(2)}m
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
                                     {formatCurrency(pricing.frameCost)}
@@ -440,12 +444,13 @@ export function DetailedPricingBreakdown({
                             <TableRow>
                                 <TableCell>Sach Cost</TableCell>
                                 <TableCell className="text-right">
-                                    {formatCurrency(
-                                        pricing.windowsCost / item.quantity
-                                    )}
+                                    {pricing.windowMeters?.toFixed(2)}m × EGP {item.profile?.sach_price?.toLocaleString() || '0'}/m
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    {item.quantity}
+                                    EGP {((pricing.windowsCost / item.quantity) / (pricing.windowMeters || 1)).toFixed(0)}/m
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {pricing.windowMeters?.toFixed(2)}m
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
                                     {formatCurrency(pricing.windowsCost)}
@@ -454,13 +459,13 @@ export function DetailedPricingBreakdown({
                             <TableRow>
                                 <TableCell>Window/Door Accessories</TableCell>
                                 <TableCell className="text-right">
-                                    {formatCurrency(
-                                        pricing.accessoriesWindowsDoors /
-                                            item.quantity
-                                    )}
+                                    {(pricing.numWindows || 0) + (pricing.numDoors || 0)} × EGP {item.profile?.accessories_2_sach?.toLocaleString() || '0'}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    {item.quantity}
+                                    EGP {((pricing.accessoriesWindowsDoors / item.quantity) / ((pricing.numWindows || 0) + (pricing.numDoors || 0) || 1)).toFixed(0)}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {(pricing.numWindows || 0) + (pricing.numDoors || 0)}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
                                     {formatCurrency(
@@ -471,12 +476,13 @@ export function DetailedPricingBreakdown({
                             <TableRow>
                                 <TableCell>Frame Accessories</TableCell>
                                 <TableCell className="text-right">
-                                    {formatCurrency(
-                                        pricing.frameAccessories / item.quantity
-                                    )}
+                                    {pricing.frameMeters?.toFixed(2)}m × EGP {item.profile?.accessories_3_sach?.toLocaleString() || '0'}/m
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    {item.quantity}
+                                    EGP {((pricing.frameAccessories / item.quantity) / (pricing.frameMeters || 1)).toFixed(0)}/m
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {pricing.frameMeters?.toFixed(2)}m
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
                                     {formatCurrency(pricing.frameAccessories)}
@@ -485,12 +491,13 @@ export function DetailedPricingBreakdown({
                             <TableRow>
                                 <TableCell>Corner Accessories</TableCell>
                                 <TableCell className="text-right">
-                                    {formatCurrency(
-                                        pricing.cornersCost / item.quantity
-                                    )}
+                                    {pricing.cornerCount || 0} × EGP {item.profile?.accessories_4_sach?.toLocaleString() || '0'}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    {item.quantity}
+                                    EGP {((pricing.cornersCost / item.quantity) / (pricing.cornerCount || 1)).toFixed(0)}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {pricing.cornerCount || 0}
                                 </TableCell>
                                 <TableCell className="text-right font-medium">
                                     {formatCurrency(pricing.cornersCost)}
