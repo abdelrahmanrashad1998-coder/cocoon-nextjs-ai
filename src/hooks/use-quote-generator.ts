@@ -768,13 +768,27 @@ export const useQuoteGenerator = () => {
                                 const handleY = offsetY + scaledHeight / 2;
                                 const handleSize = 3;
                                 if (i === 0 || i === leaves - 1) {
-                                    svgElements += `<circle cx="${
-                                        panelX + panelWidth / 2
-                                    }" cy="${handleY}" r="${handleSize}" fill="#666"/><rect x="${
-                                        panelX + panelWidth / 2 - handleSize / 2
-                                    }" y="${
-                                        handleY - 0.5
-                                    }" width="${handleSize}" height="1" fill="#666"/>`;
+                                    const cx = panelX + panelWidth / 2;
+                                    const cy = handleY;
+                                    if (i === 0) {
+                                        // Right arrow for left panel
+                                        svgElements += `<line x1="${
+                                            cx - handleSize
+                                        }" y1="${cy}" x2="${cx}" y2="${cy}" stroke="#666" stroke-width="1"/><polygon points="${cx},${
+                                            cy - handleSize / 2
+                                        } ${cx + handleSize},${cy} ${cx},${
+                                            cy + handleSize / 2
+                                        }" fill="#666"/>`;
+                                    } else {
+                                        // Left arrow for right panel
+                                        svgElements += `<line x1="${cx}" y1="${cy}" x2="${
+                                            cx + handleSize
+                                        }" y2="${cy}" stroke="#666" stroke-width="1"/><polygon points="${cx},${
+                                            cy - handleSize / 2
+                                        } ${cx - handleSize},${cy} ${cx},${
+                                            cy + handleSize / 2
+                                        }" fill="#666"/>`;
+                                    }
                                 }
                             }
                         } else if (system === "hinged") {
