@@ -15,7 +15,15 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Calculator, Save, Plus, X, Clock, History, RotateCcw } from "lucide-react";
+import {
+    Calculator,
+    Save,
+    Plus,
+    X,
+    Clock,
+    History,
+    RotateCcw,
+} from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/dashboard-layout";
 import { QuoteItemEditor } from "@/components/quote/quote-item-editor";
@@ -113,7 +121,6 @@ function QuoteGeneratorContent() {
         setActiveTab("items");
     };
 
-
     const handleCancelEdit = () => {
         resetQuote();
         if (quoteId) {
@@ -127,17 +134,27 @@ function QuoteGeneratorContent() {
     };
 
     const handleRestoreFromHistory = (historyEntry: QuoteHistoryEntry) => {
-        if (confirm("Are you sure you want to restore this version? This will replace your current quote data.")) {
+        if (
+            confirm(
+                "Are you sure you want to restore this version? This will replace your current quote data."
+            )
+        ) {
             restoreFromHistory(historyEntry);
             toast.success("Quote restored from history!", {
-                description: `Restored version from ${new Date(historyEntry.timestamp).toLocaleString()}`,
+                description: `Restored version from ${new Date(
+                    historyEntry.timestamp
+                ).toLocaleString()}`,
             });
             setShowHistory(false);
         }
     };
 
     const handleClearHistory = () => {
-        if (confirm("Are you sure you want to clear all quote history? This action cannot be undone.")) {
+        if (
+            confirm(
+                "Are you sure you want to clear all quote history? This action cannot be undone."
+            )
+        ) {
             clearHistory();
             toast.success("Quote history cleared!");
             setShowHistory(false);
@@ -168,13 +185,22 @@ function QuoteGeneratorContent() {
                         {lastSaved && mode !== "view" && (
                             <div className="flex items-center gap-2 ml-4 text-sm text-muted-foreground">
                                 <Clock className="h-4 w-4" />
-                                <span>Last saved: {new Date(lastSaved).toLocaleTimeString()}</span>
+                                <span>
+                                    Last saved:{" "}
+                                    {new Date(lastSaved).toLocaleTimeString()}
+                                </span>
                                 {autoSaveEnabled ? (
-                                    <Badge variant="outline" className="text-xs">
+                                    <Badge
+                                        variant="outline"
+                                        className="text-xs"
+                                    >
                                         Auto-save enabled
                                     </Badge>
                                 ) : (
-                                    <Badge variant="secondary" className="text-xs">
+                                    <Badge
+                                        variant="secondary"
+                                        className="text-xs"
+                                    >
                                         Auto-save disabled
                                     </Badge>
                                 )}
@@ -186,9 +212,13 @@ function QuoteGeneratorContent() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setAutoSaveEnabled(!autoSaveEnabled)}
+                                onClick={() =>
+                                    setAutoSaveEnabled(!autoSaveEnabled)
+                                }
                             >
-                                {autoSaveEnabled ? "Disable Auto-save" : "Enable Auto-save"}
+                                {autoSaveEnabled
+                                    ? "Disable Auto-save"
+                                    : "Enable Auto-save"}
                             </Button>
                         )}
                         {quoteData.history && quoteData.history.length > 0 && (
@@ -248,18 +278,12 @@ function QuoteGeneratorContent() {
                     >
                         <Card>
                             <CardHeader>
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <CardTitle>Quote Items</CardTitle>
-                                        <CardDescription>
-                                            Add and configure aluminum work
-                                            items for your quote
-                                        </CardDescription>
-                                    </div>
-                                    <Button onClick={handleAddItem}>
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Add Item
-                                    </Button>
+                                <div>
+                                    <CardTitle>Quote Items</CardTitle>
+                                    <CardDescription>
+                                        Add and configure aluminum work items
+                                        for your quote
+                                    </CardDescription>
                                 </div>
                             </CardHeader>
                             <CardContent>
@@ -305,6 +329,12 @@ function QuoteGeneratorContent() {
                                                 }
                                             />
                                         ))}
+                                        <div className="flex justify-end pt-4 border-t">
+                                            <Button onClick={handleAddItem}>
+                                                <Plus className="mr-2 h-4 w-4" />
+                                                Add Item
+                                            </Button>
+                                        </div>
                                     </div>
                                 )}
                             </CardContent>
@@ -642,36 +672,67 @@ function QuoteGeneratorContent() {
                                 </Button>
                             </div>
                         </div>
-                        
+
                         {quoteData.history && quoteData.history.length > 0 ? (
                             <div className="space-y-4">
                                 {quoteData.history.map((entry, index) => (
-                                    <Card key={entry.id} className="border-l-4 border-l-blue-500">
+                                    <Card
+                                        key={entry.id}
+                                        className="border-l-4 border-l-blue-500"
+                                    >
                                         <CardContent className="pt-4">
                                             <div className="flex items-center justify-between">
                                                 <div className="flex-1">
-                                                        <div className="flex items-center gap-2 mb-2">
-                                                            <History className="h-4 w-4 text-info" />
-                                                            <span className="font-medium">
-                                                                {entry.changeDescription || `Version ${quoteData.history!.length - index}`}
-                                                            </span>
-                                                            <Badge 
-                                                                variant={entry.changeDescription === "Auto-save" ? "secondary" : "outline"} 
-                                                                className="text-xs"
-                                                            >
-                                                                {entry.changeDescription === "Auto-save" ? "Auto" : "Manual"}
-                                                            </Badge>
-                                                        </div>
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <History className="h-4 w-4 text-info" />
+                                                        <span className="font-medium">
+                                                            {entry.changeDescription ||
+                                                                `Version ${
+                                                                    quoteData.history!
+                                                                        .length -
+                                                                    index
+                                                                }`}
+                                                        </span>
+                                                        <Badge
+                                                            variant={
+                                                                entry.changeDescription ===
+                                                                "Auto-save"
+                                                                    ? "secondary"
+                                                                    : "outline"
+                                                            }
+                                                            className="text-xs"
+                                                        >
+                                                            {entry.changeDescription ===
+                                                            "Auto-save"
+                                                                ? "Auto"
+                                                                : "Manual"}
+                                                        </Badge>
+                                                    </div>
                                                     <div className="text-sm text-muted-foreground mb-2">
-                                                        {new Date(entry.timestamp).toLocaleString()}
+                                                        {new Date(
+                                                            entry.timestamp
+                                                        ).toLocaleString()}
                                                     </div>
                                                     <div className="text-sm">
                                                         <div className="grid grid-cols-2 gap-4">
                                                             <div>
-                                                                <span className="font-medium">Items:</span> {entry.data.items.length}
+                                                                <span className="font-medium">
+                                                                    Items:
+                                                                </span>{" "}
+                                                                {
+                                                                    entry.data
+                                                                        .items
+                                                                        .length
+                                                                }
                                                             </div>
                                                             <div>
-                                                                <span className="font-medium">Customer:</span> {entry.data.contactInfo.name || "Not specified"}
+                                                                <span className="font-medium">
+                                                                    Customer:
+                                                                </span>{" "}
+                                                                {entry.data
+                                                                    .contactInfo
+                                                                    .name ||
+                                                                    "Not specified"}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -679,7 +740,11 @@ function QuoteGeneratorContent() {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => handleRestoreFromHistory(entry)}
+                                                    onClick={() =>
+                                                        handleRestoreFromHistory(
+                                                            entry
+                                                        )
+                                                    }
                                                     className="ml-4"
                                                 >
                                                     <RotateCcw className="h-4 w-4 mr-2" />
@@ -693,9 +758,12 @@ function QuoteGeneratorContent() {
                         ) : (
                             <div className="text-center py-8">
                                 <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                <h3 className="text-lg font-medium mb-2">No History Available</h3>
+                                <h3 className="text-lg font-medium mb-2">
+                                    No History Available
+                                </h3>
                                 <p className="text-muted-foreground">
-                                    Quote history will appear here after you save changes to this quote.
+                                    Quote history will appear here after you
+                                    save changes to this quote.
                                 </p>
                             </div>
                         )}
@@ -708,19 +776,25 @@ function QuoteGeneratorContent() {
 
 export default function QuoteGeneratorPage() {
     return (
-        <Suspense fallback={
-            <DashboardLayout>
-                <div className="container mx-auto max-w-7xl">
-                    <div className="flex items-center justify-center min-h-[400px]">
-                        <div className="text-center">
-                            <Calculator className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-pulse" />
-                            <h2 className="text-xl font-semibold mb-2">Loading Quote Generator...</h2>
-                            <p className="text-muted-foreground">Please wait while we prepare your workspace.</p>
+        <Suspense
+            fallback={
+                <DashboardLayout>
+                    <div className="container mx-auto max-w-7xl">
+                        <div className="flex items-center justify-center min-h-[400px]">
+                            <div className="text-center">
+                                <Calculator className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-pulse" />
+                                <h2 className="text-xl font-semibold mb-2">
+                                    Loading Quote Generator...
+                                </h2>
+                                <p className="text-muted-foreground">
+                                    Please wait while we prepare your workspace.
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </DashboardLayout>
-        }>
+                </DashboardLayout>
+            }
+        >
             <QuoteGeneratorContent />
         </Suspense>
     );
