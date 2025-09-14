@@ -33,7 +33,11 @@ export const useQuoteGenerator = () => {
             expirationDays: 30,
             projectDuration: 60,
             discountPercentage: 0,
-            customNotes: "",
+            customNotes: `⦁ Taxes are not included in the prices above.
+⦁ The contractor shall provide:
+    ⦁	Clean and dry storage space.
+    ⦁	A safe source of power
+    ⦁	Scaffolds and ladders when needed`,
             pricingType: "totals",
             exportFormat: "pdf",
         },
@@ -917,7 +921,7 @@ export const useQuoteGenerator = () => {
                     const printWindow = window.open(
                         "",
                         "_blank",
-                        "width=800,height=600"
+                        "width=1200,height=1000"
                     );
                     if (!printWindow) {
                         throw new Error(
@@ -1678,9 +1682,7 @@ export const useQuoteGenerator = () => {
                 });
 
                 // Auto-print after content loads
-                setTimeout(() => {
-                  window.print();
-                }, 1000);
+                
               });
             </script>
           </body>
@@ -1690,12 +1692,12 @@ export const useQuoteGenerator = () => {
                     printWindow.document.write(htmlContent);
                     printWindow.document.close();
 
-                    printWindow.onload = () => {
-                        setTimeout(() => {
-                            printWindow.print();
-                            console.log("Professional PDF export completed");
-                        }, 500);
-                    };
+                    //printWindow.onload = () => {
+                    //    setTimeout(() => {
+                    //        printWindow.print();
+                    //        console.log("Professional PDF export completed");
+                    //    }, 500);
+                    //};
                 } else if (type === "print") {
                     // Simplified print version
                     const printWindow = window.open("", "_blank");
