@@ -1701,88 +1701,767 @@ export const useQuoteGenerator = () => {
                 } else if (type === "print") {
                     // Simplified print version
                     const printWindow = window.open("", "_blank");
-                    if (printWindow) {
-                        printWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <title>Quote - ${quoteData.id}</title>
-              <link
-                href="https://db.onlinewebfonts.com/c/28c0ba929947563500b21da15a88c6fe?family=TacticSans-Reg"
-                rel="stylesheet"
-              />
-              <style>
-                body { font-family: "TacticSans-Reg", sans-serif; margin: 20px; line-height: 1.6; }
-                .header { text-align: center; margin-bottom: 30px; padding: 20px; border-bottom: 3px solid #e53e3e; }
-                .header h1 { color: #1a202c; margin-bottom: 10px; }
-                .section { margin-bottom: 25px; }
-                .section h2 { color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
-                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
-                th { background-color: #1a202c; color: white; font-weight: 600; }
-                .summary { background: #f7fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #e53e3e; }
-              </style>
-            </head>
-            <body>
-              <div class="header">
-                <h1>COCOON ALUMINUM QUOTATION</h1>
-                <p>Quote Name: ${quoteData.name} | Quote ID: ${
-                            quoteData.id
-                        } | Date: ${new Date().toLocaleDateString()}</p>
+                    const htmlContent = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <title>Cocoon Company For Aluminum Works - Quotation</title>
+            <link
+              href="https://db.onlinewebfonts.com/c/28c0ba929947563500b21da15a88c6fe?family=TacticSans-Reg"
+              rel="stylesheet"
+            />
+            <style>
+              * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: "TacticSans-Reg", sans-serif;
+              }
+              
+              body {
+                font-family: "TacticSans-Reg", sans-serif;
+                line-height: 1.6;
+                color: #1a202c;
+                background: #ffffff;
+                font-size: 14px;
+              }
+              
+              .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 24px;
+                background: #ffffff;
+              }
+              
+              .header {
+                text-align: center;
+                margin-bottom: 32px;
+                padding: 24px;
+                background: #ffffff;
+                color: #1a202c;
+                border-radius: 12px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+              }
+              
+              
+              .logo-section {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 16px;
+                margin-bottom: 16px;
+              }
+              
+              .logo {
+                width: 120px;
+                height: 120px;
+                border-radius: 8px;
+                object-fit: cover;
+              }
+              
+              .company-info {
+                text-align: left;
+              }
+              
+              .company-name {
+                font-size: 20px;
+                font-weight: 600;
+                margin-bottom: 4px;
+                color: #A72036;
+              }
+              
+              .company-tagline {
+                font-size: 14px;
+                color: #64748b;
+                font-weight: 400;
+              }
+              
+              
+              .quote-details {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+                margin-bottom: 32px;
+              }
+              
+              .detail-card {
+                background: linear-gradient(to-t, rgba(167, 32, 54, 0.05), #ffffff);
+                padding: 24px;
+                border-radius: 12px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                position: relative;
+                overflow: hidden;
+              }
+              
+              .detail-card h3 {
+                font-size: 16px;
+                font-weight: 600;
+                color: #1a202c;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              }
+              
+              .detail-card p {
+                margin-bottom: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              }
+              
+              .detail-label {
+                font-weight: 500;
+                color: #64748b;
+                font-size: 13px;
+              }
+              
+              .detail-value {
+                font-weight: 600;
+                color: #1a202c;
+              }
+              
+              .items-section {
+                margin-bottom: 32px;
+              }
+              
+              .section-title {
+                font-size: 20px;
+                font-weight: 600;
+                color: #1a202c;
+                margin-bottom: 24px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid #e2e8f0;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+              }
+              
+              .items-table {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+                background: #ffffff;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                border: 1px solid #e2e8f0;
+              }
+              
+              .items-table thead {
+                background: #A72036;
+              }
+              
+              .items-table th {
+                padding: 12px;
+                color: white;
+                font-weight: 600;
+                font-size: 12px;
+                text-align: left;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+              }
+              
+              .items-table td {
+                padding: 12px;
+                border-bottom: 1px solid #e2e8f0;
+                vertical-align: middle;
+                font-size: 13px;
+              }
+              
+              .items-table tbody tr:hover {
+                background-color: #f8fafc;
+              }
+              
+              .items-table tbody tr:last-child td {
+                border-bottom: none;
+              }
+              
+              .item-name {
+                font-weight: 600;
+                color: #1a202c;
+              }
+              
+              .dimension-value {
+                font-weight: 500;
+                color: #64748b;
+              }
+              
+              .specs-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+                max-width: 200px;
+              }
+              
+              .spec-tag {
+                display: inline-block;
+                padding: 2px 8px;
+                border-radius: 6px;
+                font-size: 10px;
+                font-weight: 500;
+                text-align: center;
+                line-height: 1.2;
+                border: 1px solid transparent;
+              }
+              
+              .glass-double {
+                background: #0ea5e9;
+                color: white;
+              }
+              
+              .glass-single {
+                background: #64748b;
+                color: white;
+              }
+              
+              .tag-net {
+                background: #22c55e;
+                color: white;
+              }
+              
+              .tag-arch {
+                background: #f59e0b;
+                color: #1a202c;
+              }
+              
+              .system-badge {
+                background: #8b5cf6;
+                color: white;
+                padding: 4px 8px;
+                border-radius: 6px;
+                font-weight: 500;
+                font-size: 11px;
+                text-align: center;
+              }
+              
+              .price-value {
+                font-weight: 600;
+                color: #A72036;
+                font-size: 14px;
+                text-align: right;
+              }
+
+              .preview-cell {
+                text-align: center;
+                padding: 8px;
+                background: #ffffff;
+                border-radius: 6px;
+              }
+
+              .preview-cell svg {
+                max-width: 120px;
+                max-height: 80px;
+                border: 1px solid #e2e8f0;
+                border-radius: 4px;
+              }
+              
+              .totals-section {
+                margin-bottom: 32px;
+              }
+              
+              .totals-grid-2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+                margin-bottom: 24px;
+              }
+                .totals-grid-3 {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 24px;
+                margin-bottom: 24px;
+              }
+              
+              .total-card {
+                background: linear-gradient(to-t, rgba(167, 32, 54, 0.05), #ffffff);
+                color: #1a202c;
+                padding: 24px;
+                border-radius: 12px;
+                text-align: center;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+              }
+              
+              .total-label {
+                font-size: 14px;
+                font-weight: 500;
+                color: #64748b;
+                margin-bottom: 8px;
+              }
+              
+              .total-value {
+                font-size: 24px;
+                font-weight: 600;
+                color: #A72036;
+              }
+              
+              .payment-schedule {
+                background: linear-gradient(to-t, rgba(167, 32, 54, 0.05), #ffffff);
+                padding: 24px;
+                border-radius: 12px;
+                border: 1px solid #e2e8f0;
+                margin-bottom: 24px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+              }
+              
+              .payment-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+                margin-top: 16px;
+              }
+              
+              .payment-item {
+                text-align: center;
+                padding: 16px;
+                background: white;
+                border-radius: 8px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+              }
+              
+              .payment-label {
+                font-size: 12px;
+                font-weight: 500;
+                color: #64748b;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+              }
+              
+              .payment-amount {
+                font-size: 18px;
+                font-weight: 600;
+                color: #1a202c;
+              }
+              
+              .validity-section {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                margin-bottom: 24px;
+              }
+              
+              .validity-card {
+                background: #A72036;
+                color: white;
+                padding: 16px;
+                border-radius: 8px;
+                text-align: center;
+                box-shadow: 0 1px 3px rgba(167, 32, 54, 0.2);
+              }
+              
+              .validity-label {
+                font-size: 14px;
+                opacity: 0.9;
+                margin-bottom: 8px;
+              }
+              
+              .validity-value {
+                font-size: 20px;
+                font-weight: 600;
+              }
+              
+              .notes-section {
+                background: linear-gradient(to-t, rgba(167, 32, 54, 0.05), #ffffff);
+                padding: 24px;
+                border-radius: 12px;
+                border-left: 4px solid #A72036;
+                margin-bottom: 32px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+              }
+              
+              .notes-title {
+                font-size: 16px;
+                font-weight: 600;
+                color: #A72036;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              }
+              
+              .notes-content {
+                color: #1a202c;
+                line-height: 1.7;
+              }
+              
+              .footer {
+                margin-top: 32px;
+                padding: 24px;
+                background: #A72036;
+                color: white;
+                border-radius: 12px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+              }
+              
+              .footer::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: #A72036;
+              }
+              
+              .footer-title {
+                font-size: 18px;
+                font-weight: 600;
+                margin-bottom: 16px;
+                color: white;
+              }
+              
+              .footer-content {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+                margin-top: 16px;
+              }
+              
+              .footer-section {
+                display: flex;
+                flex-direction: column;
+                justify-content: start;
+                align-items: flex-start;
+                margin-bottom: 8px;
+                font-size: 13px;
+                opacity: 0.9;
+              }
+              
+              .footer-section strong {
+                color: white;
+              }
+                .show-discount{
+                    display:block;
+                }
+                .hide-discount{
+                    display:none;
+                }
+              
+              @media print {
+                body { 
+                  margin: 0; 
+                  font-size: 12px;
+                }
+                .container {
+                  padding: 16px;
+                  max-width: none;
+                }
+                .no-print { 
+                  display: none; 
+                }
+                .header {
+                  margin-bottom: 24px;
+                  padding: 16px;
+                }
+                .quote-details,
+                .totals-grid,
+                .payment-grid,
+                .validity-section,
+                .footer-content {
+                  page-break-inside: avoid;
+                }
+                .items-table {
+                  font-size: 11px;
+                }
+                .items-table th,
+                .items-table td {
+                  padding: 8px 6px;
+                }
+                .detail-card,
+                .total-card,
+                .payment-schedule,
+                .validity-card,
+                .notes-section,
+                .footer {
+                  box-shadow: none;
+                  border: 1px solid #e2e8f0;
+                }
+                
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <header class="header">
+                <div class="logo-section">
+                  <img src="https://img1.wsimg.com/isteam/ip/b11b2784-66bc-4ac4-9b05-6ba6d416d22d/Untitled%20design%20(1).jpg" alt="Cocoon Logo" class="logo" />
+                  <div class="company-info">
+                    <h1 class="company-name">Cocoon Company For Aluminum Works</h1>
+                    <p class="company-tagline">The Quality You Deserve</p>
+                  </div>
+                </div>
+                
+              </header>
+
+              <div class="quote-details">
+                <div class="detail-card">
+                  <h3>📋 Quote Information</h3>
+                  <p><span class="detail-label">Quote Name:</span> <span class="detail-value">${
+                      quoteData.name
+                  }</span></p>
+                  <p><span class="detail-label">Quote ID:</span> <span class="detail-value">${
+                      quoteData.id
+                  }</span></p>
+                  <p><span class="detail-label">Date:</span> <span class="detail-value">${new Date().toLocaleDateString(
+                      "en-GB"
+                  )}</span></p>
+                  <p><span class="detail-label">Valid Until:</span> <span class="detail-value">${new Date(
+                      Date.now() +
+                          quoteData.settings.expirationDays *
+                              24 *
+                              60 *
+                              60 *
+                              1000
+                  ).toLocaleDateString("en-GB")}</span></p>
+                </div>
+                
+                <div class="detail-card">
+                  <h3>👤 Customer Details</h3>
+                  <p><span class="detail-label">Name:</span> <span class="detail-value">${
+                      quoteData.contactInfo.name || "Not Provided"
+                  }</span></p>
+                  <p><span class="detail-label">Location:</span> <span class="detail-value">${
+                      quoteData.contactInfo.location || "Not Provided"
+                  }</span></p>
+                  <p><span class="detail-label">Duration:</span> <span class="detail-value">${
+                      quoteData.settings.projectDuration
+                  } Days</span></p>
+                </div>
               </div>
-              <div class="section">
-                <h2>Customer Information</h2>
-                <p><strong>Name:</strong> ${
-                    quoteData.contactInfo.name || "Not specified"
-                }</p>
-                <p><strong>Email:</strong> ${
-                    quoteData.contactInfo.email || "Not specified"
-                }</p>
-                <p><strong>Phone:</strong> ${
-                    quoteData.contactInfo.phone || "Not specified"
-                }</p>
-                <p><strong>Location:</strong> ${
-                    quoteData.contactInfo.location || "Not specified"
-                }</p>
-              </div>
-              <div class="section">
-                <h2>Project Items</h2>
-                <table>
-                  <tr><th>Item</th><th>Dimensions</th><th>System</th><th>Area (m²)</th><th>Price (EGP)</th></tr>
-                  ${quoteData.items
-                      .map(
-                          (item: QuoteItem, index: number) => `
+
+              <div class="items-section">
+                <h2 class="section-title">🔧 Project Items & Specifications</h2>
+                <table class="items-table">
+                  <thead>
                     <tr>
-                      <td>${item.type} ${index + 1}</td>
-                      <td>${item.width}m × ${item.height}m</td>
-                      <td>${item.system}</td>
-                      <td>${(item.width * item.height * item.quantity).toFixed(
-                          2
-                      )}</td>
-                      <td>${Math.round(
-                          calculateItemPricing(item).totalPrice
-                      ).toLocaleString()}</td>
+                    <th>#</th>
+                      <th>Item Description</th>
+                      <th>Preview</th>
+                      <th>Width (m)</th>
+                      <th>Height (m)</th>
+                      <th>Qty</th>
+                      <th>Area (m²)</th>
+                      <th>Specifications</th>
+                      <th>System</th>
+                      ${
+                          quoteData.settings.pricingType === "detailed"
+                              ? "<th>Price (EGP)</th>"
+                              : ""
+                      }
                     </tr>
-                  `
-                      )
-                      .join("")}
+                  </thead>
+                  <tbody>
+                    ${quoteData.items
+                        .map((item: QuoteItem, index: number) => {
+                            const itemType =
+                                item.type === "window"
+                                    ? "Window"
+                                    : item.type === "door"
+                                    ? "Door"
+                                    : item.type === "sky_light"
+                                    ? "Skylight"
+                                    : "Curtain Wall";
+                            const itemName =
+                                item.system !== "Curtain Wall"
+                                    ? `${item.system} ${itemType} ${index + 1}`
+                                    : `${item.system} ${index + 1}`;
+                            const area = (
+                                item.width *
+                                item.height *
+                                item.quantity
+                            ).toFixed(2);
+
+                            let specs = "";
+                            if (item.system === "Curtain Wall") {
+                                specs =
+                                    '<span class="spec-tag glass-double">Tempered Double Glazed 6MM + 21.3MM + 6MM Clear + Argon</span>';
+                            } else {
+                                if (item.glassType === "double") {
+                                    specs =
+                                        '<span class="spec-tag glass-double">Tempered Double Glazed 6MM + 6MM + Argon</span>';
+                                } else {
+                                    specs =
+                                        '<span class="spec-tag glass-single">Tempered Single Glazed 6MM</span>';
+                                }
+                            }
+
+                            if (item.mosquito) {
+                                specs +=
+                                    '<span class="spec-tag tag-net">Mosquito Net</span>';
+                            }
+                            if (item.arch) {
+                                specs +=
+                                    '<span class="spec-tag tag-arch">Arch Trave</span>';
+                            }
+                            if (
+                                item.additionalCost &&
+                                item.additionalCost > 0
+                            ) {
+                                specs +=
+                                    '<span class="spec-tag" style="background: linear-gradient(135deg, #9f7aea, #b794f6); color: white;">Additional Cost</span>';
+                            }
+
+                            const itemPrice = Math.round(
+                                calculateItemPricing(item).totalPrice
+                            );
+
+                            const svgPreview = generateItemSvgForPdf(item);
+
+                            return `
+                        <tr>
+                        <td>${index + 1}</td>
+                          <td class="item-name">${itemName}</td>
+                          <td class="preview-cell">${svgPreview}</td>
+                          <td class="dimension-value">${item.width.toFixed(
+                              2
+                          )}</td>
+                          <td class="dimension-value">${item.height.toFixed(
+                              2
+                          )}</td>
+                          <td class="dimension-value">${item.quantity}</td>
+                          <td class="dimension-value">${area}</td>
+                          <td><div class="specs-container">${specs}</div></td>
+                          <td><div class="system-badge">${
+                              item.system
+                          }</div></td>
+                          ${
+                              quoteData.settings.pricingType === "detailed"
+                                  ? `<td class="price-value">${itemPrice.toLocaleString()} EGP</td>`
+                                  : ""
+                          }
+                        </tr>
+                      `;
+                        })
+                        .join("")}
+                  </tbody>
                 </table>
               </div>
-              <div class="summary">
-                <h2>Project Summary</h2>
-                <p><strong>Total Area:</strong> ${totals.totalArea.toFixed(
-                    2
-                )} m²</p>
-                <p><strong>Total Price:</strong> ${Math.round(
-                    totals.totalPrice
-                ).toLocaleString()} EGP</p>
-                <p><strong>Project Duration:</strong> ${
-                    quoteData.settings.projectDuration
-                } Days</p>
+
+              <div class="totals-section">
+                <div class="totals-grid-${
+                    quoteData.settings.discountPercentage > 0 ? "3" : "2"
+                }">
+                  <div class="total-card">
+                    <div class="total-label">Total Project Value</div>
+                    <div class="total-value">${Math.round(
+                        totals.totalPrice
+                    ).toLocaleString()} EGP</div>
+                  </div>
+                  <div class="total-card">
+                    <div class="total-label">Total Coverage Area</div>
+                    <div class="total-value">${totals.totalArea.toFixed(
+                        2
+                    )} m²</div>
+                  </div>
+                  <div class="total-card ${
+                      quoteData.settings.discountPercentage > 0
+                          ? "show-discount"
+                          : "hide-discount"
+                  } ">
+                    <div class="">Total Discount</div>
+                    <div class="total-value">${quoteData.settings.discountPercentage.toFixed(
+                        2
+                    )} %</div>
+                  </div>
+                </div>
+
+                <div class="payment-schedule">
+                  <div class="payment-grid">
+                    <div class="payment-item">
+                      <div class="payment-label">Down Payment</div>
+                      <div class="payment-amount">${Math.round(
+                          totals.downPayment
+                      ).toLocaleString()} EGP</div>
+                    </div>
+                    <div class="payment-item">
+                      <div class="payment-label">On Supply</div>
+                      <div class="payment-amount">${Math.round(
+                          totals.supplyPayment
+                      ).toLocaleString()} EGP</div>
+                    </div>
+                    <div class="payment-item">
+                      <div class="payment-label">On Completion</div>
+                      <div class="payment-amount">${Math.round(
+                          totals.completePayment
+                      ).toLocaleString()} EGP</div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
-            </body>
-            </html>
-          `);
+
+              ${
+                  quoteData.settings.customNotes
+                      ? `
+                <div class="notes-section">
+                  <h3 class="notes-title">📝 Special Notes & Terms</h3>
+                  <div class="notes-content">${quoteData.settings.customNotes.replace(
+                      /\n/g,
+                      "<br>"
+                  )}</div>
+                </div>
+              `
+                      : ""
+              }
+
+              <footer class="footer">
+                <h3 class="footer-title">Cocoon Company for Aluminum Works</h3>
+                <div class="footer-content">
+                  <div class="footer-section">
+                    <p><strong>Address:</strong> 61 Seventh Neighborhood, Fourth District</p>
+                    <p>El-Shaikh Zayed, Giza, Egypt</p>
+                    <p><strong>Phone:</strong> +20 2 38501291</p>
+                    
+                  </div>
+                  <div class="footer-section">
+                    <p><strong>Email:</strong> sales.department@cocoonaluminum.com</p>
+                    <p><strong>Website:</strong> www.cocoonaluminum.com</p>
+                    <p><strong>Mobile:</strong> +20 11 51717149</p>
+                  </div>
+                </div>
+              </footer>
+            </div>
+
+            <script>
+              // Enhanced number formatting with Arabic locale support
+              function formatNumberWithCommas(num) {
+                return new Intl.NumberFormat('en-EG', {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0
+                }).format(num);
+              }
+
+              // Format all currency values
+              document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.price-value, .total-value, .payment-amount').forEach(el => {
+                  const text = el.textContent;
+                  const match = text.match(/([\d,]+)/);
+                  if (match) {
+                    const number = parseInt(match[1].replace(/,/g, ''));
+                    if (!isNaN(number)) {
+                      el.textContent = text.replace(match[1], formatNumberWithCommas(number));
+                    }
+                  }
+                });
+
+                // Auto-print after content loads
+                
+              });
+            </script>
+          </body>
+          </html>
+        `;
+                    if (printWindow) {
+                        printWindow.document.write(htmlContent);
                         printWindow.document.close();
                         printWindow.print();
                     }
