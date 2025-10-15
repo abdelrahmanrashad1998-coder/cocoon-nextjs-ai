@@ -1692,12 +1692,12 @@ export const useQuoteGenerator = () => {
                     printWindow.document.write(htmlContent);
                     printWindow.document.close();
 
-                    //printWindow.onload = () => {
-                    //    setTimeout(() => {
-                    //        printWindow.print();
-                    //        console.log("Professional PDF export completed");
-                    //    }, 500);
-                    //};
+                    printWindow.onload = () => {
+                        setTimeout(() => {
+                            printWindow.print();
+                            console.log("Professional PDF export completed");
+                        }, 500);
+                    };
                 } else if (type === "print") {
                     // Simplified print version
                     const printWindow = window.open("", "_blank");
