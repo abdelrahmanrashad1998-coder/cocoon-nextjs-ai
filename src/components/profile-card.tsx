@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-    CheckCircle,
-    Edit,
-    Trash2,
-    ChevronDown,
-} from "lucide-react";
+import { CheckCircle, Edit, Trash2, ChevronDown } from "lucide-react";
 import { AluminiumProfile } from "./profile/profile-manager";
 import {
     Collapsible,
@@ -210,6 +205,23 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                                 </span>
                                 <span className="font-medium text-gray-900">
                                     {profile.glass_price_double || "0.00"} EGP
+                                </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">
+                                    Glass Price (Triple)
+                                </span>
+                                <span className="font-medium text-gray-900">
+                                    {profile.glass_price_triple || "0.00"} EGP
+                                </span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">
+                                    Glass Price (Laminated)
+                                </span>
+                                <span className="font-medium text-gray-900">
+                                    {profile.glass_price_laminated || "0.00"}{" "}
+                                    EGP
                                 </span>
                             </div>
                             <div className="flex justify-between text-sm">

@@ -48,42 +48,44 @@ export interface AluminiumProfile {
     brand: string;
     system_type: string;
     kg_price: number;
-    
+
     // Frame weights and prices
     frame_weight_2_4_sach: number;
     frame_price: number;
     frame_weight_3_sach: number;
     frame_price_3: number;
-    
+
     // Sach weights and prices
     sach_weight: number;
     sach_price: number;
-    
+
     // Mosquito weights and prices
     mosquito_weight: number;
     mosquito_price_fixed: number;
     mosquito_price_plisse: number;
     net_price_panda: number;
-    
+
     // Arc weights and prices
     arc_trave_weight: number;
     arc_price: number;
-    
+
     // Accessories
     accessories_2_sach: number;
     accessories_3_sach: number;
     accessories_4_sach: number;
-    
+
     // System specifications
     system: string;
     max_h: number;
     max_w: number;
     base_profit_rate: number;
-    
+
     // Glass prices
     glass_price_single: number;
     glass_price_double: number;
-    
+    glass_price_triple: number;
+    glass_price_laminated: number;
+
     // Legacy fields for backward compatibility
     weight_6m?: number;
     frame_meters_input?: number;
@@ -220,47 +222,54 @@ export default function ProfileManager({
                     brand: data.brand || "Unknown Brand",
                     system_type: data.system_type || "unknown",
                     kg_price: data.kg_price || 0,
-                    
+
                     // Frame weights and prices
                     frame_weight_2_4_sach: data.frame_weight_2_4_sach || 0,
                     frame_price: data.frame_price || 0,
                     frame_weight_3_sach: data.frame_weight_3_sach || 0,
                     frame_price_3: data.frame_price_3 || 0,
-                    
+
                     // Sach weights and prices
                     sach_weight: data.sach_weight || 0,
                     sach_price: data.sach_price || data.leaf_price || 0,
-                    
+
                     // Mosquito weights and prices
                     mosquito_weight: data.mosquito_weight || 0,
                     mosquito_price_fixed: data.mosquito_price_fixed || 0,
                     mosquito_price_plisse: data.mosquito_price_plisse || 0,
-                    net_price_panda: data.net_price_panda || data.mosquito_price_fixed || data.net_price || 0,
-                    
+                    net_price_panda:
+                        data.net_price_panda ||
+                        data.mosquito_price_fixed ||
+                        data.net_price ||
+                        0,
+
                     // Arc weights and prices
                     arc_trave_weight: data.arc_trave_weight || 0,
                     arc_price: data.arc_price || 0,
-                    
+
                     // Accessories
                     accessories_2_sach: data.accessories_2_sach || 0,
                     accessories_3_sach: data.accessories_3_sach || 0,
                     accessories_4_sach: data.accessories_4_sach || 0,
-                    
+
                     // System specifications
                     system: data.system || "",
                     max_h: data.max_h || 0,
                     max_w: data.max_w || 0,
                     base_profit_rate: data.base_profit_rate || 0,
-                    
+
                     // Glass prices
                     glass_price_single: data.glass_price_single || 0,
                     glass_price_double: data.glass_price_double || 0,
-                    
+                    glass_price_triple: data.glass_price_triple || 0,
+                    glass_price_laminated: data.glass_price_laminated || 0,
+
                     // Legacy fields for backward compatibility
                     weight_6m: data.weight_6m || 0,
                     frame_meters_input: data.frame_meters_input || 0,
                     windows_meters_input: data.windows_meters_input || 0,
-                    frame_meters_3_leaves_input: data.frame_meters_3_leaves_input || 0,
+                    frame_meters_3_leaves_input:
+                        data.frame_meters_3_leaves_input || 0,
                     accessories_2_leaves: data.accessories_2_sach || 0,
                     accessories_3_leaves: data.accessories_3_sach || 0,
                     accessories_4_leaves: data.accessories_4_sach || 0,
@@ -306,47 +315,48 @@ export default function ProfileManager({
                 brand: createForm.brand || "",
                 system_type: createForm.system_type || "",
                 kg_price: createForm.kg_price || 0,
-                
+
                 // Frame weights and prices
                 frame_weight_2_4_sach: createForm.frame_weight_2_4_sach || 0,
                 frame_price: createForm.frame_price || 0,
                 frame_weight_3_sach: createForm.frame_weight_3_sach || 0,
                 frame_price_3: createForm.frame_price_3 || 0,
-                
+
                 // Sach weights and prices
                 sach_weight: createForm.sach_weight || 0,
                 sach_price: createForm.sach_price || 0,
-                
+
                 // Mosquito weights and prices
                 mosquito_weight: createForm.mosquito_weight || 0,
                 mosquito_price_fixed: createForm.mosquito_price_fixed || 0,
                 mosquito_price_plisse: createForm.mosquito_price_plisse || 0,
                 net_price_panda: createForm.net_price_panda || 0,
-                
+
                 // Arc weights and prices
                 arc_trave_weight: createForm.arc_trave_weight || 0,
                 arc_price: createForm.arc_price || 0,
-                
+
                 // Accessories
                 accessories_2_sach: createForm.accessories_2_sach || 0,
                 accessories_3_sach: createForm.accessories_3_sach || 0,
                 accessories_4_sach: createForm.accessories_4_sach || 0,
-                
+
                 // System specifications
                 system: createForm.system || "",
                 max_h: createForm.max_h || 0,
                 max_w: createForm.max_w || 0,
                 base_profit_rate: createForm.base_profit_rate || 0,
-                
+
                 // Glass prices
                 glass_price_single: createForm.glass_price_single || 0,
                 glass_price_double: createForm.glass_price_double || 0,
-                
+
                 // Legacy fields for backward compatibility
                 weight_6m: createForm.weight_6m || 0,
                 frame_meters_input: createForm.frame_meters_input || 0,
                 windows_meters_input: createForm.windows_meters_input || 0,
-                frame_meters_3_leaves_input: createForm.frame_meters_3_leaves_input || 0,
+                frame_meters_3_leaves_input:
+                    createForm.frame_meters_3_leaves_input || 0,
                 accessories_2_leaves: createForm.accessories_2_leaves || 0,
                 accessories_3_leaves: createForm.accessories_3_leaves || 0,
                 accessories_4_leaves: createForm.accessories_4_leaves || 0,
@@ -379,47 +389,53 @@ export default function ProfileManager({
                 brand: editingProfile.brand || "",
                 system_type: editingProfile.system_type || "",
                 kg_price: editingProfile.kg_price || 0,
-                
+
                 // Frame weights and prices
-                frame_weight_2_4_sach: editingProfile.frame_weight_2_4_sach || 0,
+                frame_weight_2_4_sach:
+                    editingProfile.frame_weight_2_4_sach || 0,
                 frame_price: editingProfile.frame_price || 0,
                 frame_weight_3_sach: editingProfile.frame_weight_3_sach || 0,
                 frame_price_3: editingProfile.frame_price_3 || 0,
-                
+
                 // Sach weights and prices
                 sach_weight: editingProfile.sach_weight || 0,
                 sach_price: editingProfile.sach_price || 0,
-                
+
                 // Mosquito weights and prices
                 mosquito_weight: editingProfile.mosquito_weight || 0,
                 mosquito_price_fixed: editingProfile.mosquito_price_fixed || 0,
-                mosquito_price_plisse: editingProfile.mosquito_price_plisse || 0,
+                mosquito_price_plisse:
+                    editingProfile.mosquito_price_plisse || 0,
                 net_price_panda: editingProfile.net_price_panda || 0,
-                
+
                 // Arc weights and prices
                 arc_trave_weight: editingProfile.arc_trave_weight || 0,
                 arc_price: editingProfile.arc_price || 0,
-                
+
                 // Accessories
                 accessories_2_sach: editingProfile.accessories_2_sach || 0,
                 accessories_3_sach: editingProfile.accessories_3_sach || 0,
                 accessories_4_sach: editingProfile.accessories_4_sach || 0,
-                
+
                 // System specifications
                 system: editingProfile.system || "",
                 max_h: editingProfile.max_h || 0,
                 max_w: editingProfile.max_w || 0,
                 base_profit_rate: editingProfile.base_profit_rate || 0,
-                
+
                 // Glass prices
                 glass_price_single: editingProfile.glass_price_single || 0,
                 glass_price_double: editingProfile.glass_price_double || 0,
-                
+                glass_price_triple: editingProfile.glass_price_triple || 0,
+                glass_price_laminated:
+                    editingProfile.glass_price_laminated || 0,
+
                 // Legacy fields for backward compatibility
                 weight_6m: editingProfile.weight_6m || 0,
                 frame_meters_input: editingProfile.frame_meters_input || 0,
                 windows_meters_input: editingProfile.windows_meters_input || 0,
-                frame_meters_3_leaves_input: editingProfile.frame_meters_3_leaves_input || 0,
+                frame_meters_3_leaves_input:
+                    editingProfile.frame_meters_3_leaves_input || 0,
                 accessories_2_leaves: editingProfile.accessories_2_leaves || 0,
                 accessories_3_leaves: editingProfile.accessories_3_leaves || 0,
                 accessories_4_leaves: editingProfile.accessories_4_leaves || 0,
@@ -488,7 +504,7 @@ export default function ProfileManager({
         const csvContent = [
             [
                 "profile_code",
-                "brand", 
+                "brand",
                 "profile_name",
                 "kg_price",
                 "frame_weight_2_4_sach",
@@ -511,7 +527,7 @@ export default function ProfileManager({
                 "max_w",
                 "base_profit_rate",
                 "glass_price_single",
-                "glass_price_double"
+                "glass_price_double",
             ],
             ...profiles.map((profile) => [
                 profile.code,
@@ -538,7 +554,7 @@ export default function ProfileManager({
                 profile.max_w,
                 profile.base_profit_rate,
                 profile.glass_price_single,
-                profile.glass_price_double
+                profile.glass_price_double,
             ]),
         ]
             .map((row) => row.join(","))
@@ -578,7 +594,6 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
         });
         setTimeout(() => setCsvImportStatus(null), 3000);
     };
-
 
     // Handle CSV import
     const handleCSVImport = async (
@@ -682,50 +697,66 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                             brand: profile.brand || "Unknown",
                             system_type: profile.system || "unknown",
                             kg_price: profile.kg_price || 0,
-                            
+
                             // Frame weights and prices
-                            frame_weight_2_4_sach: profile.frame_weight_2_4_sach || 0,
+                            frame_weight_2_4_sach:
+                                profile.frame_weight_2_4_sach || 0,
                             frame_price: profile.frame_price || 0,
-                            frame_weight_3_sach: profile.frame_weight_3_sach || 0,
+                            frame_weight_3_sach:
+                                profile.frame_weight_3_sach || 0,
                             frame_price_3: profile.frame_price_3 || 0,
-                            
+
                             // Sach weights and prices
                             sach_weight: profile.sach_weight || 0,
                             sach_price: profile.sach_price || 0,
-                            
+
                             // Mosquito weights and prices
                             mosquito_weight: profile.mosquito_weight || 0,
-                            mosquito_price_fixed: profile.mosquito_price_fixed || 0,
-                            mosquito_price_plisse: profile.mosquito_price_plisse || 0,
-                            net_price_panda: profile.net_price_panda || profile.mosquito_price_fixed || profile.net_price || 0,
-                            
+                            mosquito_price_fixed:
+                                profile.mosquito_price_fixed || 0,
+                            mosquito_price_plisse:
+                                profile.mosquito_price_plisse || 0,
+                            net_price_panda:
+                                profile.net_price_panda ||
+                                profile.mosquito_price_fixed ||
+                                profile.net_price ||
+                                0,
+
                             // Arc weights and prices
                             arc_trave_weight: profile.arc_trave_weight || 0,
                             arc_price: profile.arc_price || 0,
-                            
+
                             // Accessories
                             accessories_2_sach: profile.accessories_2_sach || 0,
                             accessories_3_sach: profile.accessories_3_sach || 0,
                             accessories_4_sach: profile.accessories_4_sach || 0,
-                            
+
                             // System specifications
                             system: profile.system || "",
                             max_h: profile.max_h || 0,
                             max_w: profile.max_w || 0,
                             base_profit_rate: profile.base_profit_rate || 0,
-                            
+
                             // Glass prices
                             glass_price_single: profile.glass_price_single || 0,
                             glass_price_double: profile.glass_price_double || 0,
-                            
+                            glass_price_triple: profile.glass_price_triple || 0,
+                            glass_price_laminated:
+                                profile.glass_price_laminated || 0,
+
                             // Legacy fields for backward compatibility
                             weight_6m: profile.weight_6m || 0,
                             frame_meters_input: profile.frame_meters_input || 0,
-                            windows_meters_input: profile.windows_meters_input || 0,
-                            frame_meters_3_leaves_input: profile.frame_meters_3_leaves_input || 0,
-                            accessories_2_leaves: profile.accessories_2_leaves || 0,
-                            accessories_3_leaves: profile.accessories_3_leaves || 0,
-                            accessories_4_leaves: profile.accessories_4_leaves || 0,
+                            windows_meters_input:
+                                profile.windows_meters_input || 0,
+                            frame_meters_3_leaves_input:
+                                profile.frame_meters_3_leaves_input || 0,
+                            accessories_2_leaves:
+                                profile.accessories_2_leaves || 0,
+                            accessories_3_leaves:
+                                profile.accessories_3_leaves || 0,
+                            accessories_4_leaves:
+                                profile.accessories_4_leaves || 0,
                             net_price: profile.net_price || 0,
                             net_price_plisse: profile.net_price_plisse || 0,
                         };
@@ -744,48 +775,56 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                             brand: newProfile.brand,
                             system_type: newProfile.system_type,
                             kg_price: newProfile.kg_price,
-                            
+
                             // Frame weights and prices
-                            frame_weight_2_4_sach: newProfile.frame_weight_2_4_sach,
+                            frame_weight_2_4_sach:
+                                newProfile.frame_weight_2_4_sach,
                             frame_price: newProfile.frame_price,
                             frame_weight_3_sach: newProfile.frame_weight_3_sach,
                             frame_price_3: newProfile.frame_price_3,
-                            
+
                             // Sach weights and prices
                             sach_weight: newProfile.sach_weight,
                             sach_price: newProfile.sach_price,
-                            
+
                             // Mosquito weights and prices
                             mosquito_weight: newProfile.mosquito_weight,
-                            mosquito_price_fixed: newProfile.mosquito_price_fixed,
-                            mosquito_price_plisse: newProfile.mosquito_price_plisse,
+                            mosquito_price_fixed:
+                                newProfile.mosquito_price_fixed,
+                            mosquito_price_plisse:
+                                newProfile.mosquito_price_plisse,
                             net_price_panda: newProfile.net_price_panda,
-                            
+
                             // Arc weights and prices
                             arc_trave_weight: newProfile.arc_trave_weight,
                             arc_price: newProfile.arc_price,
-                            
+
                             // Accessories
                             accessories_2_sach: newProfile.accessories_2_sach,
                             accessories_3_sach: newProfile.accessories_3_sach,
                             accessories_4_sach: newProfile.accessories_4_sach,
-                            
+
                             // System specifications
                             system: newProfile.system,
                             max_h: newProfile.max_h,
                             max_w: newProfile.max_w,
                             base_profit_rate: newProfile.base_profit_rate,
-                            
+
                             // Legacy fields for backward compatibility
                             glass_price_single: newProfile.glass_price_single,
                             glass_price_double: newProfile.glass_price_double,
                             weight_6m: newProfile.weight_6m,
                             frame_meters_input: newProfile.frame_meters_input,
-                            windows_meters_input: newProfile.windows_meters_input,
-                            frame_meters_3_leaves_input: newProfile.frame_meters_3_leaves_input,
-                            accessories_2_leaves: newProfile.accessories_2_leaves,
-                            accessories_3_leaves: newProfile.accessories_3_leaves,
-                            accessories_4_leaves: newProfile.accessories_4_leaves,
+                            windows_meters_input:
+                                newProfile.windows_meters_input,
+                            frame_meters_3_leaves_input:
+                                newProfile.frame_meters_3_leaves_input,
+                            accessories_2_leaves:
+                                newProfile.accessories_2_leaves,
+                            accessories_3_leaves:
+                                newProfile.accessories_3_leaves,
+                            accessories_4_leaves:
+                                newProfile.accessories_4_leaves,
                             net_price: newProfile.net_price,
                             net_price_plisse: newProfile.net_price_plisse,
                         };
@@ -826,25 +865,41 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
         event.target.value = "";
     };
 
-
-
     // Enhanced calculation functions for different meter types
-    const calculateFramePrice = (kgPrice: number, weight6m: number, frameMetersInput: number) => {
+    const calculateFramePrice = (
+        kgPrice: number,
+        weight6m: number,
+        frameMetersInput: number
+    ) => {
         const pricePerMeter = (kgPrice * weight6m) / 6;
         return pricePerMeter * frameMetersInput;
     };
 
-    const calculateSachPrice = (kgPrice: number, weight6m: number, windowsMetersInput: number) => {
+    const calculateSachPrice = (
+        kgPrice: number,
+        weight6m: number,
+        windowsMetersInput: number
+    ) => {
         const pricePerMeter = (kgPrice * weight6m) / 6;
         return pricePerMeter * windowsMetersInput;
     };
 
-    const calculateFramePrice3Leaves = (kgPrice: number, weight6m: number, frameMeters3LeavesInput: number) => {
+    const calculateFramePrice3Leaves = (
+        kgPrice: number,
+        weight6m: number,
+        frameMeters3LeavesInput: number
+    ) => {
         const pricePerMeter = (kgPrice * weight6m) / 6;
         return pricePerMeter * frameMeters3LeavesInput;
     };
 
-    const calculateAllPrices = (kgPrice: number, weight6m: number, frameMetersInput: number, windowsMetersInput: number, frameMeters3LeavesInput: number) => {
+    const calculateAllPrices = (
+        kgPrice: number,
+        weight6m: number,
+        frameMetersInput: number,
+        windowsMetersInput: number,
+        frameMeters3LeavesInput: number
+    ) => {
         const pricePerMeter = (kgPrice * weight6m) / 6;
         return {
             framePrice: pricePerMeter * frameMetersInput,
@@ -854,10 +909,15 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
     };
 
     // Enhanced handlers for individual meter inputs
-    const handleFrameMetersInputChange = (value: number, isEdit: boolean = false) => {
+    const handleFrameMetersInputChange = (
+        value: number,
+        isEdit: boolean = false
+    ) => {
         const form = isEdit ? editingProfile : createForm;
         const kgPrice = isEdit ? editingProfile?.kg_price : createForm.kg_price;
-        const weight6m = isEdit ? editingProfile?.weight_6m : createForm.weight_6m;
+        const weight6m = isEdit
+            ? editingProfile?.weight_6m
+            : createForm.weight_6m;
 
         if (form && kgPrice && weight6m) {
             const framePrice = calculateFramePrice(kgPrice, weight6m, value);
@@ -877,10 +937,15 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
         }
     };
 
-    const handleWindowsMetersInputChange = (value: number, isEdit: boolean = false) => {
+    const handleWindowsMetersInputChange = (
+        value: number,
+        isEdit: boolean = false
+    ) => {
         const form = isEdit ? editingProfile : createForm;
         const kgPrice = isEdit ? editingProfile?.kg_price : createForm.kg_price;
-        const weight6m = isEdit ? editingProfile?.weight_6m : createForm.weight_6m;
+        const weight6m = isEdit
+            ? editingProfile?.weight_6m
+            : createForm.weight_6m;
 
         if (form && kgPrice && weight6m) {
             const sachPrice = calculateSachPrice(kgPrice, weight6m, value);
@@ -898,13 +963,22 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
         }
     };
 
-    const handleFrameMeters3LeavesInputChange = (value: number, isEdit: boolean = false) => {
+    const handleFrameMeters3LeavesInputChange = (
+        value: number,
+        isEdit: boolean = false
+    ) => {
         const form = isEdit ? editingProfile : createForm;
         const kgPrice = isEdit ? editingProfile?.kg_price : createForm.kg_price;
-        const weight6m = isEdit ? editingProfile?.weight_6m : createForm.weight_6m;
+        const weight6m = isEdit
+            ? editingProfile?.weight_6m
+            : createForm.weight_6m;
 
         if (form && kgPrice && weight6m) {
-            const framePrice3Leaves = calculateFramePrice3Leaves(kgPrice, weight6m, value);
+            const framePrice3Leaves = calculateFramePrice3Leaves(
+                kgPrice,
+                weight6m,
+                value
+            );
             if (isEdit && editingProfile) {
                 setEditingProfile({
                     ...editingProfile,
@@ -924,13 +998,33 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
     // Enhanced handlers for kg_price and weight changes that recalculate all prices
     const handleKgPriceChange = (value: number, isEdit: boolean = false) => {
         const form = isEdit ? editingProfile : createForm;
-        const weight = isEdit ? editingProfile?.weight_6m : createForm.weight_6m;
-        const frameMetersInput = isEdit ? editingProfile?.frame_meters_input : createForm.frame_meters_input;
-        const windowsMetersInput = isEdit ? editingProfile?.windows_meters_input : createForm.windows_meters_input;
-        const frameMeters3LeavesInput = isEdit ? editingProfile?.frame_meters_3_leaves_input : createForm.frame_meters_3_leaves_input;
+        const weight = isEdit
+            ? editingProfile?.weight_6m
+            : createForm.weight_6m;
+        const frameMetersInput = isEdit
+            ? editingProfile?.frame_meters_input
+            : createForm.frame_meters_input;
+        const windowsMetersInput = isEdit
+            ? editingProfile?.windows_meters_input
+            : createForm.windows_meters_input;
+        const frameMeters3LeavesInput = isEdit
+            ? editingProfile?.frame_meters_3_leaves_input
+            : createForm.frame_meters_3_leaves_input;
 
-        if (form && weight && frameMetersInput && windowsMetersInput && frameMeters3LeavesInput) {
-            const prices = calculateAllPrices(value, weight, frameMetersInput, windowsMetersInput, frameMeters3LeavesInput);
+        if (
+            form &&
+            weight &&
+            frameMetersInput &&
+            windowsMetersInput &&
+            frameMeters3LeavesInput
+        ) {
+            const prices = calculateAllPrices(
+                value,
+                weight,
+                frameMetersInput,
+                windowsMetersInput,
+                frameMeters3LeavesInput
+            );
             if (isEdit && editingProfile) {
                 setEditingProfile({
                     ...editingProfile,
@@ -952,12 +1046,30 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
     const handleWeightChange = (value: number, isEdit: boolean = false) => {
         const form = isEdit ? editingProfile : createForm;
         const kgPrice = isEdit ? editingProfile?.kg_price : createForm.kg_price;
-        const frameMetersInput = isEdit ? editingProfile?.frame_meters_input : createForm.frame_meters_input;
-        const windowsMetersInput = isEdit ? editingProfile?.windows_meters_input : createForm.windows_meters_input;
-        const frameMeters3LeavesInput = isEdit ? editingProfile?.frame_meters_3_leaves_input : createForm.frame_meters_3_leaves_input;
+        const frameMetersInput = isEdit
+            ? editingProfile?.frame_meters_input
+            : createForm.frame_meters_input;
+        const windowsMetersInput = isEdit
+            ? editingProfile?.windows_meters_input
+            : createForm.windows_meters_input;
+        const frameMeters3LeavesInput = isEdit
+            ? editingProfile?.frame_meters_3_leaves_input
+            : createForm.frame_meters_3_leaves_input;
 
-        if (form && kgPrice && frameMetersInput && windowsMetersInput && frameMeters3LeavesInput) {
-            const prices = calculateAllPrices(kgPrice, value, frameMetersInput, windowsMetersInput, frameMeters3LeavesInput);
+        if (
+            form &&
+            kgPrice &&
+            frameMetersInput &&
+            windowsMetersInput &&
+            frameMeters3LeavesInput
+        ) {
+            const prices = calculateAllPrices(
+                kgPrice,
+                value,
+                frameMetersInput,
+                windowsMetersInput,
+                frameMeters3LeavesInput
+            );
             if (isEdit && editingProfile) {
                 setEditingProfile({
                     ...editingProfile,
@@ -975,8 +1087,6 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
             }
         }
     };
-
-
 
     return (
         <div className="space-y-6">
@@ -1073,13 +1183,12 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                             <TabsTrigger value="browse">
                                 Browse Profiles
                             </TabsTrigger>
-                            
+
                             {canManageProfiles && (
                                 <TabsTrigger value="import">
                                     Import Profiles
                                 </TabsTrigger>
                             )}
-                            
                         </TabsList>
 
                         <TabsContent
@@ -1277,9 +1386,8 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-6">
-
-                                         {/* Import Instructions */}
-                                         <div className="border border-border rounded-lg p-6 bg-muted">
+                                        {/* Import Instructions */}
+                                        <div className="border border-border rounded-lg p-6 bg-muted">
                                             <h3 className="text-lg font-semibold text-foreground mb-3">
                                                 Import Instructions
                                             </h3>
@@ -1410,20 +1518,13 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                                 </div>
                                             )}
                                         </div>
-
-
-                                       
                                     </CardContent>
                                 </Card>
                             </TabsContent>
                         )}
-
-                        
                     </Tabs>
                 </>
             )}
-
-            
 
             {/* Create Profile Modal */}
             {showCreateModal && (
@@ -1436,14 +1537,19 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                         <div className="space-y-6">
                             {/* Basic Information */}
                             <div>
-                                <h4 className="font-medium mb-3">Basic Information</h4>
+                                <h4 className="font-medium mb-3">
+                                    Basic Information
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <Label>Profile Code</Label>
                                         <Input
                                             value={createForm.code || ""}
                                             onChange={(e) =>
-                                                handleCreateChange("code", e.target.value)
+                                                handleCreateChange(
+                                                    "code",
+                                                    e.target.value
+                                                )
                                             }
                                             placeholder="e.g., AL001"
                                         />
@@ -1453,7 +1559,10 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             value={createForm.brand || ""}
                                             onChange={(e) =>
-                                                handleCreateChange("brand", e.target.value)
+                                                handleCreateChange(
+                                                    "brand",
+                                                    e.target.value
+                                                )
                                             }
                                             placeholder="e.g., Cocoon"
                                         />
@@ -1463,7 +1572,10 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             value={createForm.name || ""}
                                             onChange={(e) =>
-                                                handleCreateChange("name", e.target.value)
+                                                handleCreateChange(
+                                                    "name",
+                                                    e.target.value
+                                                )
                                             }
                                             placeholder="e.g., Standard Sliding Window"
                                         />
@@ -1482,7 +1594,12 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                             step="0.01"
                                             value={createForm.kg_price || ""}
                                             onChange={(e) =>
-                                                handleCreateChange("kg_price", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "kg_price",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1492,9 +1609,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.base_profit_rate || ""}
+                                            value={
+                                                createForm.base_profit_rate ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("base_profit_rate", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "base_profit_rate",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1504,16 +1629,26 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* Frame Weights and Prices */}
                             <div>
-                                <h4 className="font-medium mb-3">Frame Weights and Prices</h4>
+                                <h4 className="font-medium mb-3">
+                                    Frame Weights and Prices
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div className="space-y-2">
                                         <Label>Frame Weight 2,4 Sach</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.frame_weight_2_4_sach || ""}
+                                            value={
+                                                createForm.frame_weight_2_4_sach ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("frame_weight_2_4_sach", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "frame_weight_2_4_sach",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1525,7 +1660,12 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                             step="0.01"
                                             value={createForm.frame_price || ""}
                                             onChange={(e) =>
-                                                handleCreateChange("frame_price", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "frame_price",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1535,9 +1675,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.frame_weight_3_sach || ""}
+                                            value={
+                                                createForm.frame_weight_3_sach ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("frame_weight_3_sach", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "frame_weight_3_sach",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1547,9 +1695,16 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.frame_price_3 || ""}
+                                            value={
+                                                createForm.frame_price_3 || ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("frame_price_3", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "frame_price_3",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1559,7 +1714,9 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* Sach Weights and Prices */}
                             <div>
-                                <h4 className="font-medium mb-3">Sach Weights and Prices</h4>
+                                <h4 className="font-medium mb-3">
+                                    Sach Weights and Prices
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label>Sach Weight</Label>
@@ -1568,7 +1725,12 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                             step="0.01"
                                             value={createForm.sach_weight || ""}
                                             onChange={(e) =>
-                                                handleCreateChange("sach_weight", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "sach_weight",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1580,7 +1742,12 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                             step="0.01"
                                             value={createForm.sach_price || ""}
                                             onChange={(e) =>
-                                                handleCreateChange("sach_price", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "sach_price",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1590,16 +1757,25 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* Mosquito Weights and Prices */}
                             <div>
-                                <h4 className="font-medium mb-3">Mosquito Weights and Prices</h4>
+                                <h4 className="font-medium mb-3">
+                                    Mosquito Weights and Prices
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div className="space-y-2">
                                         <Label>Mosquito Weight</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.mosquito_weight || ""}
+                                            value={
+                                                createForm.mosquito_weight || ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("mosquito_weight", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "mosquito_weight",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1609,9 +1785,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.mosquito_price_fixed || ""}
+                                            value={
+                                                createForm.mosquito_price_fixed ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("mosquito_price_fixed", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "mosquito_price_fixed",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1621,9 +1805,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.mosquito_price_plisse || ""}
+                                            value={
+                                                createForm.mosquito_price_plisse ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("mosquito_price_plisse", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "mosquito_price_plisse",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1633,9 +1825,16 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.net_price_panda || ""}
+                                            value={
+                                                createForm.net_price_panda || ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("net_price_panda", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "net_price_panda",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1645,16 +1844,26 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* Arc Weights and Prices */}
                             <div>
-                                <h4 className="font-medium mb-3">Arc Weights and Prices</h4>
+                                <h4 className="font-medium mb-3">
+                                    Arc Weights and Prices
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label>Arc Trave Weight</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.arc_trave_weight || ""}
+                                            value={
+                                                createForm.arc_trave_weight ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("arc_trave_weight", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "arc_trave_weight",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1666,7 +1875,12 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                             step="0.01"
                                             value={createForm.arc_price || ""}
                                             onChange={(e) =>
-                                                handleCreateChange("arc_price", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "arc_price",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1676,16 +1890,26 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* Accessories */}
                             <div>
-                                <h4 className="font-medium mb-3">Accessories</h4>
+                                <h4 className="font-medium mb-3">
+                                    Accessories
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <Label>Accessories 2 Sach</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.accessories_2_sach || ""}
+                                            value={
+                                                createForm.accessories_2_sach ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("accessories_2_sach", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "accessories_2_sach",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1695,9 +1919,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.accessories_3_sach || ""}
+                                            value={
+                                                createForm.accessories_3_sach ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("accessories_3_sach", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "accessories_3_sach",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1707,9 +1939,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.accessories_4_sach || ""}
+                                            value={
+                                                createForm.accessories_4_sach ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("accessories_4_sach", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "accessories_4_sach",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1719,24 +1959,37 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* System Specifications */}
                             <div>
-                                <h4 className="font-medium mb-3">System Specifications</h4>
+                                <h4 className="font-medium mb-3">
+                                    System Specifications
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div className="space-y-2">
                                         <Label>System</Label>
                                         <Select
                                             value={createForm.system || ""}
                                             onValueChange={(value) =>
-                                                handleCreateChange("system", value)
+                                                handleCreateChange(
+                                                    "system",
+                                                    value
+                                                )
                                             }
                                         >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select system" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="sliding">Sliding</SelectItem>
-                                                <SelectItem value="hinged">Hinged</SelectItem>
-                                                <SelectItem value="fixed">Fixed</SelectItem>
-                                                <SelectItem value="curtain_wall">Curtain Wall</SelectItem>
+                                                <SelectItem value="sliding">
+                                                    Sliding
+                                                </SelectItem>
+                                                <SelectItem value="hinged">
+                                                    Hinged
+                                                </SelectItem>
+                                                <SelectItem value="fixed">
+                                                    Fixed
+                                                </SelectItem>
+                                                <SelectItem value="curtain_wall">
+                                                    Curtain Wall
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -1747,7 +2000,12 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                             step="0.01"
                                             value={createForm.max_h || ""}
                                             onChange={(e) =>
-                                                handleCreateChange("max_h", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "max_h",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1759,7 +2017,12 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                             step="0.01"
                                             value={createForm.max_w || ""}
                                             onChange={(e) =>
-                                                handleCreateChange("max_w", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "max_w",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1769,17 +2032,28 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Select
                                             value={createForm.system_type || ""}
                                             onValueChange={(value) =>
-                                                handleCreateChange("system_type", value)
+                                                handleCreateChange(
+                                                    "system_type",
+                                                    value
+                                                )
                                             }
                                         >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select system type" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="sliding">Sliding</SelectItem>
-                                                <SelectItem value="hinged">Hinged</SelectItem>
-                                                <SelectItem value="fixed">Fixed</SelectItem>
-                                                <SelectItem value="curtain_wall">Curtain Wall</SelectItem>
+                                                <SelectItem value="sliding">
+                                                    Sliding
+                                                </SelectItem>
+                                                <SelectItem value="hinged">
+                                                    Hinged
+                                                </SelectItem>
+                                                <SelectItem value="fixed">
+                                                    Fixed
+                                                </SelectItem>
+                                                <SelectItem value="curtain_wall">
+                                                    Curtain Wall
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -1788,16 +2062,26 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* Glass Prices */}
                             <div>
-                                <h4 className="font-medium mb-3">Glass Prices</h4>
+                                <h4 className="font-medium mb-3">
+                                    Glass Prices
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label>Glass Price Single</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.glass_price_single || ""}
+                                            value={
+                                                createForm.glass_price_single ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("glass_price_single", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "glass_price_single",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1807,31 +2091,39 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={createForm.glass_price_double || ""}
+                                            value={
+                                                createForm.glass_price_double ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleCreateChange("glass_price_double", parseFloat(e.target.value) || 0)
+                                                handleCreateChange(
+                                                    "glass_price_double",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
                                     </div>
-                                    </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div className="flex gap-2 mt-6">
-                                <Button
-                                    onClick={createProfile}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Save className="h-4 w-4" />
-                                    Create Profile
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setShowCreateModal(false)}
-                                >
-                                    Cancel
-                                </Button>
+                        <div className="flex gap-2 mt-6">
+                            <Button
+                                onClick={createProfile}
+                                className="flex items-center gap-2"
+                            >
+                                <Save className="h-4 w-4" />
+                                Create Profile
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowCreateModal(false)}
+                            >
+                                Cancel
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -1848,14 +2140,19 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                         <div className="space-y-6">
                             {/* Basic Information */}
                             <div>
-                                <h4 className="font-medium mb-3">Basic Information</h4>
+                                <h4 className="font-medium mb-3">
+                                    Basic Information
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <Label>Profile Code</Label>
                                         <Input
                                             value={editingProfile.code || ""}
                                             onChange={(e) =>
-                                                handleEditChange("code", e.target.value)
+                                                handleEditChange(
+                                                    "code",
+                                                    e.target.value
+                                                )
                                             }
                                             placeholder="e.g., AL001"
                                         />
@@ -1865,7 +2162,10 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             value={editingProfile.brand || ""}
                                             onChange={(e) =>
-                                                handleEditChange("brand", e.target.value)
+                                                handleEditChange(
+                                                    "brand",
+                                                    e.target.value
+                                                )
                                             }
                                             placeholder="e.g., Cocoon"
                                         />
@@ -1875,7 +2175,10 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             value={editingProfile.name || ""}
                                             onChange={(e) =>
-                                                handleEditChange("name", e.target.value)
+                                                handleEditChange(
+                                                    "name",
+                                                    e.target.value
+                                                )
                                             }
                                             placeholder="e.g., Standard Sliding Window"
                                         />
@@ -1892,9 +2195,16 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.kg_price || ""}
+                                            value={
+                                                editingProfile.kg_price || ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("kg_price", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "kg_price",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1904,9 +2214,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.base_profit_rate || ""}
+                                            value={
+                                                editingProfile.base_profit_rate ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("base_profit_rate", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "base_profit_rate",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1916,16 +2234,26 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* Frame Weights and Prices */}
                             <div>
-                                <h4 className="font-medium mb-3">Frame Weights and Prices</h4>
+                                <h4 className="font-medium mb-3">
+                                    Frame Weights and Prices
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div className="space-y-2">
                                         <Label>Frame Weight 2,4 Sach</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.frame_weight_2_4_sach || ""}
+                                            value={
+                                                editingProfile.frame_weight_2_4_sach ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("frame_weight_2_4_sach", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "frame_weight_2_4_sach",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1935,9 +2263,16 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.frame_price || ""}
+                                            value={
+                                                editingProfile.frame_price || ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("frame_price", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "frame_price",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1947,9 +2282,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.frame_weight_3_sach || ""}
+                                            value={
+                                                editingProfile.frame_weight_3_sach ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("frame_weight_3_sach", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "frame_weight_3_sach",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1959,9 +2302,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.frame_price_3 || ""}
+                                            value={
+                                                editingProfile.frame_price_3 ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("frame_price_3", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "frame_price_3",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1971,16 +2322,25 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* Sach Weights and Prices */}
                             <div>
-                                <h4 className="font-medium mb-3">Sach Weights and Prices</h4>
+                                <h4 className="font-medium mb-3">
+                                    Sach Weights and Prices
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label>Sach Weight</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.sach_weight || ""}
+                                            value={
+                                                editingProfile.sach_weight || ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("sach_weight", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "sach_weight",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -1990,9 +2350,16 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.sach_price || ""}
+                                            value={
+                                                editingProfile.sach_price || ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("sach_price", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "sach_price",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -2002,16 +2369,26 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* Mosquito Weights and Prices */}
                             <div>
-                                <h4 className="font-medium mb-3">Mosquito Weights and Prices</h4>
+                                <h4 className="font-medium mb-3">
+                                    Mosquito Weights and Prices
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div className="space-y-2">
                                         <Label>Mosquito Weight</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.mosquito_weight || ""}
+                                            value={
+                                                editingProfile.mosquito_weight ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("mosquito_weight", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "mosquito_weight",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -2021,9 +2398,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.mosquito_price_fixed || ""}
+                                            value={
+                                                editingProfile.mosquito_price_fixed ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("mosquito_price_fixed", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "mosquito_price_fixed",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -2033,9 +2418,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.mosquito_price_plisse || ""}
+                                            value={
+                                                editingProfile.mosquito_price_plisse ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("mosquito_price_plisse", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "mosquito_price_plisse",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -2045,9 +2438,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.net_price_panda || ""}
+                                            value={
+                                                editingProfile.net_price_panda ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("net_price_panda", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "net_price_panda",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -2057,16 +2458,26 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* Arc Weights and Prices */}
                             <div>
-                                <h4 className="font-medium mb-3">Arc Weights and Prices</h4>
+                                <h4 className="font-medium mb-3">
+                                    Arc Weights and Prices
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label>Arc Trave Weight</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.arc_trave_weight || ""}
+                                            value={
+                                                editingProfile.arc_trave_weight ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("arc_trave_weight", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "arc_trave_weight",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -2076,9 +2487,16 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.arc_price || ""}
+                                            value={
+                                                editingProfile.arc_price || ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("arc_price", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "arc_price",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -2088,16 +2506,26 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* Accessories */}
                             <div>
-                                <h4 className="font-medium mb-3">Accessories</h4>
+                                <h4 className="font-medium mb-3">
+                                    Accessories
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <Label>Accessories 2 Sach</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.accessories_2_sach || ""}
+                                            value={
+                                                editingProfile.accessories_2_sach ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("accessories_2_sach", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "accessories_2_sach",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -2107,9 +2535,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.accessories_3_sach || ""}
+                                            value={
+                                                editingProfile.accessories_3_sach ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("accessories_3_sach", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "accessories_3_sach",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -2119,9 +2555,17 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.accessories_4_sach || ""}
+                                            value={
+                                                editingProfile.accessories_4_sach ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("accessories_4_sach", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "accessories_4_sach",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -2131,24 +2575,37 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* System Specifications */}
                             <div>
-                                <h4 className="font-medium mb-3">System Specifications</h4>
+                                <h4 className="font-medium mb-3">
+                                    System Specifications
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div className="space-y-2">
                                         <Label>System</Label>
                                         <Select
                                             value={editingProfile.system || ""}
                                             onValueChange={(value) =>
-                                                handleEditChange("system", value)
+                                                handleEditChange(
+                                                    "system",
+                                                    value
+                                                )
                                             }
                                         >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select system" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="sliding">Sliding</SelectItem>
-                                                <SelectItem value="hinged">Hinged</SelectItem>
-                                                <SelectItem value="fixed">Fixed</SelectItem>
-                                                <SelectItem value="curtain_wall">Curtain Wall</SelectItem>
+                                                <SelectItem value="sliding">
+                                                    Sliding
+                                                </SelectItem>
+                                                <SelectItem value="hinged">
+                                                    Hinged
+                                                </SelectItem>
+                                                <SelectItem value="fixed">
+                                                    Fixed
+                                                </SelectItem>
+                                                <SelectItem value="curtain_wall">
+                                                    Curtain Wall
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -2159,7 +2616,12 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                             step="0.01"
                                             value={editingProfile.max_h || ""}
                                             onChange={(e) =>
-                                                handleEditChange("max_h", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "max_h",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -2171,7 +2633,12 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                             step="0.01"
                                             value={editingProfile.max_w || ""}
                                             onChange={(e) =>
-                                                handleEditChange("max_w", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "max_w",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -2179,19 +2646,32 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                     <div className="space-y-2">
                                         <Label>System Type</Label>
                                         <Select
-                                            value={editingProfile.system_type || ""}
+                                            value={
+                                                editingProfile.system_type || ""
+                                            }
                                             onValueChange={(value) =>
-                                                handleEditChange("system_type", value)
+                                                handleEditChange(
+                                                    "system_type",
+                                                    value
+                                                )
                                             }
                                         >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select system type" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="sliding">Sliding</SelectItem>
-                                                <SelectItem value="hinged">Hinged</SelectItem>
-                                                <SelectItem value="fixed">Fixed</SelectItem>
-                                                <SelectItem value="curtain_wall">Curtain Wall</SelectItem>
+                                                <SelectItem value="sliding">
+                                                    Sliding
+                                                </SelectItem>
+                                                <SelectItem value="hinged">
+                                                    Hinged
+                                                </SelectItem>
+                                                <SelectItem value="fixed">
+                                                    Fixed
+                                                </SelectItem>
+                                                <SelectItem value="curtain_wall">
+                                                    Curtain Wall
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -2200,16 +2680,26 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
 
                             {/* Glass Prices */}
                             <div>
-                                <h4 className="font-medium mb-3">Glass Prices</h4>
+                                <h4 className="font-medium mb-3">
+                                    Glass Prices
+                                </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label>Glass Price Single</Label>
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.glass_price_single || ""}
+                                            value={
+                                                editingProfile.glass_price_single ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("glass_price_single", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "glass_price_single",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
@@ -2219,31 +2709,79 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                                         <Input
                                             type="number"
                                             step="0.01"
-                                            value={editingProfile.glass_price_double || ""}
+                                            value={
+                                                editingProfile.glass_price_double ||
+                                                ""
+                                            }
                                             onChange={(e) =>
-                                                handleEditChange("glass_price_double", parseFloat(e.target.value) || 0)
+                                                handleEditChange(
+                                                    "glass_price_double",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
                                             placeholder="0.00"
                                         />
                                     </div>
+                                    <div className="space-y-2">
+                                        <Label>Glass Price Triple</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={
+                                                editingProfile.glass_price_triple ||
+                                                ""
+                                            }
+                                            onChange={(e) =>
+                                                handleEditChange(
+                                                    "glass_price_triple",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
+                                            }
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Glass Price Laminated</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            value={
+                                                editingProfile.glass_price_laminated ||
+                                                ""
+                                            }
+                                            onChange={(e) =>
+                                                handleEditChange(
+                                                    "glass_price_laminated",
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
+                                            }
+                                            placeholder="0.00"
+                                        />
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div className="flex gap-2 mt-6">
-                                <Button
-                                    onClick={updateProfile}
-                                    className="flex items-center gap-2"
-                                >
-                                    <Save className="h-4 w-4" />
-                                    Update Profile
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setShowEditModal(false)}
-                                >
-                                    Cancel
-                                </Button>
+                        <div className="flex gap-2 mt-6">
+                            <Button
+                                onClick={updateProfile}
+                                className="flex items-center gap-2"
+                            >
+                                <Save className="h-4 w-4" />
+                                Update Profile
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowEditModal(false)}
+                            >
+                                Cancel
+                            </Button>
                         </div>
                     </div>
                 </div>

@@ -86,6 +86,7 @@ interface CurtainWallDesignerProps {
         columnSizes: number[];
         rowSizes: number[];
     };
+    initGlassType: "single" | "double" | "triple" | "laminated";
     onDesignChange: (design: {
         panels: CurtainPanel[];
         frameMeters: number;
@@ -104,6 +105,7 @@ interface CurtainWallDesignerProps {
 export function CurtainWallDesigner({
     wallWidth,
     wallHeight,
+    initGlassType,
     initialDesignData,
     onDesignChange,
 }: CurtainWallDesignerProps) {
@@ -127,7 +129,7 @@ export function CurtainWallDesigner({
     >("aluminum");
     const [glassType, setGlassType] = useState<
         "single" | "double" | "triple" | "laminated"
-    >("double");
+    >(initGlassType);
     const [frameColor, setFrameColor] = useState("#606060");
     const [showGrid, setShowGrid] = useState(true);
     const [zoom, setZoom] = useState(1);
@@ -213,7 +215,7 @@ export function CurtainWallDesigner({
             ],
         },
     ];
-   
+
     // Enhanced calculations with pricing
     const calculateDesign = useCallback(
         (
@@ -274,12 +276,12 @@ export function CurtainWallDesigner({
                 if (panel.mergedId && panel.colSpan > 1) {
                     // For horizontal merging (colSpan > 1), reduce internal vertical corners
                     // Each merged panel eliminates (colSpan - 1) internal vertical corners
-                    cornerCount -= (panel.colSpan - 1);
+                    cornerCount -= panel.colSpan - 1;
                 }
                 if (panel.mergedId && panel.rowSpan > 1) {
                     // For vertical merging (rowSpan > 1), reduce internal horizontal corners
                     // Each merged panel eliminates (rowSpan - 1) internal horizontal corners
-                    cornerCount -= (panel.rowSpan - 1);
+                    cornerCount -= panel.rowSpan - 1;
                 }
             });
 
@@ -521,9 +523,11 @@ export function CurtainWallDesigner({
             // Update all panels with new dimensions based on current column/row sizes
             const updatedPanels = panels.map((panel) => {
                 // Calculate new dimensions based on current column/row sizes
-                const newWidthMeters = columnSizes[panel.col] || wallWidth / columns;
-                const newHeightMeters = rowSizes[panel.row] || wallHeight / rows;
-                
+                const newWidthMeters =
+                    columnSizes[panel.col] || wallWidth / columns;
+                const newHeightMeters =
+                    rowSizes[panel.row] || wallHeight / rows;
+
                 return {
                     ...panel,
                     widthMeters: newWidthMeters,
@@ -1065,7 +1069,6 @@ export function CurtainWallDesigner({
     return (
         <div className="space-y-6">
             {/* Header */}
-            
 
             {/* Main Content with Tabs */}
             <Tabs
@@ -1904,14 +1907,26 @@ export function CurtainWallDesigner({
                                             <span>Corner Count:</span>
                                             <span className="font-medium">
                                                 {(() => {
-                                                    let cornerCount = (columns + 1) * (rows + 1);
+                                                    let cornerCount =
+                                                        (columns + 1) *
+                                                        (rows + 1);
                                                     // Reduce corners for merged panels
                                                     panels.forEach((panel) => {
-                                                        if (panel.mergedId && panel.colSpan > 1) {
-                                                            cornerCount -= (panel.colSpan - 1);
+                                                        if (
+                                                            panel.mergedId &&
+                                                            panel.colSpan > 1
+                                                        ) {
+                                                            cornerCount -=
+                                                                panel.colSpan -
+                                                                1;
                                                         }
-                                                        if (panel.mergedId && panel.rowSpan > 1) {
-                                                            cornerCount -= (panel.rowSpan - 1);
+                                                        if (
+                                                            panel.mergedId &&
+                                                            panel.rowSpan > 1
+                                                        ) {
+                                                            cornerCount -=
+                                                                panel.rowSpan -
+                                                                1;
                                                         }
                                                     });
                                                     return cornerCount;

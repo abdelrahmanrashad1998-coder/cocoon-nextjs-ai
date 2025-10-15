@@ -16,18 +16,30 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
               profile_name: raw.profile.name,
               frame_price: Number(raw.profile.frame_price || 0),
               frame_price_3: Number(raw.profile.frame_price_3 || 0),
-              leaf_price: Number(raw.profile.sach_price || raw.profile.leaf_price || 0),
+              leaf_price: Number(
+                  raw.profile.sach_price || raw.profile.leaf_price || 0
+              ),
               accessories_2_leaves: Number(
-                  raw.profile.accessories_2_sach || raw.profile.accessories_2_leaves || 0
+                  raw.profile.accessories_2_sach ||
+                      raw.profile.accessories_2_leaves ||
+                      0
               ),
               accessories_3_leaves: Number(
-                  raw.profile.accessories_3_sach || raw.profile.accessories_3_leaves || 0
+                  raw.profile.accessories_3_sach ||
+                      raw.profile.accessories_3_leaves ||
+                      0
               ),
               accessories_4_leaves: Number(
-                  raw.profile.accessories_4_sach || raw.profile.accessories_4_leaves || 0
+                  raw.profile.accessories_4_sach ||
+                      raw.profile.accessories_4_leaves ||
+                      0
               ),
               glass_price_single: Number(raw.profile.glass_price_single || 0),
               glass_price_double: Number(raw.profile.glass_price_double || 0),
+              glass_price_triple: Number(raw.profile.glass_price_triple || 0),
+              glass_price_laminated: Number(
+                  raw.profile.glass_price_laminated || 0
+              ),
               arc_price: Number(raw.profile.arc_price || 0),
               net_price: Number(raw.profile.mosquito_price_fixed || 0),
               net_price_plisse: Number(raw.profile.mosquito_price_plisse || 0),
@@ -46,6 +58,8 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
               accessories_4_leaves: 0,
               glass_price_single: 0,
               glass_price_double: 0,
+              glass_price_triple: 0,
+              glass_price_laminated: 0,
               arc_price: 0,
               net_price: 0,
               net_price_plisse: 0,
@@ -141,6 +155,22 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
         const totalPriceUnit = totalBeforeProfitUnit + profitAmountUnit;
 
         const denomArea = totalAreaUnit > 0 ? totalAreaUnit : 1;
+        const originalWidth = Number(raw.width);
+        const originalHeight = Number(raw.height);
+
+        const calcWidth = originalWidth < 1 ? 1 : originalWidth;
+        const calcHeight = originalHeight < 1 ? 1 : originalHeight;
+
+        const areaUnit = calcWidth * calcHeight;
+        const glassRateCurtain =
+            raw.glassType === "double"
+                ? p.glass_price_double
+                : raw.glassType === "triple"
+                ? p.glass_price_triple
+                : raw.glassType === "laminated"
+                ? p.glass_price_laminated
+                : p.glass_price_single;
+        const glassCost = glassRateCurtain * areaUnit;
 
         return {
             ...raw,
@@ -179,7 +209,7 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
             sachPerimeter: 0,
             totalSachLength: 0,
             sachCost: 0,
-            glassCost: 0,
+            glassCost: +glassCost.toFixed(2),
             accessories: 0,
         };
     }
@@ -210,13 +240,19 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
 
     const glassType = raw.glassType?.toLowerCase() || "single";
     const glassRate =
-        glassType === "double" ? p.glass_price_double : p.glass_price_single;
+        glassType === "double"
+            ? p.glass_price_double
+            : glassType === "triple"
+            ? p.glass_price_triple
+            : glassType === "laminated"
+            ? p.glass_price_laminated
+            : p.glass_price_single;
     const glassCostUnit = glassRate * areaUnit;
 
     let netCostUnit = 0;
     if (raw.mosquito) {
         const netType = raw.netType?.toLowerCase() || "fixed";
-        
+
         if (netType === "fixed") {
             netCostUnit = p.net_price * sachPerimeter;
         } else if (netType === "plisse") {

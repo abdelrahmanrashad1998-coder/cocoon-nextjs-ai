@@ -709,6 +709,41 @@ export function QuoteItemEditor({
                                     </TableCell>
                                 </TableRow>
                                 <TableRow>
+                                    <TableCell>Glass Cost</TableCell>
+                                    <TableCell className="text-right text-sm text-muted-foreground">
+                                        {pricing.glassArea?.toFixed(2)}m² ×{" "}
+                                        {formatCurrency(
+                                            item.glassType === "single"
+                                                ? item.profile
+                                                      ?.glass_price_single || 0
+                                                : item.glassType === "double"
+                                                ? item.profile
+                                                      ?.glass_price_double || 0
+                                                : item.glassType === "triple"
+                                                ? item.profile
+                                                      ?.glass_price_triple || 0
+                                                : item.glassType === "laminated"
+                                                ? item.profile
+                                                      ?.glass_price_laminated ||
+                                                  0
+                                                : item.profile
+                                                      ?.glass_price_single || 0
+                                        )}
+                                        /m²
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {formatCurrency(
+                                            pricing.glassCost / item.quantity
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {item.quantity}
+                                    </TableCell>
+                                    <TableCell className="text-right font-medium">
+                                        {formatCurrency(pricing.glassCost)}
+                                    </TableCell>
+                                </TableRow>
+                                <TableRow>
                                     <TableCell>Sach Cost</TableCell>
                                     <TableCell className="text-right text-sm text-muted-foreground">
                                         {pricing.windowMeters?.toFixed(2)}m ×{" "}
@@ -955,9 +990,7 @@ export function QuoteItemEditor({
                                 Glass Type:
                             </span>
                             <div className="font-medium">
-                                {item.glassType === "double"
-                                    ? "Double Glazed"
-                                    : "Single Glazed"}
+                                {item.glassType.toUpperCase()}
                             </div>
                         </div>
                     </div>
@@ -1080,17 +1113,42 @@ export function QuoteItemEditor({
                                         {(item.width * item.height).toFixed(2)}
                                         m² ×{" "}
                                         {formatCurrency(
-                                            item.glassType === "double"
+                                            item.glassType === "single"
+                                                ? item.profile
+                                                      ?.glass_price_single || 0
+                                                : item.glassType === "double"
                                                 ? item.profile
                                                       ?.glass_price_double || 0
+                                                : item.glassType === "triple"
+                                                ? item.profile
+                                                      ?.glass_price_triple || 0
+                                                : item.glassType === "laminated"
+                                                ? item.profile
+                                                      ?.glass_price_laminated ||
+                                                  0
                                                 : item.profile
-                                                      ?.glass_price_single || 0
+                                                      ?.glass_price_single || 0 // fallback to single
                                         )}
                                         /m²
                                     </TableCell>
                                     <TableCell className="text-right">
                                         {formatCurrency(
-                                            pricing.glassCost / item.quantity
+                                            (item.glassType === "single"
+                                                ? item.profile
+                                                      ?.glass_price_single || 0
+                                                : item.glassType === "double"
+                                                ? item.profile
+                                                      ?.glass_price_double || 0
+                                                : item.glassType === "triple"
+                                                ? item.profile
+                                                      ?.glass_price_triple || 0
+                                                : item.glassType === "laminated"
+                                                ? item.profile
+                                                      ?.glass_price_laminated ||
+                                                  0
+                                                : item.profile
+                                                      ?.glass_price_single ||
+                                                  0) / item.quantity
                                         )}
                                     </TableCell>
                                     <TableCell className="text-right">
@@ -1463,16 +1521,16 @@ export function QuoteItemEditor({
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="1">
-                                                1 Sach
+                                                1 Sash
                                             </SelectItem>
                                             <SelectItem value="2">
-                                                2 Sach
+                                                2 Sash
                                             </SelectItem>
                                             <SelectItem value="3">
-                                                3 Sach
+                                                3 Sash
                                             </SelectItem>
                                             <SelectItem value="4">
-                                                4 Sach
+                                                4 Sash
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -1538,6 +1596,12 @@ export function QuoteItemEditor({
                                             </SelectItem>
                                             <SelectItem value="double">
                                                 Double Glazed
+                                            </SelectItem>
+                                            <SelectItem value="triple">
+                                                Triple Glazed
+                                            </SelectItem>
+                                            <SelectItem value="laminated">
+                                                Laminated
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -1714,6 +1778,9 @@ export function QuoteItemEditor({
                                             item.type === "curtain_wall" && (
                                                 <div className="mt-6">
                                                     <CurtainWallDesigner
+                                                        initGlassType={
+                                                            item.glassType
+                                                        }
                                                         wallWidth={
                                                             item.width || 0
                                                         }
