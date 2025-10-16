@@ -140,20 +140,7 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
         // Additional cost per unit
         const additionalCostUnit = Number(raw.additionalCost || 0);
 
-        // Subtotal before profit
-        const totalBeforeProfitUnit =
-            frameCostUnit +
-            windowsCostUnit +
-            accessoriesWinDoorUnit +
-            frameAccessoriesUnit +
-            cornersUnit +
-            additionalCostUnit;
-
-        // Profit calculation
-        const profitRate = Number(p.base_profit_rate || 0);
-        const profitAmountUnit = profitRate * totalBeforeProfitUnit;
-        const totalPriceUnit = totalBeforeProfitUnit + profitAmountUnit;
-
+        // Calculate glass cost
         const denomArea = totalAreaUnit > 0 ? totalAreaUnit : 1;
         const originalWidth = Number(raw.width);
         const originalHeight = Number(raw.height);
@@ -170,7 +157,22 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
                 : raw.glassType === "laminated"
                 ? p.glass_price_laminated
                 : p.glass_price_single;
-        const glassCost = glassRateCurtain * areaUnit;
+        const glassCostUnit = glassRateCurtain * areaUnit;
+
+        // Subtotal before profit (including glass cost)
+        const totalBeforeProfitUnit =
+            frameCostUnit +
+            windowsCostUnit +
+            accessoriesWinDoorUnit +
+            frameAccessoriesUnit +
+            cornersUnit +
+            glassCostUnit +
+            additionalCostUnit;
+
+        // Profit calculation
+        const profitRate = Number(p.base_profit_rate || 0);
+        const profitAmountUnit = profitRate * totalBeforeProfitUnit;
+        const totalPriceUnit = totalBeforeProfitUnit + profitAmountUnit;
 
         return {
             ...raw,
@@ -209,7 +211,7 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
             sachPerimeter: 0,
             totalSachLength: 0,
             sachCost: 0,
-            glassCost: +glassCost.toFixed(2),
+            glassCost: +(glassCostUnit * qty).toFixed(2),
             accessories: 0,
         };
     }

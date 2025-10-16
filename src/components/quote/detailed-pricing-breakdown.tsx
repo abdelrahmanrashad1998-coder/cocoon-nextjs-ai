@@ -503,6 +503,31 @@ export function DetailedPricingBreakdown({
                                     {formatCurrency(pricing.cornersCost)}
                                 </TableCell>
                             </TableRow>
+                            <TableRow>
+                                <TableCell>Glass Cost</TableCell>
+                                <TableCell className="text-right">
+                                    {pricing.totalArea?.toFixed(2)}m² × EGP {(() => {
+                                        const glassType = item.glassType?.toLowerCase() || "single";
+                                        const glassRate = glassType === "double" 
+                                            ? item.profile?.glass_price_double 
+                                            : glassType === "triple" 
+                                            ? item.profile?.glass_price_triple 
+                                            : glassType === "laminated" 
+                                            ? item.profile?.glass_price_laminated 
+                                            : item.profile?.glass_price_single;
+                                        return glassRate?.toLocaleString() || '0';
+                                    })()}/m²
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    EGP {((pricing.glassCost / item.quantity) / (pricing.totalArea || 1)).toFixed(0)}/m²
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {pricing.totalArea?.toFixed(2)}m²
+                                </TableCell>
+                                <TableCell className="text-right font-medium">
+                                    {formatCurrency(pricing.glassCost)}
+                                </TableCell>
+                            </TableRow>
                             {pricing.additionalCostTotal > 0 && (
                                 <TableRow>
                                     <TableCell>Additional Cost</TableCell>
