@@ -1776,58 +1776,6 @@ export function QuoteItemEditor({
                                         <Label className="text-sm font-medium">
                                             Curtain Wall Design
                                         </Label>
-                                        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label
-                                                    htmlFor={`wallWidth-${item.id}`}
-                                                >
-                                                    Wall Width (m)
-                                                </Label>
-                                                <Input
-                                                    id={`wallWidth-${item.id}`}
-                                                    type="number"
-                                                    step="0.1"
-                                                    value={
-                                                        item.width || 0
-                                                    }
-                                                    onChange={(e) =>
-                                                        handleNestedUpdate(
-                                                            "designData",
-                                                            "wallWidth",
-                                                            parseFloat(
-                                                                e.target.value
-                                                            ) || 0
-                                                        )
-                                                    }
-                                                    placeholder="Wall Width"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label
-                                                    htmlFor={`wallHeight-${item.id}`}
-                                                >
-                                                    Wall Height (m)
-                                                </Label>
-                                                <Input
-                                                    id={`wallHeight-${item.id}`}
-                                                    type="number"
-                                                    step="0.1"
-                                                    value={
-                                                        item.height || 0
-                                                    }
-                                                    onChange={(e) =>
-                                                        handleNestedUpdate(
-                                                            "designData",
-                                                            "wallHeight",
-                                                            parseFloat(
-                                                                e.target.value
-                                                            ) || 0
-                                                        )
-                                                    }
-                                                    placeholder="Wall Height"
-                                                />
-                                            </div>
-                                        </div> */}
 
                                         {/* Curtain Wall Designer */}
                                         {(item.width || 0) > 0 &&

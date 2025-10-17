@@ -166,7 +166,8 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
         const calcWidth = originalWidth < 1 ? 1 : originalWidth;
         const calcHeight = originalHeight < 1 ? 1 : originalHeight;
 
-        const areaUnit = calcWidth * calcHeight;
+        // Use the calculated glass area from design data if available, otherwise fall back to basic dimensions
+        const areaUnit = glassArea > 0 ? glassArea : (calcWidth * calcHeight);
         const glassRateCurtain =
             raw.glassType === "double"
                 ? p.glass_price_double
