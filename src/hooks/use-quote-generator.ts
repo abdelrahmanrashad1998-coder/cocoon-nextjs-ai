@@ -990,7 +990,8 @@ export const useQuoteGenerator = () => {
               }
               
               .company-info {
-                text-align: left;
+                text-align: center;
+                vertical-align: middle;
               }
               
               .company-name {
@@ -1081,6 +1082,11 @@ export const useQuoteGenerator = () => {
               
               .items-table thead {
                 background: #A72036;
+                height: 50px;
+              }
+              
+              .items-table thead tr {
+                height: 50px;
               }
               
               .items-table th {
@@ -1088,16 +1094,21 @@ export const useQuoteGenerator = () => {
                 color: white;
                 font-weight: 600;
                 font-size: 12px;
-                text-align: left;
+                text-align: center;
+                vertical-align: middle;
                 letter-spacing: 0.5px;
                 text-transform: uppercase;
+                line-height: 1.2;
+                display: table-cell;
+                height: auto;
               }
               
               .items-table td {
-                padding: 12px;
+                padding: 16px 12px;
                 border-bottom: 1px solid #e2e8f0;
                 vertical-align: middle;
                 font-size: 13px;
+                text-align: center;
               }
               
               .items-table tbody tr:hover {
@@ -1118,22 +1129,32 @@ export const useQuoteGenerator = () => {
                 color: #64748b;
               }
               
+              .specs-wrapper {
+                display: block;
+                text-align: center;
+                padding: 8px 0;
+              }
+              
               .specs-container {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 4px;
                 max-width: 200px;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
               }
               
               .spec-tag {
                 display: inline-block;
-                padding: 2px 8px;
+                padding: 8px 8px;
                 border-radius: 6px;
                 font-size: 10px;
                 font-weight: 500;
                 text-align: center;
-                line-height: 1.2;
+                line-height: 1.4;
                 border: 1px solid transparent;
+                vertical-align: middle;
               }
               
               .glass-double {
@@ -1159,11 +1180,41 @@ export const useQuoteGenerator = () => {
               .system-badge {
                 background: #8b5cf6;
                 color: white;
-                padding: 4px 8px;
+                padding: 8px 8px;
                 border-radius: 6px;
                 font-weight: 500;
                 font-size: 11px;
                 text-align: center;
+                margin: 0 auto;
+                display: block;
+                max-width: 100%;
+                line-height: 1.4;
+              }
+              
+              .system-container {
+                display: block;
+                text-align: center;
+                padding: 8px 0;
+              }
+              
+              .profile-banner {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 10px 12px;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 10px;
+                text-align: center;
+                margin: 0 auto 6px auto;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100%;
+                display: block;
+                line-height: 1.4;
               }
               
               .price-value {
@@ -1557,10 +1608,17 @@ export const useQuoteGenerator = () => {
                           )}</td>
                           <td class="dimension-value">${item.quantity}</td>
                           <td class="dimension-value">${area}</td>
-                          <td><div class="specs-container">${specs}</div></td>
-                          <td><div class="system-badge">${
-                              item.system
-                          }</div></td>
+                          <td style="text-align: center; vertical-align: middle;"><div class="specs-wrapper"><div class="specs-container">${specs}</div></div></td>
+                          <td style="text-align: center; vertical-align: middle;">
+                            <div class="system-container">
+                              <div class="profile-banner">${
+                                item.profile ? item.profile.name : 'No Profile'
+                              }</div>
+                              <div class="system-badge">${
+                                item.system
+                              }</div>
+                            </div>
+                          </td>
                           ${
                               quoteData.settings.pricingType === "detailed"
                                   ? `<td class="price-value">${itemPrice.toLocaleString()} EGP</td>`
@@ -1817,7 +1875,8 @@ export const useQuoteGenerator = () => {
               }
               
               .company-info {
-                text-align: left;
+                text-align: center;
+                vertical-align: middle;
               }
               
               .company-name {
@@ -1908,6 +1967,11 @@ export const useQuoteGenerator = () => {
               
               .items-table thead {
                 background: #A72036;
+                height: 50px;
+              }
+              
+              .items-table thead tr {
+                height: 50px;
               }
               
               .items-table th {
@@ -1915,16 +1979,21 @@ export const useQuoteGenerator = () => {
                 color: white;
                 font-weight: 600;
                 font-size: 12px;
-                text-align: left;
+                text-align: center;
+                vertical-align: middle;
                 letter-spacing: 0.5px;
                 text-transform: uppercase;
+                line-height: 1.2;
+                display: table-cell;
+                height: auto;
               }
               
               .items-table td {
-                padding: 12px;
+                padding: 16px 12px;
                 border-bottom: 1px solid #e2e8f0;
                 vertical-align: middle;
                 font-size: 13px;
+                text-align: center;
               }
               
               .items-table tbody tr:hover {
@@ -1945,22 +2014,32 @@ export const useQuoteGenerator = () => {
                 color: #64748b;
               }
               
+              .specs-wrapper {
+                display: block;
+                text-align: center;
+                padding: 8px 0;
+              }
+              
               .specs-container {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 4px;
                 max-width: 200px;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
               }
               
               .spec-tag {
                 display: inline-block;
-                padding: 2px 8px;
+                padding: 4px 8px;
                 border-radius: 6px;
                 font-size: 10px;
                 font-weight: 500;
                 text-align: center;
                 line-height: 1.2;
                 border: 1px solid transparent;
+                vertical-align: middle;
               }
               
               .glass-double {
@@ -1986,11 +2065,41 @@ export const useQuoteGenerator = () => {
               .system-badge {
                 background: #8b5cf6;
                 color: white;
-                padding: 4px 8px;
+                padding: 8px 8px;
                 border-radius: 6px;
                 font-weight: 500;
                 font-size: 11px;
                 text-align: center;
+                margin: 0 auto;
+                display: block;
+                max-width: 100%;
+                line-height: 1.4;
+              }
+              
+              .system-container {
+                display: block;
+                text-align: center;
+                padding: 8px 0;
+              }
+              
+              .profile-banner {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 10px 12px;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 10px;
+                text-align: center;
+                margin: 0 auto 6px auto;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100%;
+                display: block;
+                line-height: 1.4;
               }
               
               .price-value {
@@ -2384,10 +2493,17 @@ export const useQuoteGenerator = () => {
                           )}</td>
                           <td class="dimension-value">${item.quantity}</td>
                           <td class="dimension-value">${area}</td>
-                          <td><div class="specs-container">${specs}</div></td>
-                          <td><div class="system-badge">${
-                              item.system
-                          }</div></td>
+                          <td style="text-align: center; vertical-align: middle;"><div class="specs-wrapper"><div class="specs-container">${specs}</div></div></td>
+                          <td style="text-align: center; vertical-align: middle;">
+                            <div class="system-container">
+                              <div class="profile-banner">${
+                                item.profile ? item.profile.name : 'No Profile'
+                              }</div>
+                              <div class="system-badge">${
+                                item.system
+                              }</div>
+                            </div>
+                          </td>
                           ${
                               quoteData.settings.pricingType === "detailed"
                                   ? `<td class="price-value">${itemPrice.toLocaleString()} EGP</td>`

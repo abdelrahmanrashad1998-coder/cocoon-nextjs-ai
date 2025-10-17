@@ -350,6 +350,8 @@ export default function ProfileManager({
                 // Glass prices
                 glass_price_single: createForm.glass_price_single || 0,
                 glass_price_double: createForm.glass_price_double || 0,
+                glass_price_triple: createForm.glass_price_triple || 0,
+                glass_price_laminated: createForm.glass_price_laminated || 0,
 
                 // Legacy fields for backward compatibility
                 weight_6m: createForm.weight_6m || 0,
@@ -528,6 +530,8 @@ export default function ProfileManager({
                 "base_profit_rate",
                 "glass_price_single",
                 "glass_price_double",
+                "glass_price_triple",
+                "glass_price_laminated",
             ],
             ...profiles.map((profile) => [
                 profile.code,
@@ -555,6 +559,8 @@ export default function ProfileManager({
                 profile.base_profit_rate,
                 profile.glass_price_single,
                 profile.glass_price_double,
+                profile.glass_price_triple,
+                profile.glass_price_laminated,
             ]),
         ]
             .map((row) => row.join(","))
@@ -571,12 +577,12 @@ export default function ProfileManager({
 
     // Download sample CSV template
     const downloadSampleCSV = () => {
-        const sampleData = `profile_code,brand,profile_name,kg_price,frame_weight_2_4_sach,frame_price,frame_weight_3_sach,frame_price_3,sach_weight,sach_price,mosquito_weight,mosquito_price_fixed,mosquito_price_plisse,net_price_panda,arc_trave_weight,arc_price,accessories_2_sach,accessories_3_sach,accessories_4_sach,system,max_h,max_w,base_profit_rate,glass_price_single,glass_price_double
-AL001,Cocoon,Standard Sliding Window,15.50,25.00,64.58,30.00,193.75,20.00,50.00,15.00,200.00,250.00,300.00,10.00,150.00,50.00,75.00,100.00,sliding,2.5,1.5,30,120.00,180.00
-AL002,Cocoon,Premium Hinged Door,18.00,30.00,90.00,35.00,270.00,25.00,60.00,18.00,250.00,300.00,350.00,12.00,200.00,60.00,90.00,120.00,hinged,3.0,2.0,35,150.00,220.00
-AL003,Cocoon,Curtain Wall System,20.00,35.00,116.67,40.00,350.00,30.00,70.00,20.00,300.00,350.00,400.00,15.00,250.00,80.00,120.00,160.00,curtain_wall,4.0,3.0,40,200.00,300.00
-AL004,Alumil,Classic Window Series,16.00,22.00,58.67,28.00,176.00,18.00,45.00,16.00,180.00,220.00,280.00,8.00,120.00,55.00,85.00,110.00,sliding,2.0,1.2,32,100.00,160.00
-AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00,220.00,280.00,320.00,11.00,180.00,65.00,100.00,130.00,hinged,2.8,1.8,38`;
+        const sampleData = `profile_code,brand,profile_name,kg_price,frame_weight_2_4_sach,frame_price,frame_weight_3_sach,frame_price_3,sach_weight,sach_price,mosquito_weight,mosquito_price_fixed,mosquito_price_plisse,net_price_panda,arc_trave_weight,arc_price,accessories_2_sach,accessories_3_sach,accessories_4_sach,system,max_h,max_w,base_profit_rate,glass_price_single,glass_price_double,glass_price_triple,glass_price_laminated
+AL001,Cocoon,Standard Sliding Window,15.50,25.00,64.58,30.00,193.75,20.00,50.00,15.00,200.00,250.00,300.00,10.00,150.00,50.00,75.00,100.00,sliding,2.5,1.5,30,120.00,180.00,240.00,200.00
+AL002,Cocoon,Premium Hinged Door,18.00,30.00,90.00,35.00,270.00,25.00,60.00,18.00,250.00,300.00,350.00,12.00,200.00,60.00,90.00,120.00,hinged,3.0,2.0,35,150.00,220.00,300.00,250.00
+AL003,Cocoon,Curtain Wall System,20.00,35.00,116.67,40.00,350.00,30.00,70.00,20.00,300.00,350.00,400.00,15.00,250.00,80.00,120.00,160.00,curtain_wall,4.0,3.0,40,200.00,300.00,400.00,350.00
+AL004,Alumil,Classic Window Series,16.00,22.00,58.67,28.00,176.00,18.00,45.00,16.00,180.00,220.00,280.00,8.00,120.00,55.00,85.00,110.00,sliding,2.0,1.2,32,100.00,160.00,220.00,180.00
+AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00,220.00,280.00,320.00,11.00,180.00,65.00,100.00,130.00,hinged,2.8,1.8,38,180.00,260.00,340.00,300.00`;
 
         const blob = new Blob([sampleData], { type: "text/csv" });
         const url = window.URL.createObjectURL(blob);
@@ -813,6 +819,8 @@ AL005,Alumil,Modern Door System,19.00,28.00,88.67,32.00,266.00,22.00,55.00,19.00
                             // Legacy fields for backward compatibility
                             glass_price_single: newProfile.glass_price_single,
                             glass_price_double: newProfile.glass_price_double,
+                            glass_price_triple: newProfile.glass_price_triple,
+                            glass_price_laminated: newProfile.glass_price_laminated,
                             weight_6m: newProfile.weight_6m,
                             frame_meters_input: newProfile.frame_meters_input,
                             windows_meters_input:
