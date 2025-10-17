@@ -68,19 +68,32 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
           };
 
     // -------------------------
-    // CURTAIN WALL: NEW LOGIC
+    // CURTAIN WALL & SKY LIGHT: NEW LOGIC
     // -------------------------
-    if (raw.type === "curtain_wall") {
+    if (raw.type === "curtain_wall" || raw.type === "sky_light") {
         // safe numeric extraction (fallbacks)
-        const frameMeters = Number(
+        let frameMeters = Number(
             raw.frameMeters || raw.designData?.frameMeters || 0
         );
-        const windowMeters = Number(
+        let windowMeters = Number(
             raw.windowMeters || raw.designData?.windowMeters || 0
         );
-        const glassArea = Number(
+        let glassArea = Number(
             raw.glassArea || raw.designData?.glassArea || 0
         );
+
+        // For sky_light items without designData, use basic dimensions
+        if (raw.type === "sky_light" && !raw.designData) {
+            // Use basic width/height for sky light calculations
+            const skyLightWidth = Number(raw.width) || 1;
+            const skyLightHeight = Number(raw.height) || 1;
+            const skyLightArea = skyLightWidth * skyLightHeight;
+            
+            // Set basic values for sky light
+            frameMeters = 2 * (skyLightWidth + skyLightHeight);
+            windowMeters = frameMeters; // Same as frame for sky light
+            glassArea = skyLightArea;
+        }
 
         // panels array -> count windows & doors safely
         const panels = Array.isArray(raw.designData?.panels)
@@ -94,9 +107,14 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
         const numDoors = panels.filter(
             (pl: any) => String(pl?.type).toLowerCase() === "door"
         ).length;
-        const cornerCount = Number(
+        let cornerCount = Number(
             raw.designData?.cornerCount || raw.cornerCount || 0
         );
+
+        // For sky_light items without designData, set basic corner count
+        if (raw.type === "sky_light" && !raw.designData) {
+            cornerCount = 4; // Standard 4 corners for rectangle
+        }
 
         // NEW: Calculate total area by summing each panel's area
         let totalPanelArea = 0;

@@ -69,7 +69,7 @@ export function QuoteItemEditor({
     const [showColorManager, setShowColorManager] = useState(false);
     const [svgContent, setSvgContent] = useState<string>("");
 
-    const isCurtainWall = item.type === "curtain_wall";
+    const isCurtainWall = item.type === "curtain_wall" || item.type === "sky_light";
 
     const handleUpdate = (
         field: keyof QuoteItem,
@@ -212,7 +212,7 @@ export function QuoteItemEditor({
         newType: "window" | "door" | "sky_light" | "curtain_wall"
     ) => {
         const newSystem =
-            newType === "curtain_wall" ? "Curtain Wall" : "Sliding";
+            newType === "curtain_wall" || newType === "sky_light" ? "Curtain Wall" : "Sliding";
         onUpdate({
             ...item,
             type: newType,
@@ -223,7 +223,7 @@ export function QuoteItemEditor({
     const generateItemSvg = () => {
         let svgContent = "";
 
-        if (item.type === "curtain_wall") {
+        if (item.type === "curtain_wall" || item.type === "sky_light") {
             // For curtain wall, use the existing logic from ItemSvgGenerator
             if (item.designData?.panels) {
                 const { panels } = item.designData;
@@ -414,6 +414,29 @@ export function QuoteItemEditor({
                 }" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#666" transform="rotate(-90, ${
                     offsetX - 5
                 }, ${offsetY + scaledWallHeight / 2})">${wallHeight}m</text>`;
+
+                svgContent = `<svg width="300" height="200" viewBox="0 0 300 200">${svgElements}</svg>`;
+            } else if (item.type === "sky_light") {
+                // For sky_light without designData, create a simple rectangular representation
+                const skyLightWidth = item.width || 1;
+                const skyLightHeight = item.height || 1;
+                const scale = Math.min(300 / skyLightWidth, 200 / skyLightHeight) * 0.8;
+                const scaledWidth = skyLightWidth * scale;
+                const scaledHeight = skyLightHeight * scale;
+                const offsetX = (300 - scaledWidth) / 2;
+                const offsetY = (200 - scaledHeight) / 2;
+
+                let svgElements = "";
+                // Draw sky light frame
+                svgElements += `<rect x="${offsetX}" y="${offsetY}" width="${scaledWidth}" height="${scaledHeight}" fill="none" stroke="#374151" stroke-width="3"/>`;
+                // Draw glass area
+                const glassInset = 8;
+                svgElements += `<rect x="${offsetX + glassInset}" y="${offsetY + glassInset}" width="${scaledWidth - glassInset * 2}" height="${scaledHeight - glassInset * 2}" fill="#87CEEB" stroke="#666" stroke-width="1" opacity="0.7"/>`;
+                // Add "Sky Light" label
+                svgElements += `<text x="${offsetX + scaledWidth / 2}" y="${offsetY + scaledHeight / 2}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#374151" font-weight="bold">Sky Light</text>`;
+                // Add dimensions
+                svgElements += `<text x="${offsetX + scaledWidth / 2}" y="${offsetY - 5}" text-anchor="middle" font-size="10" fill="#666">${skyLightWidth}m</text>`;
+                svgElements += `<text x="${offsetX - 5}" y="${offsetY + scaledHeight / 2}" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="#666" transform="rotate(-90, ${offsetX - 5}, ${offsetY + scaledHeight / 2})">${skyLightHeight}m</text>`;
 
                 svgContent = `<svg width="300" height="200" viewBox="0 0 300 200">${svgElements}</svg>`;
             }
@@ -617,7 +640,7 @@ export function QuoteItemEditor({
         const pricing = calculateItemPricing(item);
         const formatCurrency = (amount: number) =>
             `EGP ${amount.toLocaleString()}`;
-        const isCurtainWall = item.type === "curtain_wall";
+        const isCurtainWall = item.type === "curtain_wall" || item.type === "sky_light";
 
         if (isCurtainWall) {
             return (
@@ -1809,7 +1832,7 @@ export function QuoteItemEditor({
                                         {/* Curtain Wall Designer */}
                                         {(item.width || 0) > 0 &&
                                             (item.height || 0) > 0 &&
-                                            item.type === "curtain_wall" && (
+                                            (item.type === "curtain_wall" || item.type === "sky_light") && (
                                                 <div className="mt-6">
                                                     <CurtainWallDesigner
                                                         initGlassType={

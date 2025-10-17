@@ -637,7 +637,7 @@ export function DetailedPricingBreakdown({
             {items.map((item, index) => {
                 const pricing = calculateItemPricing(item);
                 const isExpanded = expandedItems.has(item.id);
-                const isCurtainWall = item.type === "curtain_wall";
+                const isCurtainWall = item.type === "curtain_wall" || item.type === "sky_light";
 
                 return (
                     <Card
