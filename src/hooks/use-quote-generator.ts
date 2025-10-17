@@ -918,41 +918,41 @@ export const useQuoteGenerator = () => {
                 };
 
                 if (type === "pdf") {
-                    const printWindow = window.open(
-                        "",
-                        "_blank",
-                        "width=1200,height=1000"
-                    );
-                    if (!printWindow) {
-                        throw new Error(
-                            "Unable to open print window. Please allow popups for this site."
-                        );
-                    }
+                    // Create a completely isolated iframe for PDF generation
+                    const iframe = document.createElement('iframe');
+                    iframe.style.position = 'absolute';
+                    iframe.style.left = '-9999px';
+                    iframe.style.top = '-9999px';
+                    iframe.style.width = '1200px';
+                    iframe.style.height = '1000px';
+                    iframe.style.border = 'none';
+                    document.body.appendChild(iframe);
 
                     const htmlContent = `
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8" />
-            <title>Cocoon Company For Aluminum Works - Quotation</title>
-            <link
-              href="https://db.onlinewebfonts.com/c/28c0ba929947563500b21da15a88c6fe?family=TacticSans-Reg"
-              rel="stylesheet"
-            />
-            <style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cocoon Company For Aluminum Works - Quotation</title>
+    <link href="https://db.onlinewebfonts.com/c/28c0ba929947563500b21da15a88c6fe?family=TacticSans-Reg" rel="stylesheet">
+    <style>
+              /* Complete CSS reset and standalone styles for PDF */
               * {
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
-                font-family: "TacticSans-Reg", sans-serif;
+                font-family: "TacticSans-Reg", Arial, sans-serif;
               }
               
-              body {
-                font-family: "TacticSans-Reg", sans-serif;
+              html, body {
+                font-family: "TacticSans-Reg", Arial, sans-serif;
                 line-height: 1.6;
                 color: #1a202c;
                 background: #ffffff;
                 font-size: 14px;
+                margin: 0;
+                padding: 0;
               }
               
               .container {
@@ -1681,23 +1681,78 @@ export const useQuoteGenerator = () => {
                   }
                 });
 
-                // Auto-print after content loads
-                
               });
             </script>
-          </body>
-          </html>
+        </body>
+        </html>
         `;
 
-                    printWindow.document.write(htmlContent);
-                    printWindow.document.close();
+                    // Write content to iframe
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                    if (iframeDoc) {
+                        iframeDoc.open();
+                        iframeDoc.write(htmlContent);
+                        iframeDoc.close();
+                    }
 
-                    printWindow.onload = () => {
-                        setTimeout(() => {
-                            printWindow.print();
-                            console.log("Professional PDF export completed");
-                        }, 500);
-                    };
+                    // Wait for content to load, then generate PDF
+                    setTimeout(async () => {
+                        try {
+                            // Import jsPDF and html2canvas directly
+                            const { default: jsPDF } = await import('jspdf');
+                            const html2canvas = (await import('html2canvas')).default;
+                            
+                            // Get the iframe body element
+                            const iframeBody = iframe.contentDocument?.body;
+                            if (!iframeBody) {
+                                throw new Error('Could not access iframe content');
+                            }
+                            
+                            // Generate canvas from HTML
+                            const canvas = await html2canvas(iframeBody, {
+                                scale: 2,
+                                useCORS: true,
+                                allowTaint: true,
+                                backgroundColor: '#ffffff',
+                                logging: false,
+                                width: 1200,
+                                height: iframeBody.scrollHeight
+                            });
+                            
+                            // Create PDF
+                            const pdf = new jsPDF('p', 'mm', 'a4');
+                            const imgWidth = 210; // A4 width in mm
+                            const pageHeight = 295; // A4 height in mm
+                            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                            let heightLeft = imgHeight;
+                            
+                            let position = 0;
+                            
+                            // Add image to PDF
+                            pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
+                            heightLeft -= pageHeight;
+                            
+                            // Add additional pages if needed
+                            while (heightLeft >= 0) {
+                                position = heightLeft - imgHeight;
+                                pdf.addPage();
+                                pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
+                                heightLeft -= pageHeight;
+                            }
+                            
+                            // Save PDF
+                            const filename = `Quote_${quoteData.name.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+                            pdf.save(filename);
+                            
+                            // Clean up
+                            document.body.removeChild(iframe);
+                            
+                            console.log("Professional PDF export completed and downloaded");
+                        } catch (error) {
+                            console.error("Error generating PDF:", error);
+                            document.body.removeChild(iframe);
+                        }
+                    }, 1000);
                 } else if (type === "print") {
                     // Simplified print version
                     const printWindow = window.open("", "_blank");
