@@ -231,10 +231,17 @@ export function calculateItemPricing(item: QuoteItem): PricedItem {
     const sachPerimeter = 2 * (calcWidth / leaves + calcHeight);
     const totalSachLengthUnit = sachPerimeter * leaves;
 
+    // Accessories calculation - different logic for Tilt and Turn vs other systems
     let accessoriesUnit = 0;
-    if (leaves === 2) accessoriesUnit = p.accessories_2_leaves;
-    else if (leaves === 3) accessoriesUnit = p.accessories_3_leaves;
-    else if (leaves === 4) accessoriesUnit = p.accessories_4_leaves;
+    if (raw.system === "Tilt and Turn") {
+        // For Tilt and Turn: EGP 3,000 per sach (replaces regular accessories)
+        accessoriesUnit = leaves * 3000;
+    } else {
+        // For Sliding, hinged, fixed: use regular accessories calculation
+        if (leaves === 2) accessoriesUnit = p.accessories_2_leaves;
+        else if (leaves === 3) accessoriesUnit = p.accessories_3_leaves;
+        else if (leaves === 4) accessoriesUnit = p.accessories_4_leaves;
+    }
 
     const selectedFramePrice = leaves === 3 ? p.frame_price_3 : p.frame_price;
     const frameCostUnit = selectedFramePrice * frameLengthUnit;

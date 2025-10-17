@@ -13,7 +13,7 @@ export interface ColorOption {
 export interface QuoteItem {
     id: string;
     type: "window" | "door" | "sky_light" | "curtain_wall";
-    system: "Sliding" | "hinged" | "fixed" | "Curtain Wall";
+    system: "Sliding" | "hinged" | "fixed" | "Tilt and Turn" | "Curtain Wall";
     width: number;
     height: number;
     leaves: number;

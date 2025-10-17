@@ -207,12 +207,22 @@ export function DetailedPricingBreakdown({
                                 <TableRow>
                                     <TableCell>Accessories</TableCell>
                                     <TableCell className="text-right">
-                                        {formatCurrency(
-                                            pricing.accessories / item.quantity
-                                        )}
+                                        {item.system === "Tilt and Turn" 
+                                            ? `${item.leaves} × EGP 3,000`
+                                            : formatCurrency(pricing.accessories / item.quantity)
+                                        }
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        {item.quantity}
+                                        {item.system === "Tilt and Turn" 
+                                            ? `${formatCurrency(3000)} per sach`
+                                            : item.quantity
+                                        }
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {item.system === "Tilt and Turn" 
+                                            ? item.leaves
+                                            : item.quantity
+                                        }
                                     </TableCell>
                                     <TableCell className="text-right font-medium">
                                         {formatCurrency(pricing.accessories)}

@@ -174,6 +174,7 @@ export function QuoteItemEditor({
             Sliding: "sliding",
             hinged: "hinged",
             fixed: "fixed",
+            "Tilt and Turn": "tilt_and_turn",
             curtain_wall: "curtain wall", // Added Curtain Wall mapping
         };
         if (system === "Curtain Wall") system = "curtain_wall";
@@ -558,6 +559,38 @@ export function QuoteItemEditor({
                                   stroke="#FFD700" stroke-width="3" fill="none"/>`;
                         }
                     }
+                }
+            } else if (system === "Tilt and Turn") {
+                // Draw tilt and turn system - similar to hinged but with special handles
+                const sashHeight = scaledHeight / leaves;
+                const sashInset = 4;
+
+                for (let i = 0; i < leaves; i++) {
+                    const sashY = offsetY + i * sashHeight;
+                    const sashPanelHeight = sashHeight - sashInset;
+
+                    // Draw sash panel
+                    svgElements += `<rect x="${offsetX + sashInset / 2}" y="${sashY + sashInset / 2}" width="${scaledWidth - sashInset}" height="${sashPanelHeight}" fill="none" stroke="#666" stroke-width="2" rx="2"/>`;
+
+                    // Draw glass area
+                    const glassInsetSash = 8;
+                    svgElements += `<rect x="${offsetX + sashInset / 2 + glassInsetSash}" y="${sashY + sashInset / 2 + glassInsetSash}" width="${scaledWidth - sashInset - glassInsetSash * 2}" height="${sashPanelHeight - glassInsetSash * 2}" fill="#87CEEB" stroke="#666" stroke-width="1" opacity="0.7"/>`;
+
+                    // Draw tilt and turn handles (special handles)
+                    const handleY = sashY + sashPanelHeight / 2;
+                    const handleSize = 6;
+                    const leftHandleX = offsetX + scaledWidth * 0.2;
+                    const rightHandleX = offsetX + scaledWidth * 0.8;
+
+                    // Tilt handle (left side) - horizontal line
+                    svgElements += `<line x1="${leftHandleX - handleSize}" y1="${handleY}" x2="${leftHandleX + handleSize}" y2="${handleY}" stroke="#FF6B35" stroke-width="3"/>`;
+                    
+                    // Turn handle (right side) - vertical line
+                    svgElements += `<line x1="${rightHandleX}" y1="${handleY - handleSize}" x2="${rightHandleX}" y2="${handleY + handleSize}" stroke="#FF6B35" stroke-width="3"/>`;
+
+                    // Draw hinges
+                    const hingeY = sashY + sashHeight / 2;
+                    svgElements += `<circle cx="${offsetX}" cy="${hingeY}" r="3" fill="#666"/><circle cx="${offsetX + scaledWidth}" cy="${hingeY}" r="3" fill="#666"/>`;
                 }
             } else if (system === "fixed") {
                 svgElements += `<text x="${offsetX + scaledWidth / 2}" y="${
@@ -1162,36 +1195,32 @@ export function QuoteItemEditor({
                                     <TableRow>
                                         <TableCell>Accessories</TableCell>
                                         <TableCell className="text-right text-sm text-muted-foreground">
-                                            {item.leaves} sach ×{" "}
-                                            {formatCurrency(
-                                                item.leaves === 2
-                                                    ? item.profile
-                                                          ?.accessories_2_leaves ||
-                                                          0
-                                                    : item.leaves === 3
-                                                    ? item.profile
-                                                          ?.accessories_3_leaves ||
-                                                      0
-                                                    : item.leaves === 4
-                                                    ? item.profile
-                                                          ?.accessories_4_leaves ||
-                                                      0
-                                                    : 0
-                                            )}
+                                            {item.system === "Tilt and Turn" 
+                                                ? `${item.leaves} sach × EGP 3,000`
+                                                : `${item.leaves} sach × ${formatCurrency(
+                                                    item.leaves === 2
+                                                        ? item.profile?.accessories_2_leaves || 0
+                                                        : item.leaves === 3
+                                                        ? item.profile?.accessories_3_leaves || 0
+                                                        : item.leaves === 4
+                                                        ? item.profile?.accessories_4_leaves || 0
+                                                        : 0
+                                                )}`
+                                            }
                                         </TableCell>
                                         <TableCell className="text-right">
                                             {formatCurrency(
-                                                pricing.accessories /
-                                                    item.quantity
+                                                pricing.accessories / item.quantity
                                             )}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            {item.quantity}
+                                            {item.system === "Tilt and Turn" 
+                                                ? item.leaves
+                                                : item.quantity
+                                            }
                                         </TableCell>
                                         <TableCell className="text-right font-medium">
-                                            {formatCurrency(
-                                                pricing.accessories
-                                            )}
+                                            {formatCurrency(pricing.accessories)}
                                         </TableCell>
                                     </TableRow>
                                 )}
@@ -1449,6 +1478,11 @@ export function QuoteItemEditor({
                                             <SelectItem value="fixed">
                                                 Fixed
                                             </SelectItem>
+                                            {(item.type === "window" || item.type === "door") && (
+                                                <SelectItem value="Tilt and Turn">
+                                                    Tilt and Turn
+                                                </SelectItem>
+                                            )}
                                             <SelectItem
                                                 value="Curtain Wall"
                                                 className="hidden"
